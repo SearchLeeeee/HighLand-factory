@@ -2,6 +2,17 @@
 
 All notable changes to HighLand-factory are documented here. Format: Keep a Changelog; versioning: SemVer.
 
+## [Unreleased]
+
+### Added
+- **AI-guided quickstart** (`prompts/quickstart.md`): a self-contained bootstrap prompt the user hands to an agent. It makes the agent read the factory docs, install the engine, conduct the P0 interview one decision at a time, dry-run then apply `init`/`adopt`, repair gates, record the baseline and hand off the next step.
+- **README full-workflow walkthrough**: end-to-end example from requirement intake to long-term wiki authority switch, with Mermaid diagrams for the quickstart path, the two workflow lanes, the full Feature sequence, the lifecycle state machine and the quick-change escalation path.
+
+### Changed
+- README quick start now points at `prompts/quickstart.md`; the manual CLI path moved to a fallback subsection.
+- README repository structure and documentation index list `prompts/`; minimal example points at the prompt file.
+- The leakage guard now also scans `prompts/`, so bootstrap prompts cannot become a project-fact backdoor.
+
 ## [0.1.0] - 2026-10-22
 
 First usable version: greenfield init + split-mode adopt, core feature lifecycle, machine gates, doctor/upgrade, installer and CI guards.

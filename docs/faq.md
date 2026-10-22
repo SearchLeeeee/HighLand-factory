@@ -1,5 +1,9 @@
 # FAQ
 
+## What is the fastest way to start?
+
+Clone the factory, then give your agent [`prompts/quickstart.md`](../prompts/quickstart.md) and say "read this file and walk me through setting up a work repo". The agent installs the engine, runs the P0 interview one decision at a time, dry-runs `init`/`adopt`, repairs gates and hands off the next step. The manual CLI path (`install` → `factory init` → `factory doctor`) still works and is documented in the README fallback subsection.
+
 ## Why one work repo with `code/` and `wiki/`?
 
 Because two folders are the smallest contract that lets every skill use relative paths without token rendering. If code and docs need different visibility or already live in separate repositories, use `repo.mode: split` — the work repo tracks the wiki and points at an external code repo. `mono` is the default; `split` is first-class, not a hack.

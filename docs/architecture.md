@@ -7,6 +7,7 @@ HighLand-factory (this repo, generic, versioned on GitHub)
   engine/     deterministic CLI: init, adopt, doctor, upgrade, status, resolve, gate
   skills/     agent skills implementing the workflow (no project facts)
   templates/  work-repo skeleton (wiki authority, code-ai, .factory, code/)
+  prompts/    user-facing bootstrap prompts (quickstart: install + guided init)
   install/    link skills into Codex/Claude/DSH/...; create the `factory` shim
   docs/       concepts, init questionnaire, customization, upgrade, FAQ
 
