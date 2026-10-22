@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail if project-specific leakage appears in generic factory assets.
 
-Scanned roots: skills/, engine/, templates/, install/, packs/.
+Scanned roots: skills/, engine/, templates/, install/, packs/, prompts/.
 Private names are kept in an encoded pattern list so they are not spelled out here.
 
 Exit codes: 0 clean, 1 findings, 2 usage error.
@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCANNED_DIRS = ("skills", "engine", "templates", "install", "packs")
+SCANNED_DIRS = ("skills", "engine", "templates", "install", "packs", "prompts")
 TEXT_SUFFIXES = {".md", ".py", ".ps1", ".sh", ".yaml", ".yml", ".json", ".txt", ".tmpl", ".cmd"}
 
 

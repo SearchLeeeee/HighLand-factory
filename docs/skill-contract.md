@@ -132,7 +132,7 @@ Generated files include at least: `wiki/governance/workflow-profile.md`, `wiki/g
 
 ## 8. Forbidden in generic assets
 
-Checked by CI over `skills/`, `engine/`, `templates/`, `install/`:
+Checked by CI over `skills/`, `engine/`, `templates/`, `install/`, `packs/`, `prompts/`:
 
 - private project, workspace, vendor, or model-tier names (the guard keeps a private,
   obfuscated pattern list; this repository does not spell them out)
