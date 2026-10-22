@@ -1,0 +1,32 @@
+# 固定评审 profile 的组合声明；不含 owner 占位符。
+id: "review-agent"
+title: "独立评审 Agent"
+output: "wiki/code-ai/review-agent.md"
+composition_model: "blocks-plus-domain-sections"
+global_blocks:
+  - "_blocks/startup-core.md"
+  - "_blocks/project-safety-boundaries.md"
+  - "_blocks/doc-sync-rule.md"
+  - "_blocks/readme-sync-rule.md"
+  - "_blocks/agent-notes-rule.md"
+  - "_blocks/logging-and-diagnostics.md"
+  - "_blocks/handoff-output.md"
+  - "_blocks/common-definition-of-done.md"
+  - "_blocks/review-gate.md"
+  - "_blocks/review-agent-contract.md"
+  - "_blocks/testing-quality-gate.md"
+  - "_blocks/fixture-governance.md"
+domain_sections:
+  - "positioning-and-independence"
+  - "mandatory-review-triggers"
+  - "input-packet"
+  - "six-step-procedure"
+  - "finding-levels"
+  - "doc-sync-review"
+  - "simplicity-gate"
+  - "re-review-rules"
+  - "output-format"
+  - "project-specific-risk-additions"
+notes: |
+  评审 profile 不参与实现，也不承担提交职责，因此不引用 commit-granularity。
+  评审报告章节由 review-agent-contract 固定；项目补充风险只能加严，不能放宽通用下限。

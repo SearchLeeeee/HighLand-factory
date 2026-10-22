@@ -1,0 +1,47 @@
+# 机器级本地配置与运行状态（不入库）
+.factory/local.yaml
+.factory/state.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Node
+node_modules/
+.next/
+.nuxt/
+.turbo/
+coverage/
+*.tsbuildinfo
+pnpm-debug.log*
+npm-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Obsidian 个人状态（共享配置可入库，个人状态不入库）
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/appearance.json
+.obsidian/cache
+.obsidian/plugins/
+
+# 机密与本地机密文件
+.env
+.env.*
+!.env.example
+*.cred
+*.pem
+*.key
+secrets/

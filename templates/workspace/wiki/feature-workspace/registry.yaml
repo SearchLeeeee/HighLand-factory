@@ -1,0 +1,5 @@
+schema_version: '1.0'
+workspace_status: active
+next_initiative_number: 1
+initiatives: []
+feature_tombstones: []

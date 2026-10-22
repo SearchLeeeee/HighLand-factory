@@ -1,0 +1,175 @@
+# ============================================================================
+# .factory/factory.yaml —— 工作仓库唯一事实源（single source of truth）
+# ----------------------------------------------------------------------------
+# 本文件由 HighLand-factory 生成。约定：
+#   1. 项目身份、owner、命令、门禁、安全和 agent 配置只写在这里；其他文档
+#      （包括 wiki/governance/workflow-profile.md）都是本文件的渲染产物。
+#   2. 机器级路径、解释器、端口和私有环境变量不写在这里，写到
+#      `.factory/local.yaml`（真实仓库中已被 .gitignore 忽略）。
+#   3. 修改本文件后运行 `factory upgrade` 重新生成 workflow-profile，并提交
+#      两者的同一次变更；不要让两者长期不一致。
+#   4. 本文件是注释化模板，删除注释即可使用；不要新增未定义的顶层键。
+# ============================================================================
+schema: 1
+
+# ---------------------------------------------------------------------------
+# factory：生成器元信息。由 factory init/upgrade 写入，正常不手工修改。
+#   version  —— 兼容的 factory 版本范围（不是当前版本号）
+#   template —— 生成时使用的模板标识
+# ---------------------------------------------------------------------------
+factory:
+  version: ">=0.1.0 <0.2.0"
+  template: workspace-v1
+
+# ---------------------------------------------------------------------------
+# project：项目身份。会被渲染进 README、AGENTS.md、CLAUDE.md 和
+# wiki/governance/workflow-profile.md。
+#   language.docs   —— 文档语言（决定 wiki 正文语言）
+#   language.code   —— 代码内注释、命名和提交信息使用的语言
+#   language.commit —— commit message 语言
+#   visibility      —— private | internal | public，决定公开边界说明的强度
+# ---------------------------------------------------------------------------
+project:
+  name: "{{project.name}}"
+  slug: "{{project.slug}}"
+  one_liner: "{{project.one_liner}}"
+  # 技术栈摘要（每项一行，面向人和 agent 的快速识别；不是依赖清单事实源）
+  stack: []
+  language:
+    docs: "{{project.language.docs}}"
+    code: "en"
+    commit: "zh-CN"
+  license: "{{project.license}}"
+  visibility: private
+
+# ---------------------------------------------------------------------------
+# repo：仓库形态与路径契约。
+#   mode            —— mono（代码在 code/）| split（代码在独立仓库）
+#   default_branch  —— 主分支名
+#   code_path       —— 代码根目录，默认 code/
+#   wiki_path       —— 长期文档权威根，默认 wiki/
+#   code_external   —— mono 时为 null；mode=split 时必填，写独立代码仓的相对路径
+#   remote          —— 默认远端名
+#   commit.format   —— conventional（type(scope): subject）| plain
+# ---------------------------------------------------------------------------
+repo:
+  mode: "{{repo.mode}}"
+  default_branch: "{{repo.default_branch}}"
+  code_path: code
+  wiki_path: wiki
+  code_external: null
+  remote: origin
+  commit:
+    format: conventional
+
+# ---------------------------------------------------------------------------
+# owners：代码 owner 责任边界。每个 owner 用稳定 id 标识，paths 是该 owner
+# 负责的相对路径前缀。workflow-profile 的 owner 表由此生成；路径冲突属于
+# 配置错误。默认保留 backend / frontend / testing 三个通用 owner。
+# ---------------------------------------------------------------------------
+owners:
+  - id: backend
+    title: 后端
+    paths:
+      - code/backend
+  - id: frontend
+    title: 前端
+    paths:
+      - code/frontend
+  - id: testing
+    title: 测试工程
+    paths:
+      - code/tests
+      - code/fixtures
+
+# ---------------------------------------------------------------------------
+# commands：可执行命令的事实源。每个键是命令列表（不要写 shell 复合脚本）。
+# 列表为空表示该项目尚未定义该命令；空命令不会被渲染成可执行门禁。
+#   setup / build / lint / typecheck / test / e2e / dev / verify
+# verify 是合并前的最小验证入口，应当是其他命令的确定性组合。
+# ---------------------------------------------------------------------------
+commands:
+  setup: []
+  build: []
+  lint: []
+  typecheck: []
+  test: []
+  e2e: []
+  dev: []
+  verify: []
+
+# ---------------------------------------------------------------------------
+# verification：验证与证据契约。
+#   baseline_evidence —— 基线证据文件路径（init 时生成，之后由项目填写）
+#   evidence_root     —— 证据根目录，必须位于 wiki_path 之内
+#   isolated_env      —— 隔离方式：local（本机隔离 session）| container | remote
+# ---------------------------------------------------------------------------
+verification:
+  baseline_evidence: wiki/validation/init-baseline.md
+  evidence_root: wiki/feature-workspace
+  isolated_env: local
+
+# ---------------------------------------------------------------------------
+# workflow：流程门禁开关。全部为 true 表示使用完整的 Heavy Workflow；
+# 关闭任一项都会削弱对应门禁，必须在 wiki/governance/ 中同步记录原因。
+#   scope_gate.enabled             —— Feature 进入讨论前必须通过 Scope Gate
+#   scope_gate.split_default       —— 9-13 分默认拆分（false 表示默认保留）
+#   quick_change                   —— 允许 Quick Change 轻量通道
+#   review_required                —— 实现完成后必须独立 review
+#   verification_separate          —— 验证必须在独立 session 执行
+#   merge_requires_authorization   —— 合并长期文档需要 owner 显式授权
+#   initiative_integration_required—— Initiative 合并前必须通过集成测试
+#   max_parallel_features          —— 同时进行的 Leaf Feature 上限（正整数）
+# ---------------------------------------------------------------------------
+workflow:
+  scope_gate:
+    enabled: true
+    split_default: true
+  quick_change: true
+  review_required: true
+  verification_separate: true
+  merge_requires_authorization: true
+  initiative_integration_required: true
+  max_parallel_features: 3
+
+# ---------------------------------------------------------------------------
+# security：安全边界事实源。这里使用稳定的 ASCII 标识符，而不是自然语言
+# 描述；自然语言解释写到 wiki/governance/ 的安全文档中。
+#   forbidden_operations —— 任何 agent 都不得执行的操作
+#   sensitive_classes    —— 不得出现在文档、日志和证据中的敏感数据类别
+#   secrets_file         —— 本地机密文件路径（默认被 gitignore）
+# ---------------------------------------------------------------------------
+security:
+  forbidden_operations:
+    - production-write-without-approval
+    - secret-value-in-repo
+    - history-rewrite-on-shared-branch
+    - credential-echo-to-log
+  sensitive_classes:
+    - credentials
+    - personal-data
+    - account-identifiers
+    - internal-endpoints
+  secrets_file: .env
+
+# ---------------------------------------------------------------------------
+# agents：agent 平台与模型选择。
+#   platforms           —— 需要维护入口文件的 agent 平台
+#   review_model        —— 独立 review 使用的模型；inherit 表示沿用当前会话
+#   verification_model  —— 独立验证使用的模型；inherit 表示沿用当前会话
+# ---------------------------------------------------------------------------
+agents:
+  platforms:
+    - dsh
+    - claude
+    - codex
+  review_model: inherit
+  verification_model: inherit
+
+# ---------------------------------------------------------------------------
+# packs：可插拔的工程包。enabled 中的包在 init 时展开为具体约定；
+# disabled 显式记录被否决的包，避免同一提案反复出现。默认不启用任何包。
+# ---------------------------------------------------------------------------
+packs:
+  enabled: [commit]
+  disabled: []

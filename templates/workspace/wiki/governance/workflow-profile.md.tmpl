@@ -1,0 +1,98 @@
+# Workflow Profile
+
+> **由工具生成，禁止手工编辑。**
+> 本文件由 `factory init` / `factory upgrade` 从 `.factory/factory.yaml` 生成。
+> 需要调整时改 `factory.yaml`，再运行 `factory upgrade`；不要直接改本文件。
+> 本文件必须与 `.factory/factory.yaml` 保持同步，两者不一致时以 `factory.yaml` 为准。
+> 生成时间：`{{generated:date}}`。
+
+所有 factory 技能在动手前都会先读本文件（配合 `.factory/local.yaml`），用它确认
+owner、命令、验证要求、流程门禁与安全边界。它是当前仓库的工作契约摘要。
+
+## Project
+
+| 字段 | 值 |
+| --- | --- |
+| 名称 | {{project.name}} |
+| 标识 | `{{project.slug}}` |
+| 定位 | {{project.one_liner}} |
+| 许可证 | {{project.license}} |
+| 仓库形态 | `{{repo.mode}}` |
+| 主分支 | `{{repo.default_branch}}` |
+
+## Language
+
+| 用途 | 语言 |
+| --- | --- |
+| 文档正文 | `{{project.language.docs}}` |
+| 代码内注释与命名 | 以 `.factory/factory.yaml` 的 `project.language.code` 为准 |
+| 提交信息 | 以 `.factory/factory.yaml` 的 `project.language.commit` 为准 |
+
+正文使用文档语言；技术标识符、API、字段名、路径与命令保持 ASCII。
+
+## Layout
+
+| 路径 | 角色 |
+| --- | --- |
+| `code/` | 代码根：全部可执行实现与测试。 |
+| `wiki/` | 长期文档权威根：入口是 `wiki/README.md`。 |
+| `wiki/code-ai/` | 实现类 agent profile 与支撑材料。 |
+| `wiki/feature-workspace/` | Initiative / Leaf Feature 临时工作面，默认隔离。 |
+| `wiki/quick-workspace/` | Quick Change 过程记录，默认隔离。 |
+| `.factory/` | 机器可读控制面：`factory.yaml`、`local.yaml`、`state.json`。 |
+
+`wiki/feature-workspace/` 与 `wiki/quick-workspace/` 不属于默认知识发现路径，只在
+明确授权的 Feature/Quick Change 工作中定向访问。
+
+## Owners
+
+{{generated:workflow_profile_owners}}
+
+owner 责任路径决定「谁有权改哪里」。路径重叠或职责空白属于配置错误，应在
+`factory.yaml` 中修正后重新生成本文件。
+
+## Commands
+
+{{generated:workflow_profile_commands}}
+
+命令为空表示该项目尚未定义该命令。未定义的命令不得在对话中临时发明，也不得据此
+声称验证通过。
+
+## Verification
+
+{{generated:verification_table}}
+
+- 变更前先留存基线证据，变更后再留存对照证据；只写结论不留证据视为未验证。
+- 每条验证记录必须可判定（通过/失败/不适用），并能从 `wiki/validation/README.md`
+  索引到。
+- 需要隔离环境执行时，不得复用带开发状态的会话或端口。
+- 验证必须在与实现分离的 session 中执行，实现者不自我验收。
+
+## Gates
+
+{{generated:workflow_profile_gates}}
+
+门禁的具体含义与例外流程写在 `wiki/governance/` 与 `wiki/00-spec.md`；本小结只
+声明当前开关状态。
+
+## Security
+
+{{generated:workflow_profile_security}}
+
+敏感数据不得出现在文档、日志、证据、提交信息或对话摘要中。需要举例时使用占位值。
+
+## Packs
+
+{{generated:packs_table}}
+
+未启用的 pack 不是「暂时忘了开」，而是当前不被采纳的约定；如需启用，改
+`factory.yaml` 的 `packs.enabled` 后重新生成。
+
+## Engine
+
+| 项 | 值 |
+| --- | --- |
+| factory 版本 | `{{generated:factory_version}}` |
+| 模板 | `workspace` |
+| 配置事实源 | `.factory/factory.yaml` |
+| 重新生成命令 | `factory upgrade` |

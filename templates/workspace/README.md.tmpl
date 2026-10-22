@@ -1,0 +1,43 @@
+# {{project.name}}
+
+{{project.one_liner}}
+
+本仓库由 HighLand-factory 生成（factory `{{generated:factory_version}}`，生成日期 `{{generated:date}}`）。仓库形态 `{{repo.mode}}`，主分支 `{{repo.default_branch}}`。
+
+## 这个仓库是什么
+
+一个「代码 + 长期文档」双目录工作仓库：代码可以随时重写，长期文档必须持续累积。每一个需要跨 session 协作的决策、契约和验收结论都沉淀在 `wiki/`，而不是散落在提交信息、聊天记录或代码注释里。
+
+## 两个目录的契约
+
+- `code/`：全部可执行代码、构建产物和测试。代码内部结构由项目自定，但不得把长期文档放进来。
+- `wiki/`：长期文档权威根。唯一入口是 [wiki/README.md](wiki/README.md)，冲突裁决见 [wiki/02-file-authority-map.md](wiki/02-file-authority-map.md)。
+- `.factory/`：机器可读控制面。`factory.yaml` 是唯一事实源，`local.yaml` 是本机覆盖（不入库），`state.json` 是可重建缓存（不入库）。
+
+代码描述「现在怎么运行」，`wiki/` 描述「为什么这样、边界在哪、如何验收」。两者不一致时先停下来修文档或修代码，不允许长期分叉。
+
+## 从这里开始
+
+- [wiki/README.md](wiki/README.md)：文档根 MOC，所有长期主题从这里出发。
+- [wiki/00-spec.md](wiki/00-spec.md)：文档如何组织、如何链接、如何维护。
+- [wiki/01-reading-guide.md](wiki/01-reading-guide.md)：按角色和任务选择最小阅读集。
+- [wiki/governance/workflow-profile.md](wiki/governance/workflow-profile.md)：当前 owner、命令、验证要求与门禁（由工具生成，勿手改）。
+
+## 如何使用工作流
+
+日常协作规则写在 [AGENTS.md](AGENTS.md)，Claude 系客户端读 [CLAUDE.md](CLAUDE.md)，两者实质一致。核心动作固定为：
+
+1. 读 `.factory/local.yaml`（本机路径与解释器）和 `wiki/governance/workflow-profile.md`（当前门禁）。
+2. 判断这次改动是 Quick Change 还是 Initiative/Leaf Feature；不允许跳过 Scope Gate 直接写代码。
+3. 实现前先让受影响权威文档更新到「待实现状态」。
+4. 实现、独立 review、独立验证，三者不合并成一个 session。
+5. 验收通过并取得授权后，才把结论合并进 `wiki/`；历史由 Git 保留。
+
+临时场合（明确授权的 Feature 工作或 Quick Change）才会进入 `wiki/feature-workspace/` 与 `wiki/quick-workspace/`；它们不属于默认知识发现路径。
+
+## 不要做的事
+
+- 不要手工编辑标有「由工具生成」的文件（`wiki/governance/workflow-profile.md` 等）。
+- 不要提交 `.factory/local.yaml`、`.factory/state.json` 或任何机密文件。
+- 不要在 `wiki/` 里复制第二份事实：一类知识只有一个首要权威。
+- 不要在 `wiki/` 使用 Obsidian wikilink，只用相对路径的标准 Markdown 链接。

@@ -1,0 +1,6 @@
+schema_version: '1.0'
+# 历史 deferred / MVP / future extension 候选项的暂存区。
+# 旧文档里的 TODO 不等于正式需求：先按来源文件登记到 candidates，由人工分类为
+# accepted-feature / rejected / duplicate / informational-boundary，只有
+# accepted-feature 才能升级为正式 Initiative 或 Feature。
+candidates: []

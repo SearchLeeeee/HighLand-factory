@@ -1,0 +1,94 @@
+# Answers file for adopting an existing two-repo project.
+# Use with: factory adopt --work <docs-repo> --code <code-repo> --wiki <existing-wiki-folder> --answers <this file>
+# Replace every value with the real project's values before use.
+
+project:
+  name: Example Project
+  slug: example-project
+  one_liner: An existing project with a separate code repo and docs repo
+  stack:
+    - "Backend: Python / FastAPI"
+    - "Frontend: TypeScript / React"
+  language:
+    docs: zh-CN
+    code: en
+    commit: en
+  license: MIT
+  visibility: private
+
+repo:
+  mode: split
+  default_branch: main
+  wiki_path: docs-root
+  code_external: ../example-code
+  commit:
+    format: conventional
+
+owners:
+  - id: backend
+    title: Backend
+    paths:
+      - backend
+    profile: docs-root/code-ai/backend-agent.md
+  - id: frontend
+    title: Frontend
+    paths:
+      - frontend
+    profile: docs-root/code-ai/frontend-agent.md
+
+commands:
+  setup:
+    - make install
+  build:
+    - make build
+  lint:
+    - make lint
+  typecheck:
+    - make typecheck
+  test:
+    - make test
+  e2e:
+    - make e2e
+  verify:
+    - make verify
+
+verification:
+  baseline_evidence: docs-root/validation/init-baseline.md
+  evidence_root: docs-root/feature-workspace
+  isolated_env: local
+
+workflow:
+  scope_gate:
+    enabled: true
+    split_default: true
+  quick_change: true
+  review_required: true
+  verification_separate: true
+  merge_requires_authorization: true
+  initiative_integration_required: true
+  max_parallel_features: 1
+
+security:
+  forbidden_operations:
+    - irreversible production operations without explicit authorization
+    - committing credentials, tokens or personal data
+  sensitive_classes:
+    - credentials and API keys
+    - personal data
+    - private implementation details
+  secrets_file: .factory/local.yaml
+
+agents:
+  platforms:
+    - dsh
+    - claude
+    - codex
+  review_model: null
+  verification_model: null
+
+packs:
+  enabled:
+    - commit
+  disabled:
+    - dev-runtime
+    - remote-verify

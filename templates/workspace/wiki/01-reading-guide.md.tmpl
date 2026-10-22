@@ -1,0 +1,49 @@
+# 01. 阅读路径
+
+本文件定义不同角色如何从当前长期文档导航进入最小必要的权威文档集合。路径只
+给链接和一句理由；业务规则一律在目标文档里。
+
+## 新加入的人类维护者
+
+1. [人类入口](human/README.md)：先看这个目录服务谁、按什么顺序读。
+2. [系统总览](human/system-overview.md)：用一页纸理解系统目标和边界。
+3. [当前决策](03-current-decisions.md)：确认现在哪些规则有效。
+4. [文件权威地图](02-file-authority-map.md)：知道冲突时听谁的。
+5. [Wiki 根 MOC](README.md)：按主题继续深入。
+
+## Agent / Code AI 实现者
+
+1. [Code AI 入口](code-ai/README.md)：选择与本任务匹配的 agent profile。
+2. [文件权威地图](02-file-authority-map.md)：确认本次改动会影响哪些权威文档。
+3. [当前决策](03-current-decisions.md)：确认边界与禁止项。
+4. [Governance](governance/README.md)：确认本次改动走哪条流程通道。
+
+## 维护者 / 文档治理
+
+1. [Wiki 运行规范](00-spec.md)：结构、链接和维护规则。
+2. [Governance](governance/README.md)：边界与文档协议。
+3. [Workflow Profile](governance/workflow-profile.md)：当前 owner、命令和门禁。
+4. [File Authority Map](02-file-authority-map.md)：职责与权威归属。
+5. [Validation](validation/README.md)：验证记录与证据索引。
+
+## 新增或修改 Feature
+
+1. [Features](features/README.md)：确认是否已有稳定说明需要更新。
+2. [File Authority Map](02-file-authority-map.md)：列出受影响的权威文档。
+3. [Current Decisions](03-current-decisions.md)：确认不会与现行规则冲突。
+4. 按受影响领域进入 [Product](product/README.md)、[Domain](domain/README.md)、
+   [Architecture](architecture/README.md) 或 [Implementation](implementation/README.md)。
+5. 临时讨论、状态与证据只写在 `wiki/feature-workspace/` 中；稳定结论验收后才回到
+   长期文档。
+
+## 专题深入
+
+- 产品与需求：[Product](product/README.md)
+- 业务概念：[Domain](domain/README.md)
+- 系统设计：[Architecture](architecture/README.md)
+- 实现与契约：[Implementation](implementation/README.md)
+- 测试工程：[Testing](testing/README.md)
+- 验证证据：[Validation](validation/README.md)
+
+领域 MOC 只负责发现。遇到冲突时回到[文件权威地图](02-file-authority-map.md)，
+不能按目录位置、文件新旧或历史命名猜测权威。

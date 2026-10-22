@@ -1,0 +1,28 @@
+# ============================================================================
+# .factory/local.example.yaml —— 机器级覆盖（示例）
+# ----------------------------------------------------------------------------
+# 用法：
+#   1. 由 `factory init` / `factory install --work <path>` 自动生成
+#      `.factory/local.yaml`，通常不需要手工复制本文件。
+#   2. 换机器或重新 clone 后，更新 factory_root / python 两个值即可。
+#   3. `.factory/local.yaml` 已被工作仓库 .gitignore 忽略，不要提交。
+#
+# 本文件只承载「这台机器」的差异，不承载项目事实。项目身份、命令、门禁和
+# owner 一律写在 `.factory/factory.yaml`；两者冲突时以 factory.yaml 为准。
+# ============================================================================
+schema: 1
+
+# 本机 HighLand-factory 检出目录（绝对路径）。
+factory_root: "<path-to-HighLand-factory>"
+
+# 带 PyYAML 的 Python 解释器（绝对路径）。引擎与机器门禁脚本都用它运行。
+python: "<path-to-python>"
+
+# 可选：Node 可执行文件路径；不使用前端工具链时留空。
+node: null
+
+# 本机开发端口。只影响本地 dev 服务，不改变仓库契约。
+ports: {}
+
+# 仅本机需要的环境变量。不要在这里写真实密钥；密钥走 secrets_file。
+env: {}

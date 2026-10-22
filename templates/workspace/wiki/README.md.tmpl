@@ -1,0 +1,36 @@
+# {{project.name}} Wiki
+
+本目录（`wiki/`）是 {{project.name}} 的长期文档权威根，本文件是唯一导航入口
+（root MOC）。代码在 `code/`，文档在 `wiki/`；两者描述同一件事的两个面。冲突
+裁决见[文件权威地图](02-file-authority-map.md)，生成日期 `{{generated:date}}`。
+
+`feature-workspace/` 与 `quick-workspace/` 是临时工作面，默认不进入本 MOC 的
+发现路径，只在明确的 Feature 或 Quick Change 工作中定向访问。本文件不链接它们
+内部的任何文档。
+
+## 入口
+
+- [Wiki 运行规范](00-spec.md)：结构、MOC 层级、链接规则与维护流程。
+- [阅读路径](01-reading-guide.md)：按角色和任务选择最小阅读集。
+- [文件权威地图](02-file-authority-map.md)：每类知识的首要权威与冲突处理程序。
+- [当前决策](03-current-decisions.md)：当前仍然有效的跨领域决策与边界。
+- [人类入口](human/README.md)：维护者理解系统目标与接手顺序的起点。
+- [Code AI 入口](code-ai/README.md)：实现类 agent profile 与其支撑材料。
+
+## 主题地图
+
+- [Product](product/README.md)：产品目标、范围与稳定需求。
+- [Domain](domain/README.md)：业务概念、领域对象与业务规则。
+- [Architecture](architecture/README.md)：系统边界、模块划分与数据流。
+- [Implementation](implementation/README.md)：后端、前端、共享契约与专题实现。
+- [Features](features/README.md)：已稳定、需要独立入口的 Feature 说明。
+- [Governance](governance/README.md)：边界、文档协议、流程门禁与生成的门禁摘要。
+- [Testing](testing/README.md)：测试工程、fixtures 治理与质量门禁。
+- [Validation](validation/README.md)：验证记录与证据索引。
+
+## 链接规则
+
+- 只用相对路径的标准 Markdown 链接，不使用 Obsidian wikilink。
+- 默认发现路径不链接 `feature-workspace/` 与 `quick-workspace/` 内的文件。
+- MOC 只负责发现：角色说明写一句话，业务规则留在对应权威文档。
+- 一类知识只有一个首要权威；本文件不复制任何权威文档的内容。

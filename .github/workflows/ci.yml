@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.10", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check pyyaml pytest
+      - name: Leakage guard
+        run: python tools/check_no_leakage.py --verbose
+      - name: Shell syntax
+        if: runner.os == 'Linux'
+        run: for f in install/*.sh; do bash -n "$f"; done
+      - name: PowerShell syntax
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem install/*.ps1 | ForEach-Object {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$errors) | Out-Null
+            if ($errors) { $errors | ForEach-Object { Write-Error $_.Message }; $failed = $true }
+          }
+          if ($failed) { exit 1 }
+      - name: Engine tests (includes init smoke + both gates)
+        run: python -m pytest engine/tests -q
+      - name: Machine-gate script tests
+        run: python -m pytest skills/hl-feature-workspace/tests skills/hl-wiki-merge/tests skills/hl-history-trace/tests -q

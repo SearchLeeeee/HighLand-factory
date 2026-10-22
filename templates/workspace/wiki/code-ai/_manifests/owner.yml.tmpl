@@ -1,0 +1,32 @@
+# 由工厂渲染的 owner manifest 模板。
+# 每个配置的 owner 生成一份；字段语义见同目录 README.md。
+id: "{{owner.id}}"
+title: "{{owner.title}}"
+output: "wiki/code-ai/{{owner.id}}-agent.md"
+composition_model: "blocks-plus-domain-sections"
+global_blocks:
+  - "_blocks/startup-core.md"
+  - "_blocks/project-safety-boundaries.md"
+  - "_blocks/doc-sync-rule.md"
+  - "_blocks/readme-sync-rule.md"
+  - "_blocks/agent-notes-rule.md"
+  - "_blocks/commit-granularity.md"
+  - "_blocks/logging-and-diagnostics.md"
+  - "_blocks/handoff-output.md"
+  - "_blocks/common-definition-of-done.md"
+  - "_blocks/review-gate.md"
+  - "_blocks/review-agent-contract.md"
+  - "_blocks/testing-quality-gate.md"
+  - "_blocks/fixture-governance.md"
+domain_sections:
+  - "identity-and-scope"
+  - "when-to-use"
+  - "must-read-order"
+  - "write-scope"
+  - "working-loop"
+  - "review-focus"
+  - "handoff"
+notes: |
+  本文件只声明组合，不承载可直接执行的长文。
+  可执行 profile 由工厂按本清单渲染到 output 指定位置。
+  块正文只在 _blocks/ 维护；块变更后需重新同步本 owner 的 profile。

@@ -1,0 +1,63 @@
+# Code AI 协作入口
+
+> 项目：{{project.name}}（`{{project.slug}}`）
+> 本页由工厂模板生成：版本 {{generated:factory_version}}，日期 {{generated:date}}。
+> 修改本页前先读 [_blocks/README.md](_blocks/README.md) 与 [_manifests/README.md](_manifests/README.md)。
+
+## 1. 这个目录是什么
+
+`wiki/code-ai/` 是**人与 Code AI 子代理共用的协作约定层**，只存放稳定的、可复用的工程约束与入口：
+
+- 项目工程事实：[project-facts.md](project-facts.md)
+- 四角色子代理流程：[subagent-flow.md](subagent-flow.md)
+- 独立评审门：[review-agent.md](review-agent.md)
+- 可组合约束块：[_blocks/README.md](_blocks/README.md)
+- profile 组合声明：[_manifests/README.md](_manifests/README.md)
+- 按 owner 的可执行 profile（见下节名册）
+
+本目录**不存放**：易变的任务状态、需求讨论、缺陷清单、临时笔记、业务数据。这些内容属于项目既有的权威文档或任务系统，不能写进本目录冒充共识。
+
+## 2. Agent 名册
+
+{{generated:code_ai_agent_table}}
+
+名册由工厂按 owner 配置生成；新增或调整 owner 时重新生成，不要手改表格。
+
+## 3. 启动顺序（固定）
+
+任何子代理在动手前必须按以下顺序阅读，不得跳读或只读自己关心的部分：
+
+1. `00-spec`：项目规范与总约束。
+2. `02-file-authority-map`：文件与目录的权威归属。
+3. `03-current-decisions`：当前仍然有效的决定。
+4. [project-facts.md](project-facts.md)：稳定工程事实与真实命令。
+5. [subagent-flow.md](subagent-flow.md)：四角色流程、交接与编排顺序。
+6. 本 owner 的 profile：`<owner>-agent.md`（见名册；没有对应 profile 时不得自行假设职责）。
+7. 当前 feature 的 profile 与任务说明。
+8. 具体任务本身。
+
+阅读完成后，先在交接中复述范围、权威来源与不确定点，得到确认后再进入实现。
+
+## 4. 共享边界（所有角色一致）
+
+- **凭据零写入**：不把真实密钥、令牌、口令、私有地址、个人数据写入任何文档、代码、日志、测试夹具或提交信息；需要示例时使用显式占位符。
+- **Agent 输出不是权威**：子代理的结论、记忆和推测只是输入。项目契约以项目权威文档与代码事实为准；冲突时停止并升级，不得用“之前某次对话”作为依据。
+- **不可逆操作需授权**：涉及生产写入、真实资金、数据删除或迁移、权限变更、对外发布等不可逆动作，必须取得明确授权，并先给出影响面、回滚方案与验证方式。
+- **契约或安全歧义必须停止**：无法从权威文档判定接口契约、数据归属、权限边界或安全要求时，不得“先做再说”，应输出待决问题并交回人类决策。
+- **评审门不可绕过**：达到强制评审条件的工作，必须经过独立评审后才能进入验证与关闭。
+- **最小权限与最小改动**：只改任务需要的文件；不顺手重构、不扩大写入范围、不修改他人 owner 的权威文件。
+
+详细规则见 [_blocks/project-safety-boundaries.md](_blocks/project-safety-boundaries.md) 与 [_blocks/review-gate.md](_blocks/review-gate.md)。
+
+## 5. 按 owner 的 profile
+
+{{generated:owner_links}}
+
+每个 profile 只声明该 owner 的职责、可写范围与交接要求；跨 owner 的改动必须由对应 owner 确认，或按升级路径处理。
+
+## 6. 维护规则
+
+- 本目录只放通用约定；项目特有事实放 [project-facts.md](project-facts.md)，且必须可验证。
+- 台账、状态、截止日期、负责人变动等易变信息不得写入本目录。
+- 约束块是唯一事实源；profile 只引用、不复制块内容。
+- 修改任一约束块后，按 [_blocks/README.md](_blocks/README.md) 的规则重新同步受影响 profile。

@@ -1,0 +1,82 @@
+# 02. 文件权威地图
+
+本文件定义 {{project.name}} 长期 Wiki 的首要权威关系。MOC 只负责发现；发生冲突
+时以本文件指定的文档为准。
+
+一条硬规则：**一类事实只有一个首要权威。** 同一事实在两处出现不同表述时，不按
+文件新旧、不按目录位置、只看本文件；另一处要么改成链接，要么删除。
+
+## 核心权威文件
+
+| 主题 | 权威文件 |
+| --- | --- |
+| 仓库用途与入口 | [仓库 README](../README.md) |
+| 长期文档入口 | [wiki/README.md](README.md) |
+| Wiki 运行规范 | [00-spec.md](00-spec.md) |
+| 阅读路径 | [01-reading-guide.md](01-reading-guide.md) |
+| 文件权威关系 | [02-file-authority-map.md](02-file-authority-map.md) |
+| 当前有效决策 | [03-current-decisions.md](03-current-decisions.md) |
+| 人类接手入口 | [human/README.md](human/README.md) |
+| Code AI 入口 | [code-ai/README.md](code-ai/README.md) |
+| Workflow Profile（生成） | [governance/workflow-profile.md](governance/workflow-profile.md) |
+| Agent 启动规则 | [AGENTS.md](../AGENTS.md) / [CLAUDE.md](../CLAUDE.md) |
+
+## 主题权威文件
+
+下表是初始骨架：每行一个主题、一个首选权威。项目推进时只增行，不合并主题。尚未
+创建的文档先用反引号路径占位，创建后再改成链接。
+
+| 主题 | 权威文件 |
+| --- | --- |
+| 产品目标、范围、稳定需求 | `product/product-vision.md` |
+| 领域对象、术语与业务规则 | `domain/domain-objects.md` |
+| 系统边界与模块划分 | `architecture/module-boundaries.md` |
+| 数据计划与数据源契约 | `architecture/data-plan.md` |
+| 后端实现与接口契约 | `implementation/backend/` |
+| 前端实现与交互契约 | `implementation/frontend/` |
+| 跨端共享契约 | `implementation/shared/` |
+| 稳定 Feature 说明 | `features/` |
+| 测试工程与 fixtures 治理 | `testing/` |
+| 验证记录与证据索引 | `validation/` |
+| 边界与文档维护规则 | `governance/` |
+| 实现类 agent profile | `code-ai/` |
+| 机器可读配置（非文档） | `.factory/factory.yaml` |
+
+## 代码 owner 权威
+
+{{generated:owners_table}}
+
+owner 表由 `.factory/factory.yaml` 的 `owners` 生成，路径前缀即责任边界。路径重叠
+或职责空白属于配置错误：改 `factory.yaml` 并运行 `factory upgrade`，不要在本文件
+手工增删行。
+
+## Agent 权威
+
+| Agent 类型 | 入口与权威 |
+| --- | --- |
+| 实现类 Code AI | [code-ai/README.md](code-ai/README.md) |
+| 通用启动约束 | [AGENTS.md](../AGENTS.md) |
+| Claude 系启动约束 | [CLAUDE.md](../CLAUDE.md) |
+| 当前门禁与命令 | [governance/workflow-profile.md](governance/workflow-profile.md) |
+
+Agent 的行为约束以启动文件和对应 profile 为准；本文件只说明「去哪找」，不复制
+约束正文。
+
+## 冲突处理
+
+1. 先判定冲突类型：入口/导航、当前决策、agent profile、Feature 变更还是实现细节。
+2. 查本文件指定的首要权威，只以该文档当前内容为准。
+3. 权威不明确，或多个权威互相矛盾时：停止相关编辑，不要在冲突期间继续合并。
+4. 把冲突写成具体问题（冲突事实、双方出处、影响面），交用户裁决。
+5. 用户裁决后，把稳定结论写入唯一权威位置，另一处改为链接；不保留平行表述。
+6. 不创建 ADR 目录、决策历史目录或长期开放问题文件：历史只从 Git 追溯。
+
+## 非文档资产
+
+| 路径 | 角色 |
+| --- | --- |
+| `.factory/` | 机器可读控制面：`factory.yaml` 是唯一事实源，`local.yaml` 是本机覆盖。 |
+| `code/` | 全部可执行代码与测试，不承载长期文档。 |
+| `wiki/feature-workspace/` | Feature 临时工作面，默认隔离，不构成当前权威。 |
+| `wiki/quick-workspace/` | Quick Change 过程记录，默认隔离，不构成当前权威。 |
+| `wiki/governance/workflow-profile.md` | 生成文件：只读摘要，权威仍是 `factory.yaml`。 |
