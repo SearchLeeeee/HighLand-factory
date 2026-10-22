@@ -13,7 +13,7 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 | `hl-factory-upgrade` | Refresh generated files safely after a factory update | refreshed digest/manifests | `factory upgrade`, `factory doctor` |
 | `hl-feasibility-grill` | Technical feasibility stress test before decomposition; verdict and handoff | verdict, Initiative creation routing | `factory gate workspace` |
 | `hl-feature-workspace` | The only lifecycle state machine and schema gate | `registry.yaml`, `initiative.yaml`, `feature.yaml`, integration handoff, progress report | `feature_workspace.py` |
-| `hl-feature-discuss` | Discuss exactly one dependency-ready Leaf Feature to confirmed conclusions | workbench, domain implementation docs, profile targets | `$hl-feature-workspace`, `factory gate workspace` |
+| `hl-feature-discuss` | Discuss exactly one dependency-ready Leaf Feature to confirmed conclusions; asks at startup whether to use interactive one-at-a-time or batch review written into the workbench | workbench, domain implementation docs, profile targets | `$hl-feature-workspace`, `factory gate workspace` |
 | `hl-feature-profile-generate` | Compose executable Code AI profiles by relative-path reference | feature `code-ai/` profiles + index | `factory gate workspace` |
 | `hl-feature-orchestrator` | Dispatch owners, plan approval, implementation → review → acceptance | code changes, review/acceptance evidence, lifecycle transitions | `feature_workspace.py`, `factory gate` |
 | `hl-feature-progress` | Read-only progress, blockers, parallelizable work, next-session prompt | report | `feature_workspace.py report` |

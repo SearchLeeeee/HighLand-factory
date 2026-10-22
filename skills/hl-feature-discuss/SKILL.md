@@ -1,6 +1,6 @@
 ---
 name: hl-feature-discuss
-description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and Code AI profile inputs inside the feature workspace. Runs a rubber-duck, one-question-at-a-time discussion with a conclusion-only workbench and advances lifecycle state only at skill boundaries.
+description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and Code AI profile inputs inside the feature workspace. At startup asks whether to run an interactive one-question-at-a-time discussion or a batch review written into the workbench, then advances lifecycle state only at skill boundaries.
 ---
 
 # Feature Discuss
@@ -33,7 +33,28 @@ Run this before anything else, including reading the feature request.
 
 Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then inputs for executable Code AI profiles.
 
-The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, create the workbench, list every known question before asking any, discuss one decision at a time, record confirmed conclusions only, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs` and hand the profile phase to `$hl-feature-profile-generate`.
+The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, create the workbench, list every known question before asking any, choose the discussion mode with the user, confirm conclusions, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs` and hand the profile phase to `$hl-feature-profile-generate`.
+
+## Discussion Mode (ask before any question)
+
+After Step 0 and after confirming the single Leaf target, ask the user one startup question before writing detailed questions or conclusions:
+
+- **Interactive (default)** — one decision at a time, highest implementation impact first. Best for ambiguous, security-sensitive or contract-changing features.
+- **Batch review** — write the complete initial question inventory and detailed question blocks into `discussion/workbench.md` in one pass, let the user answer, accept or defer them in bulk, then process the batch and continue with another batch or switch to interactive for the remaining high-risk items.
+
+Use the structured choice panel when the platform provides one; otherwise ask one concise question with these two options and allow a custom answer. Record the choice in the workbench under `## Discussion mode`. If a workbench already exists with a recorded mode, continue that mode unless the user asks to change it.
+
+Both modes are equal in rigor: the same inventory, the same confirmation rule, the same phase gates and the same lifecycle transitions. Batch mode changes the interaction order, not the evidence standard.
+
+### Batch review rules
+
+- Write every known question before asking the user to review; each block carries context, 2-4 concrete options, a recommendation with tradeoff, implementation impact, and test or acceptance impact where relevant.
+- Keep each batch reviewable: group by domain and impact, at most about 10-12 questions per batch. If the inventory is larger, send the next batch after processing the first.
+- The user may answer by Q ID, explicitly accept a recommendation, defer a question with a reason, or ask to switch to interactive mode.
+- Agent recommendations and silence are not confirmation. Only an explicit answer, or an explicit "accept recommendation for Q-xxx", becomes a confirmed conclusion.
+- Security, irreversible-operation, contract-changing, permission and cross-owner boundary questions require an explicit per-question answer; they cannot be covered by a blanket "accept all".
+- After processing a batch: update confirmed conclusions and statuses, re-inventory newly discovered questions, then ask whether to continue with another batch or switch to interactive.
+- Batch mode never skips required topics (behaviour, ownership, contracts, tests, acceptance criteria) and never writes implementation documents before the phase confirmation.
 
 ## Workspace Rules
 
@@ -66,8 +87,8 @@ During the discussion phase:
 - Do not create final domain implementation documents.
 - Do not create Code AI profile files.
 - Use implementation-document targets and profile targets as planned paths only.
-- Before asking individual questions, enumerate every known question and write it into the workbench.
-- Keep asking one unresolved question at a time until behaviour, domain ownership, test cases and acceptance criteria are confirmed or explicitly deferred.
+- Before asking detailed questions, enumerate every known question and write it into the workbench.
+- In interactive mode keep asking one unresolved question at a time until behaviour, domain ownership, test cases and acceptance criteria are confirmed or explicitly deferred. In batch-review mode write reviewable batches of pending questions and wait for the user's bulk review; never treat silence or your own recommendation as confirmation.
 
 Before leaving the discussion phase, summarize: confirmed conclusions, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
 
@@ -91,8 +112,12 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 - Supporting domains:
 - Rationale:
 
+## Discussion mode
+- selected: interactive | batch-review
+- recorded at: <date or step>
+
 ## Discussion rules
-- One question at a time unless the user asks for a batch.
+- Follow the mode chosen at startup: interactive asks one question at a time; batch-review writes a reviewable batch of pending questions and waits for the user's bulk review.
 - Every question carries context, concrete options, a recommendation, implementation impact, and test or acceptance impact when relevant.
 - Wait for confirmation before recording a conclusion.
 - Record only confirmed conclusions and still-open questions.
@@ -145,6 +170,18 @@ Run this loop until the feature is stable enough to document:
 11. At the discussion-to-documents boundary, initialize and validate the complete five-dimension `consistency_matrix` before creating documents or advancing lifecycle state.
 
 When the user asks what remains, summarize unresolved decisions and risks only.
+
+## Batch Review Loop
+
+Use this loop instead of the interactive loop when batch-review mode is selected.
+
+1. Build or refresh the complete question inventory (stable IDs, domain, why it matters).
+2. Write detailed pending-question blocks for the next reviewable batch: context, 2-4 options, recommendation with tradeoff, implementation impact, and test or acceptance impact.
+3. Tell the user which batch is ready and how to answer: by Q ID, explicitly accept a recommendation, defer with a reason, or ask to switch to interactive mode.
+4. Wait. Do not record any conclusion from silence or from your own recommendation.
+5. Process the answers: move explicit answers to confirmed conclusions, mark deferred items with their reason, and update inventory statuses and targets.
+6. Re-inventory newly discovered questions; either prepare the next batch or switch to interactive mode for the remaining high-risk items.
+7. Repeat until behaviour, ownership, contracts, tests and acceptance criteria are confirmed or explicitly deferred, then run the same discussion-completion summary and phase confirmation as the interactive path.
 
 ## Implementation Documents Phase
 
