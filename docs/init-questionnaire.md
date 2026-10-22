@@ -86,6 +86,7 @@ Adopt must additionally determine:
 - Whether an old Feature Workspace exists and must be preserved at its current path (set `layout.feature_workspace` compatibility override) or migrated later.
 - Which old skills/rules remain valid and which are replaced; produce a migration mapping in `init-record.md`.
 - A freeze tag/branch before the first adopt run, so the pre-adopt state is recoverable.
+- After the skeleton is valid, run the **adopt code analysis** phase: read-only subagents analyze the codebase and the main session writes an evidence-based wiki baseline (`architecture/overview.md`, `domain/overview.md`, `implementation/overview.md`, `testing/overview.md`, `governance/runtime-and-operations.md`) plus updates to `project-facts.md` and the authority map. See `skills/hl-factory-init/references/adopt-code-analysis.md`.
 
 ## 5. Init definition of done
 
@@ -98,6 +99,7 @@ Adopt must additionally determine:
 - `wiki/code-ai/` entry, blocks, manifests and one owner profile per configured owner.
 - `AGENTS.md` / `CLAUDE.md` bootstrap instructions.
 - Green baseline: every configured build/lint/test/verify command executed once, results recorded in `wiki/validation/init-baseline.md`.
+- Adopt mode only: the code-analysis phase completed, wiki baseline documents written and linked, `project-facts.md` and the authority map updated, and `factory gate wiki` passing.
 - `wiki/governance/init-record.md` with answers, assumptions, detected facts and generated-file hashes.
 - Git initialized on the configured default branch; initial commit only after doctor passes and only with explicit authorization.
 

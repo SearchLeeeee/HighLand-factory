@@ -264,6 +264,7 @@ GITIGNORE_BLOCK = """
 .factory/local.yaml
 .factory/state.json
 .factory/.venv/
+.factory/analysis/
 .factory-cache/
 """
 

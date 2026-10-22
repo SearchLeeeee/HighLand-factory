@@ -1,6 +1,7 @@
 # 机器级本地配置与运行状态（不入库）
 .factory/local.yaml
 .factory/state.json
+.factory/analysis/
 
 # Python
 __pycache__/

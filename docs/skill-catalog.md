@@ -8,7 +8,7 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 
 | Skill | Role | Produces | Calls |
 | --- | --- | --- | --- |
-| `hl-factory-init` | Guided bootstrap of a work repo (new/adopt), requirements → architecture → verification → security → governance → agent policy | `.factory/factory.yaml`, wiki skeleton, digest, baseline | `factory init/adopt`, `factory doctor` |
+| `hl-factory-init` | Guided bootstrap of a work repo (new/adopt): requirements → architecture → verification → security → governance → agent policy; adopt mode also dispatches read-only code-analysis subagents and fills the wiki baseline | `.factory/factory.yaml`, wiki skeleton + baseline docs, digest, baseline | `factory init/adopt`, `factory doctor`, `factory gate` |
 | `hl-factory-doctor` | Diagnose config/layout/digest/gates and drive repairs | repair plan | `factory doctor`, `factory gate` |
 | `hl-factory-upgrade` | Refresh generated files safely after a factory update | refreshed digest/manifests | `factory upgrade`, `factory doctor` |
 | `hl-feasibility-grill` | Technical feasibility stress test before decomposition; verdict and handoff | verdict, Initiative creation routing | `factory gate workspace` |

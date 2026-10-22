@@ -1,6 +1,6 @@
 ---
 name: hl-factory-init
-description: Use when a user wants to create a new HighLand-factory work repo or attach the factory to an existing project. Runs a guided conversation to determine requirements, architecture, verification, security, governance and agent policy, then calls the deterministic `factory init`/`factory adopt` engine and verifies the result. This is the only skill allowed to bootstrap a work repo.
+description: Use when a user wants to create a new HighLand-factory work repo or attach the factory to an existing project. Runs a guided conversation to determine requirements, architecture, verification, security, governance and agent policy, calls the deterministic `factory init`/`factory adopt` engine, and for adopt mode dispatches read-only code-analysis subagents to fill the long-term wiki baseline before declaring init complete. This is the only skill allowed to bootstrap a work repo.
 ---
 
 # Factory Init
@@ -28,6 +28,7 @@ This skill is the **conversation**. The engine (`factory init` / `factory adopt`
 6. Do not create a placeholder Initiative "for the project". The feature workspace starts empty and valid.
 7. Every write is planned first. Run `factory init --dry-run` (or `adopt --dry-run`), show the plan summary, and get explicit confirmation before applying.
 8. Initial git commit and any push happen only after the doctor passes and only with explicit authorization.
+9. For adopt mode, init is not complete until the code-analysis phase has filled the wiki baseline (see `references/adopt-code-analysis.md`). Analysis is read-only for code; only the wiki and `code-ai/project-facts.md` are written.
 
 ## Step 0 — locate the factory
 
@@ -41,7 +42,7 @@ This skill is the **conversation**. The engine (`factory init` / `factory adopt`
 Ask which situation applies:
 
 - **New project** — empty directory or a directory with only a README. Use `factory init --mode new`.
-- **Adopt existing** — an existing docs/wiki repo plus an existing code repo (possibly two repos). Use `factory adopt --work <docs-repo> --code <code-repo>`.
+- **Adopt existing** — an existing docs/wiki repo plus an existing code repo (possibly two repos). Use `factory adopt --work <docs-repo> --code <code-repo>`. After the skeleton is valid, this mode also runs a read-only code-analysis phase that fills the long-term wiki baseline.
 - **Attach** — already initialized; route to `$hl-factory-doctor`.
 
 For adopt, first freeze the current state: record the current branch, commit SHA and a tag name in the init record. Init must not rewrite authoritative docs.
@@ -131,6 +132,21 @@ factory gate all --work <work>
 
 Repair loop: if a gate fails, fix configuration or the existing docs. Do not weaken the gate, do not hand-edit generated files. If the wiki gate fails because the existing wiki is incomplete, create the missing skeleton files from the factory template shape (the doctor will name the missing paths).
 
+## Step 5b — Adopt code analysis (existing projects only)
+
+Skip this step for greenfield `init`: there is no code to analyze.
+
+For adopt, after apply and a passing doctor/gate:
+
+1. Read `references/adopt-code-analysis.md` completely.
+2. Dispatch the analysis slices as **read-only subagents** — `repo-map`, `core-logic`, `data-contracts`, `operations`, `tests`, `security-privacy`, `domain-glossary`. Run them in parallel when the platform supports it. If the platform has no subagent facility, run the slices sequentially in the main session.
+3. Each subagent writes only `<work>/.factory/analysis/<slice>.md` and never edits code, wiki or git. If it cannot write files, it returns the fixed handoff and the main session records it.
+4. Synthesize the findings into the wiki baseline documents listed in the reference: `architecture/overview.md`, `domain/overview.md`, `implementation/overview.md`, `testing/overview.md`, `governance/runtime-and-operations.md`.
+5. In the same pass update `wiki/02-file-authority-map.md`, `wiki/code-ai/project-facts.md`, all affected MOC links, and append the analysis summary to `wiki/governance/init-record.md`.
+6. Never invent behaviour: cite relative source paths, mark unknowns, record conflicts between README and code instead of repeating the README. Never write secrets or absolute machine paths.
+7. Run `factory gate wiki --work <work>` and `factory doctor --work <work>`; fix links until both pass.
+8. Report the documents written and the unknowns that need an owner decision in the handoff.
+
 ## Step 6 — green baseline
 
 For every configured command, run it once from the correct directory and record date, environment, command, expected and observed result in `wiki/validation/init-baseline.md`. Change `Status: pending` to `Status: passed` only when every configured build/test/verify command actually passes. If a command cannot run yet (greenfield), record that explicitly as a known gap and keep the status pending — doctor will keep warning.
@@ -151,9 +167,10 @@ For every configured command, run it once from the correct directory and record 
 - Owner：<ids>
 - 门禁：<enabled gates>
 - 基线：<passed / pending，原因>
+- Wiki 基线（仅 adopt）：<analysis docs written>；未决未知：<items>
 
 ## 下一步
-请使用 $hl-feasibility-grill 评估第一个需求，或使用 $hl-quick-change 处理一个边界明确的小改动。
+请先阅读 Wiki 基线文档，然后使用 $hl-feasibility-grill 评估第一个需求，或使用 $hl-quick-change 处理一个边界明确的小改动。
 任何实现前先运行 factory doctor --work <path>。
 ```
 

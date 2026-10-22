@@ -62,7 +62,7 @@ Rules:
 `$hl-factory-init` (skill) is the conversation; `factory init` (engine) is the deterministic writer. The split keeps the agent responsible for requirements, architecture and policy, while the engine guarantees a valid, reproducible skeleton.
 
 - `new`: create a greenfield work repo from templates.
-- `adopt`: attach the factory to an existing repo (usually `split` mode with an existing code repo and wiki root); never rewrite existing docs; fill only missing skeleton files, config and digest; report every skipped/conflicting path. **Adopt is opt-in**: the factory never modifies an existing repository unless the user explicitly runs adopt on it. The v0.1 verification used a temporary copy.
+- `adopt`: attach the factory to an existing repo (usually `split` mode with an existing code repo and wiki root); never rewrite existing docs; fill only missing skeleton files, config and digest; report every skipped/conflicting path. **Adopt is opt-in**: the factory never modifies an existing repository unless the user explicitly runs adopt on it. The v0.1 verification used a temporary copy. After the skeleton is valid, adopt runs a read-only code-analysis phase (one subagent per analysis slice) that fills an evidence-based wiki baseline before the green baseline and initial commit.
 - `attach`: a work repo that already has `.factory/factory.yaml`; route to `$hl-factory-doctor` instead.
 
 Every init produces `wiki/governance/init-record.md` containing the answers, detected facts, assumptions, generated-file hashes and the exact engine version. This is the provenance baseline for later "why is this configured like this" questions.
