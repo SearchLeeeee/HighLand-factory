@@ -103,7 +103,8 @@ Scope Gate 先看结构性硬门槛，再算八维复杂度分数。只有 verdi
 
 一次只讨论一个已登记、通过 Scope Gate 且 dependency-ready 的 Leaf Feature。父
 Initiative 的 `initial_decomposition.status` 必须是 `completed`，否则先回到初始
-分解。讨论中新发现的范围必须立即归类：
+分解。进入讨论前先确认当前是否有可并行的其他 Leaf Feature，并据此询问用户用共用
+工作区顺序推进还是为当前 Feature 开 git worktree。讨论中新发现的范围必须立即归类：
 
 - 当前闭环必需：纳入当前 Feature 并重新评分。
 - 前置依赖：创建阻塞 Feature，当前项暂停。
@@ -117,10 +118,21 @@ Initiative 的 `initial_decomposition.status` 必须是 `completed`，否则先�
 讨论结论、测试场景和验收标准确认后，才生成领域实现文档和 Code AI profiles。生成
 前再次确认：仍是 Leaf、Scope Gate 仍通过、没有未处理的阻塞子项、验收可观察可判定。
 
+讨论和代码实现不在同一个会话：讨论会话只写 workbench、领域实现文档和 profiles，
+不写业务代码、不派发实现子 agent、不做 review 与验收。profiles 完成后，讨论会话交
+出一份可复制的启动 prompt（含 Feature ID、工作仓库路径、必读路径、已确认结论和
+worktree 选择），由用户在**新会话**里粘贴它启动实现；实现会话从
+`code-ai-profiles / completed` 接手。
+
 ### 5. 实现、review、验收
 
-实现编排只接受已完成 profiles 阶段的 Leaf Feature。实现期间发现新的业务需求时，
-停止受影响工作并回到范围分类，不得用代码 TODO 代替正式 Feature。
+实现编排只接受已完成 profiles 阶段的 Leaf Feature（`code-ai-profiles / completed`），
+且通常在**新会话**中启动（由讨论会话产出的启动 prompt 接手）。实现期间发现新的业务
+需求时，停止受影响工作并回到范围分类，不得用代码 TODO 代替正式 Feature。
+
+进入实现环境时，把目标设为「推进到 `ready-to-merge/ready`」，而不是「写完代码」；
+整个实现、review、验收过程保持同一个目标，只在状态真正改变时更新，达到 ready 后
+才算完成。讨论阶段记录了 worktree 选择时，本阶段在其隔离环境中实现。
 
 实现完成后依次经过独立 review 和独立验收。只有验收通过并把结论写进
 `feature.yaml` 的 `closure:` 块，Feature 才能进入 `ready-to-merge`。
@@ -166,8 +178,34 @@ Feature 并从长期 Wiki 读取基线，不得继续修改或引用已合并资
 - 允许修改的文件范围不重叠。
 - 不会同时修改同一契约。
 
-并行度上限由 `.factory/factory.yaml` 的 `workflow.max_parallel_features` 决定。
-被取消或被替代的前置需求不会自动解锁依赖。
+并行没有数量上限：同一 Wave 的 Feature 只要上面的条件全部成立，就可以并发开发（推荐每个
+Feature 一个 worktree）。真正约束并发的是依赖、owner、文件与契约的不重叠，而不是一个固定
+数字。被取消或被替代的前置需求不会自动解锁依赖。
+
+### 隔离开发（git worktree）
+
+当存在可并行的 Leaf Feature 时，进入讨论前先问用户用哪种开发方式：共用工作区顺序
+推进，还是为当前 Feature 单独开一个 git worktree 以便并行开发。讨论阶段只记录这
+个选择，不创建 worktree。
+
+选择 worktree 时：
+
+- 实现阶段在 `<WORK_ROOT>/.factory/worktrees/<feature-id 小写>`（例如
+  `.factory/worktrees/i001-f01`）创建 worktree，分支名为
+  `feature/<feature-id 小写>`，从将接收合并的分支 `repo.default_branch` 建立。代码
+  仓库归属按 `repo.mode` 确定：`mono` 时代码根是 `WORK_ROOT` 内的
+  `repo.code_path`，归属仓库就是 `WORK_ROOT`；`split` 时代码根是解析后的
+  `repo.code_external`，它本身就是独立仓库。
+- `mono` 模式下 worktree 路径在工作仓库内，`.factory/worktrees/` 必须已被
+  `.gitignore` 忽略，worktree 目录里的代码不得以嵌套目录形式被提交；`split` 模式
+  下该路径在代码仓库之外，只需确认它不在代码仓库内。
+- worktree 隔离的是代码。Feature manifest、证据、工作区 gate 仍然在 `WORK_ROOT`，
+  生命周期状态只有一个来源。
+- 在 Feature 达到 `ready-to-merge/ready` 之前，不得提出、执行或删除「把 worktree
+  合回 `repo.default_branch`」的操作；达到 ready 之后再单独询问用户是否合回。
+  `workflow.merge_requires_authorization` 为 true 时，没有明确答复即视为不合回。
+- 代码合回、`ready-to-merge/ready` 生命周期、长期 Wiki 权威切换始终是三件独立的
+  操作。
 
 ## 维护剩余工作
 

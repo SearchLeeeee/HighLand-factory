@@ -54,7 +54,6 @@ Commands live in `factory.yaml:commands`. Add one line per command; the profile 
 - `review_required` / `verification_separate` — require independent review / verification roles.
 - `merge_requires_authorization` — require explicit user authorization before wiki merge.
 - `initiative_integration_required` — require Initiative-level integration evidence before any merge.
-- `max_parallel_features` — scheduling hint, not a lock.
 
 If a gate needs new behaviour (not just on/off), that is workflow maintenance, not configuration: see section 7.
 

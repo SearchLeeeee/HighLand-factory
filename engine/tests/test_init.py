@@ -66,6 +66,14 @@ def test_init_doctor_and_gates(tmp_path: Path) -> None:
     assert (work / "wiki" / "governance" / "workflow-profile.md").is_file()
     assert (work / "wiki" / "feature-workspace" / "registry.yaml").is_file()
     assert (work / "wiki" / "code-ai" / "core-agent.md").is_file()
+    gitignore = (work / ".gitignore").read_text(encoding="utf-8")
+    assert ".factory/local.yaml" in gitignore
+    assert ".factory/worktrees/" in gitignore
+
+    config_text = (work / ".factory" / "factory.yaml").read_text(encoding="utf-8")
+    assert "max_parallel_features" not in config_text
+    profile_text = (work / "wiki" / "governance" / "workflow-profile.md").read_text(encoding="utf-8")
+    assert "max_parallel_features" not in profile_text
 
     doctor = run("doctor", "--work", str(work), "--json")
     payload = json.loads(doctor.stdout)

@@ -53,9 +53,13 @@ create Initiative
   -> complete initial Feature inventory + depends_on + wave
   -> per-candidate Scope Gate and mandatory splitting
   -> finalize-decomposition
+  -> parallel-development choice: shared checkout or dedicated git worktree
   -> first dependency-ready Leaf discussion
+  -> domain implementation documents + Code AI profiles in that same discussion session
+  -> copyable $hl-feature-orchestrator startup prompt for a new session
   -> implementation, independent review, Feature acceptance
   -> ready-to-merge / ready for every non-cancelled, non-superseded Leaf
+  -> worktree merge-back, only after the Feature is ready and only if authorized
   -> Initiative integration-test handoff
   -> new immutable integration evidence + PASS
   -> Initiative merge-ready
@@ -78,6 +82,18 @@ Rules:
   discussion. The validator and the transition command fail closed on this.
 - A `ready-to-merge / ready` dependency is satisfied only with passed acceptance and complete
   closure; an incomplete ready state stays fail-closed.
+- Before discussion, check whether other Leaf Features are parallelizable at that moment. When at
+  least one is, ask the user whether to work in the shared checkout or in a dedicated git worktree;
+  record the answer in the workbench. A worktree is created by the implementation session, is
+  gitignored under `.factory/worktrees/`, and never merges back to `repo.default_branch` before the
+  Feature is `ready-to-merge / ready`.
+- Discussion and code implementation never share a session. The discussion session ends at
+  `code-ai-profiles / completed` with one copyable `$hl-feature-orchestrator` startup prompt
+  (workspace paths, must-read documents, confirmed conclusions, parallel development choice, target
+  state); the implementation session starts from that prompt and needs no chat history.
+- Entering implementation sets one continuous goal: advance the Feature to `ready-to-merge /
+  ready`. The goal is updated once when evidence changes status and completes only after that
+  transition is recorded.
 - No merge starts before every non-cancelled, non-superseded Leaf in the Initiative is ready.
 - After all Leaf Features are ready, generate the integration handoff and execute cross-Feature
   tests in a new immutable evidence root.

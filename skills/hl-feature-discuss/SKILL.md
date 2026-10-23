@@ -1,6 +1,6 @@
 ---
 name: hl-feature-discuss
-description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and Code AI profile inputs inside the feature workspace. At startup asks whether to run an interactive one-question-at-a-time discussion or a batch review written into the workbench, then advances lifecycle state only at skill boundaries.
+description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and Code AI profile inputs inside the feature workspace. At startup asks whether to run an interactive one-question-at-a-time discussion or a batch review written into the workbench, and whether to develop this Feature in a dedicated git worktree when sibling dependency-ready Leaf Features can proceed in parallel; advances lifecycle state only at skill boundaries and ends by emitting one copyable prompt that starts `$hl-feature-orchestrator` in a new session, because discussion and code implementation never share a session.
 ---
 
 # Feature Discuss
@@ -33,7 +33,9 @@ Run this before anything else, including reading the feature request.
 
 Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then inputs for executable Code AI profiles.
 
-The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, create the workbench, list every known question before asking any, choose the discussion mode with the user, confirm conclusions, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs` and hand the profile phase to `$hl-feature-profile-generate`.
+The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, create the workbench, list every known question before asking any, choose the discussion mode and the parallel development mode with the user, confirm conclusions, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, finish the profile phase through `$hl-feature-profile-generate`, and end the session with one copyable prompt that starts `$hl-feature-orchestrator` in a new session.
+
+Discussion and code implementation never share a session. This session owns the workbench, the domain implementation documents and the Code AI profiles; it never writes application code, never dispatches owner implementation subagents, and never runs review or acceptance.
 
 ## Discussion Mode (ask before any question)
 
@@ -55,6 +57,24 @@ Both modes are equal in rigor: the same inventory, the same confirmation rule, t
 - Security, irreversible-operation, contract-changing, permission and cross-owner boundary questions require an explicit per-question answer; they cannot be covered by a blanket "accept all".
 - After processing a batch: update confirmed conclusions and statuses, re-inventory newly discovered questions, then ask whether to continue with another batch or switch to interactive.
 - Batch mode never skips required topics (behaviour, ownership, contracts, tests, acceptance criteria) and never writes implementation documents before the phase confirmation.
+
+## Parallel Development Mode (ask at startup)
+
+This skill still discusses exactly one Leaf Feature. Before the first detailed question, and right after the discussion mode question, check whether other Leaf Features of the same Initiative can be developed at that moment, because the user may want to implement this one in an isolated git worktree while those proceed in other sessions.
+
+1. Read the workspace `README.md` section on ordering and parallelism and the schema section on dependencies and wave.
+2. Enumerate the sibling Leaf Features from the registry and the Initiative manifest. A sibling counts as parallelizable at this moment only when all of these hold:
+   - it is a Leaf, and not `cancelled` or `superseded`;
+   - every `depends_on` entry is satisfied: `completed`, or `ready-to-merge / ready` with passed acceptance and complete closure;
+   - it has no blocking child;
+   - its owner and file scope do not overlap this Feature's, and it does not change the same contract.
+   There is no numeric concurrency cap: the disjointness test above plus worktree code isolation is what makes concurrent work safe.
+3. Run `feature_workspace.py report` and use its ready and next-action lines as evidence. Never infer parallelism from numbering or from `wave` alone; `wave` is only a scheduling hint.
+4. If at least one sibling qualifies, ask one startup question before writing detailed questions: develop in the shared checkout sequentially, or open a dedicated git worktree for this Feature so the other Features can be developed in parallel. Use the structured choice panel when the platform provides one, put the worktree option first with its tradeoff (isolation buys parallel throughput, at the cost of a later merge-back), and accept a custom answer. If no sibling qualifies, state that in one line and continue without asking.
+5. Record the answer in the workbench under `## Parallel development`.
+6. If a workbench already records a parallel development choice, continue it unless the user asks to change it.
+
+Recorded worktree mode is an implementation decision carried to the implementation session; it is not a lifecycle value. The worktree is created and used by `$hl-feature-orchestrator`, which works in it and does not propose merging it back to `repo.default_branch` before the Feature reaches `ready-to-merge / ready`.
 
 ## Workspace Rules
 
@@ -94,6 +114,12 @@ Before leaving the discussion phase, summarize: confirmed conclusions, pending o
 
 Only after explicit confirmation may you create domain folders, final documents, `code-ai/README.md` and profile files.
 
+### Session boundary
+
+- This session ends at `code-ai-profiles / completed`. It never starts implementation, never writes application code, never dispatches an implementation subagent, and never runs review or acceptance — those belong to a new session running `$hl-feature-orchestrator`.
+- Before ending, record the boundary through the state machine with `--next-skill hl-feature-orchestrator` and an instruction naming the feature root, then emit the copyable startup prompt from `## Handoff Prompt`.
+- If the user asks to implement in this same session, decline and point at the startup prompt instead: mixing discussion and implementation makes the discussion conclusions unverifiable and loses the independent review and separated acceptance boundary.
+
 ## Discussion Workbench
 
 The workbench is conclusion-only. It is not a chat transcript and not the final authority document.
@@ -114,6 +140,11 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 
 ## Discussion mode
 - selected: interactive | batch-review
+- recorded at: <date or step>
+
+## Parallel development
+- selected: sequential | worktree
+- parallel features considered: <feature IDs, or none>
 - recorded at: <date or step>
 
 ## Discussion rules
@@ -220,6 +251,7 @@ A complete discussion first produces only the workbench. After explicit phase co
 - Domain implementation documents in `project.language.docs`, each covering required test cases and acceptance criteria.
 - A `code-ai/README.md` index under `code-ai/`.
 - Executable profiles under `code-ai/`, generated per `$hl-feature-profile-generate`, referencing `wiki/code-ai/` by relative path.
+- One copyable startup prompt for a new session running `$hl-feature-orchestrator`, per `## Handoff Prompt`.
 
 Do not finish with chat discussion only when the user asked for durable files.
 
@@ -266,4 +298,41 @@ Then re-run `factory gate workspace --work <WORK_ROOT>`. Never report a transiti
 
 ## Handoff Prompt
 
-When discussion and documents are complete, hand off in the user's language, naming the feature root, the documents to read first, and the profile targets, and instruct the next session to use `$hl-feature-profile-generate`. Keep IDs, paths, YAML keys, lifecycle enums and skill names ASCII.
+Discussion and code implementation never share a session. This skill ends at `code-ai-profiles / completed`; the implementation runs in a new session started by one copyable prompt.
+
+Before ending:
+
+1. Finish the profiles phase, then record the boundary through the state machine: `--phase code-ai-profiles --state completed --next-skill hl-feature-orchestrator` with an instruction naming the feature root and the objective. Re-run `factory gate workspace --work <WORK_ROOT>`. If the profile phase runs under `$hl-feature-profile-generate` in this same session, emit the prompt after that skill finishes and the manifest reads `code-ai-profiles / completed`.
+2. Emit exactly one fenced, copyable prompt in the user's language. Put it in the response only; never persist prompt files.
+3. Say in one line that the prompt must be pasted into a new session, and do not start implementation in this one.
+
+The prompt must be self-contained so the new session needs no chat history. It contains, in this order:
+
+- the invocation: `$hl-feature-orchestrator <Feature ID>`, plus `FACTORY_ROOT`, `WORK_ROOT` and the feature root path;
+- the current lifecycle position (`phase: code-ai-profiles`, `state: completed`) and the objective: advance this Feature to `ready-to-merge / ready`, keeping that one goal until it is recorded;
+- the must-read paths: `feature.yaml`, `discussion/workbench.md`, each domain implementation document, and `code-ai/README.md` with the profiles it indexes;
+- the confirmed conclusions and constraints in short form, and the deferred questions marked explicitly as deferred so they are not reopened as discussion;
+- the recorded parallel development choice from `## Parallel development`. When it is `worktree`, add: create `<WORK_ROOT>/.factory/worktrees/<feature-id-lowercase>` on branch `feature/<feature-id-lowercase>` after the `check-ignore` precondition, work inside it, keep manifests and evidence in `WORK_ROOT`, and never propose merging back to `repo.default_branch` before the Feature is `ready-to-merge / ready`;
+- the mandatory end state: recorded `ready-to-merge / ready` with passing fixed review, separated acceptance, complete closure and a passing `factory gate workspace`;
+- the prohibitions: no product re-discussion, no hand-editing `phase`/`state`, no merge or commit without explicit authorization.
+
+Render section labels in the user's language; keep IDs, paths, YAML keys, lifecycle enums and skill names ASCII:
+
+```text
+Use $hl-feature-orchestrator <FEATURE_ID> in work repo <WORK_ROOT> to advance Leaf Feature <FEATURE_ID> (<title>).
+
+- FACTORY_ROOT: <FACTORY_ROOT>
+- WORK_ROOT: <WORK_ROOT>
+- feature root: <WORK_ROOT>/wiki/feature-workspace/initiatives/<initiative>/features/<feature>
+- lifecycle: phase=code-ai-profiles, state=completed; profiles already generated
+- goal: advance this Feature to ready-to-merge / ready (implementation and doc sync, fixed review,
+  separated acceptance, closure gate, recorded transition with a passing factory gate workspace);
+  keep this one goal until it is recorded
+- read first: feature.yaml, discussion/workbench.md, <domain>/*.md, code-ai/README.md and the
+  profiles it indexes
+- confirmed conclusions: <short list>
+- deferred questions (do not reopen discussion): <short list>
+- parallel development: sequential | worktree (<worktree path and branch when worktree>)
+- do not: reopen product discussion, hand-edit phase/state, merge or commit without explicit
+  authorization
+```

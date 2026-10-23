@@ -208,7 +208,6 @@ class GeneratedBlocks:
             f"- verification_separate: {workflow.get('verification_separate', True)}",
             f"- merge_requires_authorization: {workflow.get('merge_requires_authorization', True)}",
             f"- initiative_integration_required: {workflow.get('initiative_integration_required', True)}",
-            f"- max_parallel_features: {workflow.get('max_parallel_features', 1)}",
         ]
         return "\n".join(lines)
 

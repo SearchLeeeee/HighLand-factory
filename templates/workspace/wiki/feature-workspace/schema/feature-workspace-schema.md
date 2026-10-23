@@ -183,8 +183,12 @@ ID。禁止建立多层嵌套编号。
 依赖项处于 `completed`，或处于 `ready-to-merge/ready` 且验收通过、闭环完整时才算
 满足。取消或 `superseded` 不会自动释放依赖，必须更新依赖指向或重新作出业务决策。
 
-同一 Wave 不代表一定可以并行；执行前还要检查 owner、文件范围和共享契约是否冲突，
-并遵守 `workflow.max_parallel_features` 上限。
+同一 Wave 不代表一定可以并行；执行前还要检查 owner、文件范围和共享契约是否冲突。
+满足条件即可并发，不设数量上限；隔离由每个 Feature 的 worktree 提供。
+
+并行开发方式（共用工作区顺序推进，或为单个 Feature 开 git worktree）属于实现阶
+段的操作决定，记录在讨论 workbench 中；它不是 `phase`、`state` 或 manifest 字段，
+不改变生命周期规则。worktree 不早于 `ready-to-merge/ready` 合回 `repo.default_branch`。
 
 ## 8. Manifest 引用
 

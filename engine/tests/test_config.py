@@ -79,6 +79,35 @@ def test_answers_deep_merge_does_not_mutate_defaults() -> None:
     assert config.DEFAULT_CONFIG == before
 
 
+def test_defaults_have_no_parallelism_cap() -> None:
+    cfg = _valid()
+    assert "max_parallel_features" not in cfg["workflow"]
+    errors, _ = config.validate_config(cfg)
+    assert errors == []
+
+
+def test_stale_parallelism_cap_fails_closed() -> None:
+    cfg = _valid()
+    cfg["workflow"]["max_parallel_features"] = 1
+    errors, _ = config.validate_config(cfg)
+    assert any("unknown workflow key" in error for error in errors)
+    assert any("max_parallel_features" in error for error in errors)
+
+
+def test_unknown_workflow_key_is_rejected() -> None:
+    cfg = _valid()
+    cfg["workflow"]["surprise"] = True
+    errors, _ = config.validate_config(cfg)
+    assert any("unknown workflow key" in error for error in errors)
+
+
+def test_scope_gate_must_be_a_mapping() -> None:
+    cfg = _valid()
+    cfg["workflow"]["scope_gate"] = True
+    errors, _ = config.validate_config(cfg)
+    assert any("scope_gate" in error for error in errors)
+
+
 def test_config_hash_is_stable() -> None:
     cfg = _valid()
     assert config.config_hash(cfg) == config.config_hash(copy.deepcopy(cfg))

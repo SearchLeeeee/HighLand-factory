@@ -24,8 +24,8 @@ lifecycle state machine.
 4. Run gates through the engine rather than composing paths by hand:
    `factory gate workspace --work <WORK_ROOT>` and `factory gate wiki --work <WORK_ROOT>`.
 5. Take policy values (scope gate, split default, quick change, review required, verification
-   separate, merge authorization, Initiative integration required, max parallel features,
-   evidence root) from `workflow-profile.md` / `.factory/factory.yaml`. Never assume a default.
+   separate, merge authorization, Initiative integration required, evidence root) from
+   `workflow-profile.md` / `.factory/factory.yaml`. Never assume a default.
 6. If the profile or config disagrees with what the user is asking for, treat the config as
    truth and route the change through **Workflow Maintenance** below.
 
@@ -91,6 +91,14 @@ in a broad F01. Before any detailed Feature discussion:
    non-empty `scope_gate.indivisibility_reason`.
 4. Run `feature_workspace.py finalize-decomposition`.
 5. Route only the first dependency-ready Leaf into discussion.
+
+Before that discussion, check whether other Leaf Features are parallelizable at that moment (satisfied
+dependencies, no blocking child, disjoint owners, files and contracts); there is no numeric
+concurrency cap — safety comes from that disjointness test plus worktree code isolation. When at
+least one sibling is parallelizable, the operator chooses shared-checkout sequential work or a
+dedicated git worktree, and the choice is recorded in the workbench. The implementation session
+carries one continuous goal: advance the Feature to `ready-to-merge / ready`. A worktree is code
+isolation only and never merges back to `repo.default_branch` before that state.
 
 The validator and transition commands fail closed when decomposition is incomplete, the candidate
 is not a Leaf, or the candidate is not discussion-admissible. Mandatory splitting is a workflow

@@ -21,6 +21,7 @@ Paths are fixed relative to the **work repo root** (`<work>`). Config may rename
   .factory/factory.yaml
   .factory/local.yaml          # gitignored
   .factory/state.json          # gitignored, init/upgrade bookkeeping
+  .factory/worktrees/          # gitignored, per-Feature worktrees for parallel development
   code/                        # implementation (mono mode)
   wiki/                        # long-term authority root
     README.md                  # root MOC
@@ -80,7 +81,7 @@ Read these from `workflow-profile.md` / `factory.yaml`; do not invent them:
 | owners | id, title, owned paths, profile path |
 | commands | setup, build, lint, typecheck, test, e2e, dev, verify |
 | verification | baseline evidence path, evidence root, isolated environment policy |
-| workflow | scope gate on/off, split default, quick change, review required, verification separated, merge authorization, initiative integration required, max parallel features |
+| workflow | scope gate on/off, split default, quick change, review required, verification separated, merge authorization, initiative integration required |
 | security | forbidden operations, sensitive classes, secrets file |
 | agents | platforms, review model, verification model |
 | packs | enabled, disabled |

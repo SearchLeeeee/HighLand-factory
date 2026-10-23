@@ -2,6 +2,7 @@
 .factory/local.yaml
 .factory/state.json
 .factory/analysis/
+.factory/worktrees/
 
 # Python
 __pycache__/

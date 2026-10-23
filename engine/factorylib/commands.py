@@ -265,6 +265,7 @@ GITIGNORE_BLOCK = """
 .factory/state.json
 .factory/.venv/
 .factory/analysis/
+.factory/worktrees/
 .factory-cache/
 """
 
@@ -272,7 +273,7 @@ GITIGNORE_BLOCK = """
 def _ensure_gitignore(work: Path) -> bool:
     path = work / ".gitignore"
     existing = path.read_text(encoding="utf-8-sig") if path.is_file() else ""
-    required = [".factory/local.yaml", ".factory/state.json"]
+    required = [".factory/local.yaml", ".factory/state.json", ".factory/worktrees/"]
     missing = [item for item in required if item not in existing]
     if not missing:
         return False

@@ -49,6 +49,23 @@ authority stays with the feature-workspace tools and documentation named by
   interaction rule never weakens an authorization or machine gate.
 - User authorization is required for actual merge, deletion, commit and push operations whenever
   the profile requires it.
+- Parallel development mode — shared checkout sequentially, or one dedicated git worktree per
+  Feature — is an implementation decision recorded in the discussion workbench, never a lifecycle
+  value. A worktree isolates code only: manifests, evidence and the workspace gate stay in the work
+  root, `.factory/worktrees/` stays gitignored, and the worktree is never merged back into
+  `repo.default_branch` before the Feature reaches `ready-to-merge / ready`. That merge is a
+  separate operation with its own explicit authorization.
+- The implementation session carries one continuous goal: advance the Feature to
+  `ready-to-merge / ready`. Update it once when new evidence changes the status, never create a
+  second goal, never emit a next-session handoff mid-workflow, and complete it only after the
+  transition is recorded and the workspace gate passes.
+- Discussion and code implementation never share a session. The discussion session owns the
+  workbench, the domain implementation documents and the Code AI profiles, ends at
+  `code-ai-profiles / completed`, and hands off exactly one copyable prompt that starts
+  `$hl-feature-orchestrator` in a new session; that prompt carries the workspace paths, the
+  must-read documents, the confirmed conclusions and the parallel development choice, so the
+  implementation session needs no chat history. Starting implementation in the discussion session,
+  or reopening product discussion in the implementation session, is invalid.
 - Main-session responsibility cannot be delegated: a lower-cost model tier may prepare bounded
   work, but the main session owns authority, lifecycle decisions, gates and final verification.
 
@@ -63,7 +80,6 @@ authority stays with the feature-workspace tools and documentation named by
 | `workflow.verification_separate` | `workflow-profile.md` | whether verification runs in a separate session |
 | `workflow.merge_requires_authorization` | `workflow-profile.md` | whether merge needs explicit user authorization |
 | `workflow.initiative_integration_required` | `workflow-profile.md` | whether Initiative integration evidence is a merge precondition |
-| `workflow.max_parallel_features` | `workflow-profile.md` | scheduling cap for parallel Leaf Features |
 | `verification.evidence_root` | `workflow-profile.md` | where immutable integration evidence is written |
 
 ## Change Surface

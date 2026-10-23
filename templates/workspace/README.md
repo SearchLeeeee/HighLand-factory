@@ -126,7 +126,8 @@
    `DEFAULT_CONFIG` + answers 序列化生成 `.factory/factory.yaml`，不使用本模板。本
    文件因此是可读的规格说明。若引擎改为渲染它，必须保持
    `config.validate_config` 的约束：`project.stack` 必须是列表、
-   `workflow.scope_gate` 必须是 `{enabled, split_default}` 映射、`owners[].paths`
+   `workflow.scope_gate` 必须是 `{enabled, split_default}` 映射、`workflow` 下不得出现
+   未注册的键（旧的 `max_parallel_features` 会被拒绝并提示修复）、`owners[].paths`
    非空、`repo.code_path`/`wiki_path` 为仓库内相对路径。
 2. `factory init` 会写 `wiki/governance/init-record.md` 和
    `wiki/validation/init-baseline.md`。本模板已提供同名骨架并在目录 MOC 中登记，所以

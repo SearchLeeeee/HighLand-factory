@@ -65,7 +65,7 @@ Follow the P0 order in `docs/init-questionnaire.md`. For each item, detect → p
 12. security: forbidden operations, sensitive data classes, redaction, secret storage
 13. authorization: who approves commit/push/merge/delete/production writes; whether review and verification are independent
 14. verification: baseline evidence path, evidence root, isolation policy, reproducibility
-15. workflow gates: keep defaults? quick-change? max parallel features? initiative integration?
+15. workflow gates: keep defaults? quick-change? Initiative integration?
 16. naming: ID prefixes, slug rules, wiki taxonomy
 17. git: default branch, commit format, initial commit now?
 18. packs: commit / dev-runtime / remote-verify

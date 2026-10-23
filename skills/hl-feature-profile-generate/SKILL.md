@@ -145,3 +145,11 @@ Profiles describe owner scope only. Preflight, goal, lifecycle state and commit 
 ## Relationship to Other Skills
 
 `$hl-feature-discuss` owns the discussion phase and the domain implementation documents. Once the user confirms the profile phase, generation follows this skill. Do not maintain two sets of profile-generation rules across skills.
+
+## Session Boundary
+
+Discussion and code implementation never share a session, so this skill ends the discussion session.
+
+- When generation finishes, the owning Feature must record `code-ai-profiles / completed` through `$hl-feature-workspace`, and `factory gate workspace --work <WORK_ROOT>` must pass.
+- Then emit exactly one copyable startup prompt that starts `$hl-feature-orchestrator` in a new session, following the content rules in `$hl-feature-discuss` `## Handoff Prompt`. Do not duplicate or invent a second prompt format.
+- Do not start implementation, dispatch an implementation subagent, run review or run acceptance here, even when the profiles are complete and the code change looks small.

@@ -1,6 +1,6 @@
 ---
 name: hl-feature-orchestrator
-description: Use when one registered Leaf Feature has completed Code AI profiles and must be implemented through scoped owner subagents with plan approval, a fixed review gate, separate verification and governed lifecycle transitions. Explicit invocation with a feature workspace path or feature ID.
+description: Use when one registered Leaf Feature has completed Code AI profiles and must be implemented through scoped owner subagents with plan approval, a fixed review gate, separate verification and governed lifecycle transitions. Runs in a new session started from the copyable startup prompt that `$hl-feature-discuss` emits at the discussion/implementation boundary. Explicit invocation with a feature workspace path or feature ID.
 ---
 
 # Feature Orchestrator
@@ -20,7 +20,8 @@ Run this before anything else, including reading the request.
    - the **owners table** — owner ids, titles, owned paths, profile paths. Owner selection and write-scope enforcement read from here, never from memory.
    - the **commands table** — the only validation commands you may run or cite.
    - `verification.baseline_evidence`, `verification.evidence_root`, `verification.isolated_env`.
-   - `workflow.review_required`, `workflow.verification_separate`, `workflow.merge_requires_authorization`, `workflow.max_parallel_features`.
+   - `workflow.review_required`, `workflow.verification_separate`, `workflow.merge_requires_authorization`.
+   - `repo.mode`, `repo.default_branch`, `repo.code_path`, `repo.code_external` — the code root and the branch a worktree merges back into.
    - `security.forbidden_operations`, `security.sensitive_classes`.
    - `packs.enabled` — whether an optional commit or remote-verify policy exists at all.
    Section titles are rendered in the project document language: locate sections by topic.
@@ -37,6 +38,8 @@ Use this skill only when the user explicitly invokes `$hl-feature-orchestrator` 
 
 If the invocation carries no resolvable feature, ask for it before dispatching any implementation subagent. Never infer a default feature or a default profile folder from another project, the current directory, or memory.
 
+This skill normally runs in a new session that starts from the copyable prompt produced by `$hl-feature-discuss` at the `code-ai-profiles / completed` boundary. Treat that prompt as sufficient context: it names the feature root, the must-read documents, the confirmed conclusions and the parallel development choice. If you were invoked without it, read those documents from disk before dispatching. Never reopen product discussion here; a documented blocker goes back to the discussion owner.
+
 The Feature's Code AI profiles live under its feature root:
 
 ```text
@@ -44,6 +47,38 @@ wiki/feature-workspace/initiatives/<initiative>/features/<feature>/code-ai/
 ```
 
 The review gate is the fixed exception and is not discovered dynamically: `wiki/code-ai/review-agent.md`, resolved relative to `WORK_ROOT`. If it is not readable when review is required, stop and report that the review gate cannot run instead of substituting another review profile.
+
+## Goal
+
+Entering this skill means entering the code implementation environment, so set one session goal before dispatching any implementation subagent. Use the platform's goal mechanism when it provides one; otherwise state the objective as the first main-thread statement and keep it there. A todo list or a subagent task list is not a substitute for the goal.
+
+- The objective is to advance this Feature to `ready-to-merge / ready`: implementation and documentation sync, fixed review, separated verification and acceptance all pass, the closure gate is satisfied, and the `ready-to-merge / ready` transition is recorded with a passing `factory gate workspace`.
+- Write the objective that way. Do not set it as "write the code" or "finish the subagent tasks"; those are means, not the completion boundary.
+- Keep one continuous goal for the whole session. Subagent completions, partial results, retries, ordinary test failures and review iterations are internal events, not goal changes.
+- Update the existing goal state once when new evidence changes the status. Do not create a second goal, do not repeat a completed handoff, and do not declare the goal handed off while continuing to execute it.
+- Emit one final handoff only when the workflow is complete, blocked, or needs a real user decision or authorization.
+- Never mark the goal complete before the `ready-to-merge / ready` transition is recorded and the workspace gate passes.
+
+## Worktree Mode (parallel development)
+
+`$hl-feature-discuss` may have recorded a `worktree` parallel development choice in the workbench. That decision belongs to the implementation session and never changes lifecycle values.
+
+1. Read the workbench `## Parallel development` section. If it records `worktree`, re-verify before creating anything: the Feature is still a Leaf with `code-ai-profiles / completed`, its dependencies are satisfied, no sibling it was compared against now shares its owner, file or contract scope, and those sibling Features are still active. If any check fails, report the change and ask whether to continue sequentially instead.
+2. Confirm the code root and its owning repository: for `repo.mode: mono` the code root is `repo.code_path` inside `WORK_ROOT` and the owning repository is `WORK_ROOT` itself; for `split` it is the resolved `repo.code_external` and that directory is its own repository. The worktree isolates the code the Feature changes; wiki and feature-workspace files stay in `WORK_ROOT`.
+3. Use these paths, derived from the stable IDs and never hand-picked:
+
+   ```text
+   worktree path: <WORK_ROOT>/.factory/worktrees/<feature-id-lowercase>
+   branch:        feature/<feature-id-lowercase>
+   ```
+
+   The worktree belongs to the repository that owns the code root, but its path always sits under `WORK_ROOT/.factory/worktrees/`, so one convention covers both repository modes.
+
+4. For `mono`, the worktree path is inside the work repository, so prove it is ignored before creating it: `git -C <WORK_ROOT> check-ignore -v .factory/worktrees/<feature-id-lowercase>`. If it is not ignored, stop and tell the user to add `.factory/worktrees/` to `.gitignore` and commit that change, then retry. A worktree must never be committed as a nested tree. For `split`, the path is outside the code repository, so only confirm it is not inside that repository.
+5. Create it from the owning repository, based on the branch that will receive the merge: `git -C <OWNING_REPO> worktree add <WORK_ROOT>/.factory/worktrees/<feature-id-lowercase> -b feature/<feature-id-lowercase> <repo.default_branch>`. If the branch already exists, stop and report it; do not reuse or force-create branches.
+6. Report the actual worktree path to every implementation subagent as its implementation root, and keep allowed and forbidden file scopes relative to it. Lifecycle manifests, evidence and the workspace gate stay in `WORK_ROOT`; commit from the worktree only when the commit boundary below is satisfied.
+7. A worktree merge back to `repo.default_branch` is a separate operation that is offered only after the Feature reaches `ready-to-merge / ready`. Before that point, do not propose it, do not merge, and do not delete the branch. When the Feature is ready, ask the user explicitly whether to merge the worktree back; perform it only with that authorization, and when `workflow.merge_requires_authorization` is true treat an absent answer as no. Report the branch, the target branch and the resulting commit, and leave removing the worktree and branch to an explicit follow-up.
+8. On a blocked or abandoned worktree path, keep the worktree and branch as they are and report them; never silently delete unmerged work. A code merge into `repo.default_branch`, the `ready-to-merge / ready` lifecycle state and the long-term wiki authority merge remain three separate operations.
 
 ## Source Discovery
 
@@ -66,7 +101,7 @@ Before dispatching:
 - Resolve the owning `feature.yaml`; reject Initiatives and non-Leaf containers.
 - Require phase `code-ai-profiles` completed, a passing Scope Gate, no blocking child, and satisfied dependencies.
 - Confirm the owner ids used by the profiles exist in the profile owners table and their write scopes do not overlap.
-- Treat `wave` as a scheduling hint only; parallelism is also capped by `workflow.max_parallel_features`.
+- Treat `wave` as a scheduling hint only; real parallelism requires satisfied dependencies and non-overlapping owner, file and contract scope, and it is not capped by a configured number.
 - Read the authority pages that exist before dispatch: `wiki/00-spec.md`, `wiki/02-file-authority-map.md`, `wiki/03-current-decisions.md`, plus any page covering the touched contract or risk.
 - If one of those pages is absent, continue with what exists and mention the gap only when it affects routing, contract safety or validation.
 
@@ -221,6 +256,8 @@ At every transition:
 5. If it fails, repair the manifest before continuing; never report a transition as successful from prose alone.
 
 If implementation, review or acceptance is incomplete, failed or not verified, keep the truthful current phase with `in-progress`. Use `blocked` only under the workspace rules. Never mark `acceptance / completed` while any required acceptance item is failing, blocked or unverified.
+
+Keep the goal set on entry active through the whole sequence: only the recorded `ready-to-merge / ready` transition completes it. A blocked or paused Feature keeps the same goal with the truthful blocked status instead of a second goal.
 
 ## Commit Boundary
 

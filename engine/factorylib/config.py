@@ -70,7 +70,6 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "verification_separate": True,
         "merge_requires_authorization": True,
         "initiative_integration_required": True,
-        "max_parallel_features": 1,
     },
     "security": {
         "forbidden_operations": [],
@@ -89,6 +88,14 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 COMMAND_KEYS = ("setup", "build", "lint", "typecheck", "test", "e2e", "dev", "verify")
+WORKFLOW_BOOLEAN_KEYS = (
+    "quick_change",
+    "review_required",
+    "verification_separate",
+    "merge_requires_authorization",
+    "initiative_integration_required",
+)
+WORKFLOW_KEYS = set(WORKFLOW_BOOLEAN_KEYS) | {"scope_gate"}
 TOP_LEVEL_KEYS = set(DEFAULT_CONFIG)
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 OWNER_ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -295,18 +302,22 @@ def validate_config(config: dict[str, Any]) -> tuple[list[str], list[str]]:
     if not isinstance(workflow, dict):
         errors.append("workflow must be a mapping")
     else:
-        for key in (
-            "quick_change",
-            "review_required",
-            "verification_separate",
-            "merge_requires_authorization",
-            "initiative_integration_required",
-        ):
+        unknown_workflow = sorted(set(workflow) - WORKFLOW_KEYS)
+        for key in unknown_workflow:
+            errors.append(
+                f"unknown workflow key: {key!r} "
+                f"(allowed: {', '.join(sorted(WORKFLOW_KEYS))})"
+            )
+        for key in WORKFLOW_BOOLEAN_KEYS:
             if not isinstance(workflow.get(key), bool):
                 errors.append(f"workflow.{key} must be a boolean")
-        max_parallel = workflow.get("max_parallel_features")
-        if not isinstance(max_parallel, int) or max_parallel < 1:
-            errors.append("workflow.max_parallel_features must be a positive integer")
+        scope_gate = workflow.get("scope_gate")
+        if not isinstance(scope_gate, dict):
+            errors.append("workflow.scope_gate must be a mapping")
+        else:
+            for key in ("enabled", "split_default"):
+                if not isinstance(scope_gate.get(key), bool):
+                    errors.append(f"workflow.scope_gate.{key} must be a boolean")
 
     security = config.get("security")
     if not isinstance(security, dict):

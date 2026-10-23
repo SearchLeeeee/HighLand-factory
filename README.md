@@ -224,7 +224,8 @@ sequenceDiagram
     S->>W: 领域实现文档
     M->>S: $hl-feature-profile-generate
     S->>W: code-ai/ profiles
-    M->>S: $hl-feature-orchestrator I001-F01
+    S-->>M: 可复制的 $hl-feature-orchestrator 启动 prompt（新会话）
+    M->>S: 新会话粘贴 prompt
     S->>C: 派发 owner（先交计划，批准后实现）
     C-->>S: 实现 + 自测
     S->>C: 固定 review profile 独立 review
@@ -266,9 +267,13 @@ $hl-feature-discuss I001-F01
 这个 skill 一次只处理**一个** dependency-ready 的 Leaf Feature：
 
 - 先问你要哪个讨论模式：**交互式**（一次一个问题）或**批量审阅**（把问题写进 workbench，你批量回答）；
+- 若此刻还有可并行开发的其他 Leaf Feature，再问一次开发方式：共用工作区顺序推进，还是为当前 Feature 开一个独立 **git worktree**（worktree 模式直到该 Feature 推进到 `ready-to-merge / ready` 才会问是否合回 `main`）；
 - 只写 `discussion/workbench.md`：问题清单、已确认结论、未决问题、领域划分、文档目标、profile 目标；
 - 你明确确认讨论完成后，才创建领域实现文档（含测试用例与验收标准）；
-- 最后交接给 profiles 阶段。
+- 最后交接给 profiles 阶段；
+- 讨论会话在 profiles 阶段结束后（若 profiles 在同一会话生成）产出**一份可复制的启动 prompt**（含 `$hl-feature-orchestrator <Feature ID>`、`FACTORY_ROOT`/`WORK_ROOT`、必读路径、已确认结论、worktree 选择、目标状态），用于在**新会话**里启动实现。
+
+讨论和代码实现**不在同一个会话**：讨论会话只产出 workbench、领域实现文档和 profiles，不写业务代码、不派发实现子 agent、不做 review 与验收；实现会话由那份 prompt 新开，并从 `code-ai-profiles / completed` 接管。
 
 示例产物：
 
@@ -301,21 +306,30 @@ feat-i001-f01-sync-export/
 
 生成前会检查 `feature.yaml` 的五维 `consistency_matrix` 完整、`gate workspace` 通过。
 
+profiles 完成后，讨论会话结束：它给出**一份可复制的启动 prompt**（定义见 `$hl-feature-discuss` 的 `## Handoff Prompt`），供你在**新会话**启动实现。讨论与代码实现不共用会话。
+
 #### 第 4 步：实现 → 独立 review → 独立验收（`$hl-feature-orchestrator`）
+
+**新会话**里粘贴上一步给出的启动 prompt（等价于）：
 
 ```text
 $hl-feature-orchestrator I001-F01
 ```
 
+不要在讨论会话里直接开始实现。
+
 主会话负责协调和门禁，不自己写业务代码：
 
-1. 预检：phase 必须是 `code-ai-profiles / completed`，Scope Gate 通过，依赖满足，owner 写作用域不重叠；
-2. 派发 owner 子 agent（只给允许/禁止文件、验收标准、验证命令），**先交计划，批准后才改文件**；
-3. 实现完成后跑**固定 review profile** 做独立 review，blocker 必须修复并重审；
-4. `workflow.verification_separate` 开启时，验收在独立会话中执行，用真实命令和证据；
-5. 状态机推进：`implementation → review → acceptance → ready-to-merge / ready`，每次推进后都跑 `factory gate workspace`。
+1. 进入实现环境时先设置一个目标：把这个 Feature 推进到 `ready-to-merge / ready`；整个实现、review、验收过程保持同一目标，只在状态真正改变时更新；
+2. 预检：phase 必须是 `code-ai-profiles / completed`，Scope Gate 通过，依赖满足，owner 写作用域不重叠；
+3. 派发 owner 子 agent（只给允许/禁止文件、验收标准、验证命令），**先交计划，批准后才改文件**；
+4. 实现完成后跑**固定 review profile** 做独立 review，blocker 必须修复并重审；
+5. `workflow.verification_separate` 开启时，验收在独立会话中执行，用真实命令和证据；
+6. 状态机推进：`implementation → review → acceptance → ready-to-merge / ready`，每次推进后都跑 `factory gate workspace`。
 
 Feature 不会停在 `implementation / completed` 或 `review / completed`：最后一步必须是 `ready-to-merge / ready`，否则不算完成。
+
+讨论阶段选择了 worktree 模式时，实现在 `.factory/worktrees/<feature-id 小写>` 的独立 worktree 中进行（分支 `feature/<feature-id 小写>`，已被 `.gitignore` 忽略，代码根按 `repo.mode` 确定）。在达到 `ready-to-merge / ready` 之前不提出也不执行合回；达到之后才单独询问是否把 worktree 合回 `repo.default_branch`。
 
 #### 第 5 步：其余 Leaf 与 Initiative 集成（`$hl-initiative-merge`）
 

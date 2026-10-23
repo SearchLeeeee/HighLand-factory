@@ -19,7 +19,7 @@ correctly in a fresh session without relying on chat history.
    unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine rather than composing paths: `factory gate workspace --work
    <WORK_ROOT>`.
-5. Take the docs language, feature-workspace root, parallel-feature cap and gate switches from the
+5. Take the docs language, feature-workspace root and gate switches from the
    profile. Never assume them.
 6. If the profile or config contradicts the manifests, report the contradiction instead of
    improvising a repair; repairs route to `$hl-workflow-governance` or `$hl-feature-workspace`.
@@ -61,8 +61,11 @@ around.
 11. Explain maintenance ownership: name the workflow skill responsible for the next state change and
     the manifest it will maintain. Never recommend manual phase advancement.
 12. State that `wave` is only a scheduling hint; parallel execution also requires completed
-    dependencies and non-overlapping owner, file and contract scope, within
-    `workflow.max_parallel_features`.
+    dependencies and non-overlapping owner, file and contract scope. There is no numeric
+    concurrency cap: report every dependency-ready, scope-disjoint Feature as parallelizable.
+    When a Feature's workbench records a `worktree` parallel development choice, report it as the
+    recorded working mode, and report a worktree the Feature has not yet merged back as pending
+    work rather than as a defect.
 
 ## Next-Session Prompts
 
@@ -77,6 +80,11 @@ When the user asks for a next-session prompt:
 - Tell the next workflow skill to preserve split boundaries and to maintain the owning manifest.
 - If formal references are incomplete, output a blocker prompt that requests the missing authority
   instead of pretending the handoff is complete.
+- When the next skill is `hl-feature-orchestrator`, follow the same content rules as the startup
+  prompt that `$hl-feature-discuss` emits at the `code-ai-profiles / completed` boundary: workspace
+  paths, must-read documents and profiles, confirmed conclusions, deferred questions, the recorded
+  parallel development choice, the target `ready-to-merge / ready`, and the prohibitions. Do not
+  invent a second prompt format.
 - Produce one fenced, copyable prompt per requested Feature.
 
 ## Language

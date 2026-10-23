@@ -27,7 +27,7 @@ resolve those references recursively.
 4. Run gates through the engine rather than composing paths:
    `factory gate workspace --work <WORK_ROOT>` (this runs `validate` against the registry) and
    `factory gate wiki --work <WORK_ROOT>`.
-5. Take the scope-gate switches, max parallel features, review and verification policy, evidence
+5. Take the scope-gate switches, review and verification policy, evidence
    root and the feature-workspace root from the profile. The default registry path is
    `wiki/feature-workspace/registry.yaml`; if the profile declares a different workspace root, use
    that instead.

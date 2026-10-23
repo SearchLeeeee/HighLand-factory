@@ -15,6 +15,7 @@ HighLand-factory (this repo, generic, versioned on GitHub)
   .factory/factory.yaml   project config: the only source of truth (committed)
   .factory/local.yaml     machine config: factory path, python, ports (gitignored)
   .factory/state.json     init/upgrade bookkeeping (gitignored)
+  .factory/worktrees/     per-Feature git worktrees for parallel development (gitignored)
   code/                   implementation
   wiki/                   authority + feature-workspace + code-ai + quick-workspace
   AGENTS.md / CLAUDE.md   agent entry: load config -> workflow profile -> skill

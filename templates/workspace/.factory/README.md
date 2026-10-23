@@ -1,6 +1,6 @@
 # `.factory/` 说明
 
-本目录是工作仓库的机器可读控制面，只放三类文件。三者职责不同，不要混用。
+本目录是工作仓库的机器可读控制面，只放这几类文件。它们职责不同，不要混用。
 
 ## `factory.yaml` —— 唯一事实源
 
@@ -24,6 +24,15 @@
 
 - 由工具写入的缓存与进度状态（上次运行时间、迁移标记等），可重建。
 - 被 `.gitignore` 忽略，不属于文档权威，不参与 review。
+
+## `worktrees/` —— 并行开发的隔离工作区
+
+- 讨论阶段选择 worktree 模式时，实现阶段在这里为单个 Feature 创建
+  `<WORK_ROOT>/.factory/worktrees/<feature-id 小写>`（例如
+  `.factory/worktrees/i001-f01`），分支 `feature/<feature-id 小写>`。
+- 被 `.gitignore` 忽略，永不以嵌套目录形式提交；其中的代码仍属于代码仓库。
+- 只隔离代码：Feature manifest、证据和工作区 gate 始终在 `WORK_ROOT`，生命周期
+  状态仍只有一个来源。
 
 ## 读取顺序（对人和 agent 都适用）
 

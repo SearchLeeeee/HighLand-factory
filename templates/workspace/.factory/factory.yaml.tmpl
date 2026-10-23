@@ -119,7 +119,6 @@ verification:
 #   verification_separate          —— 验证必须在独立 session 执行
 #   merge_requires_authorization   —— 合并长期文档需要 owner 显式授权
 #   initiative_integration_required—— Initiative 合并前必须通过集成测试
-#   max_parallel_features          —— 同时进行的 Leaf Feature 上限（正整数）
 # ---------------------------------------------------------------------------
 workflow:
   scope_gate:
@@ -130,7 +129,6 @@ workflow:
   verification_separate: true
   merge_requires_authorization: true
   initiative_integration_required: true
-  max_parallel_features: 3
 
 # ---------------------------------------------------------------------------
 # security：安全边界事实源。这里使用稳定的 ASCII 标识符，而不是自然语言

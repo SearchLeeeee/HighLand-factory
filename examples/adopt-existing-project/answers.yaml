@@ -66,7 +66,6 @@ workflow:
   verification_separate: true
   merge_requires_authorization: true
   initiative_integration_required: true
-  max_parallel_features: 1
 
 security:
   forbidden_operations:
