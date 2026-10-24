@@ -210,3 +210,89 @@ commands:
     gate = run("gate", "all", "--work", str(work))
     assert gate.returncode == 0, gate.stdout + gate.stderr
 
+
+def test_adopt_rerun_preserves_project_config(tmp_path: Path) -> None:
+    """A second adopt must not reset owners, commands or packs to defaults."""
+    work = tmp_path / "docs-repo"
+    work.mkdir()
+    (work / "wiki").mkdir()
+    (work / "wiki" / "README.md").write_text("# Home\n", encoding="utf-8")
+    code = tmp_path / "code-repo"
+    code.mkdir()
+    answers = write_answers(tmp_path / "answers.yaml", name="Rerun Project")
+    adopt = ["adopt", "--work", str(work), "--code", str(code), "--python", sys.executable]
+    assert run(*adopt, "--answers", str(answers)).returncode == 0
+    before = (work / ".factory" / "factory.yaml").read_text(encoding="utf-8")
+    assert "name: Rerun Project" in before
+
+    # Re-running with no answers must keep the recorded project values.
+    second = run(*adopt)
+    assert second.returncode == 0, second.stdout + second.stderr
+    after = (work / ".factory" / "factory.yaml").read_text(encoding="utf-8")
+    assert "name: Rerun Project" in after
+    assert "python -m pytest" in after
+    assert run("doctor", "--work", str(work), "--skip-gates").returncode == 0
+
+
+def test_adopt_rerun_keeps_relative_code_external(tmp_path: Path) -> None:
+    """The portable relative form must survive a re-run."""
+    docs = tmp_path / "docs-repo"
+    docs.mkdir()
+    (docs / "wiki").mkdir()
+    (docs / "wiki" / "README.md").write_text("# Home\n", encoding="utf-8")
+    code = tmp_path / "code-repo"
+    code.mkdir()
+    answers = tmp_path / "answers.yaml"
+    answers.write_text(
+        """
+project:
+  name: Relative Split
+  slug: relative-split
+repo:
+  mode: split
+  code_external: ../code-repo
+""",
+        encoding="utf-8",
+    )
+    adopt = ["adopt", "--work", str(docs), "--code", str(code), "--python", sys.executable]
+    assert run(*adopt, "--answers", str(answers)).returncode == 0
+    config_text = (docs / ".factory" / "factory.yaml").read_text(encoding="utf-8")
+    assert "code_external: ../code-repo" in config_text
+
+    assert run(*adopt).returncode == 0
+    config_text = (docs / ".factory" / "factory.yaml").read_text(encoding="utf-8")
+    assert "code_external: ../code-repo" in config_text, config_text
+
+
+def test_adopt_rerun_does_not_duplicate_gitignore_block(tmp_path: Path) -> None:
+    work = tmp_path / "docs-repo"
+    work.mkdir()
+    (work / "wiki").mkdir()
+    (work / "wiki" / "README.md").write_text("# Home\n", encoding="utf-8")
+    code = tmp_path / "code-repo"
+    code.mkdir()
+    answers = write_answers(tmp_path / "answers.yaml", name="Gitignore Project")
+    adopt = ["adopt", "--work", str(work), "--code", str(code), "--python", sys.executable]
+    assert run(*adopt, "--answers", str(answers)).returncode == 0
+    assert run(*adopt).returncode == 0
+    text = (work / ".gitignore").read_text(encoding="utf-8")
+    assert text.count("# --- HighLand-factory machine state (never commit) ---") == 1, text
+    assert text.count(".factory/local.yaml") == 1, text
+
+
+def test_adopt_rerun_keeps_init_record_generated_files(tmp_path: Path) -> None:
+    """The generated-file table must not collapse to _none_ on a re-run."""
+    work = tmp_path / "docs-repo"
+    work.mkdir()
+    (work / "wiki").mkdir()
+    (work / "wiki" / "README.md").write_text("# Home\n", encoding="utf-8")
+    code = tmp_path / "code-repo"
+    code.mkdir()
+    answers = write_answers(tmp_path / "answers.yaml", name="Record Project")
+    adopt = ["adopt", "--work", str(work), "--code", str(code), "--python", sys.executable]
+    assert run(*adopt, "--answers", str(answers)).returncode == 0
+    assert run(*adopt).returncode == 0
+    record = (work / "wiki" / "governance" / "init-record.md").read_text(encoding="utf-8")
+    assert "| _none_ | _n/a_ |" not in record, record
+    assert "workflow-profile.md" in record
+

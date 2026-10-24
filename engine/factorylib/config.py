@@ -177,6 +177,26 @@ def merge_answers(answers: dict[str, Any] | None) -> dict[str, Any]:
     return config
 
 
+def merge_onto_existing(
+    existing: dict[str, Any] | None,
+    answers: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Build a config for a re-run over a work repo that is already initialized.
+
+    ``merge_answers`` starts from factory defaults, so re-running ``init`` or
+    ``adopt`` without a complete answers file silently resets project values
+    (owners, commands, security rules, packs) back to the defaults. For an
+    existing repo the recorded config is the truth: defaults only fill keys it
+    does not have yet, and answers still win so a caller can correct a value.
+    """
+    config = util.deep_merge(default_config(), existing or {})
+    if answers:
+        if not isinstance(answers, dict):
+            raise ConfigError("answers file must contain a YAML mapping")
+        config = util.deep_merge(config, answers)
+    return config
+
+
 def config_hash(config: dict[str, Any]) -> str:
     import json
 

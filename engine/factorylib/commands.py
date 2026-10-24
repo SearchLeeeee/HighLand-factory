@@ -101,7 +101,17 @@ def _apply_repo_topology(config: dict[str, Any], work: Path, code: str | None, w
             repo["code_external"] = None
         else:
             repo["mode"] = "split"
-            repo["code_external"] = str(code_path)
+            prior = str(repo.get("code_external") or "").strip()
+            if prior and not Path(prior).is_absolute():
+                # Keep the project's portable relative form when it still points
+                # at the same repo; re-running adopt must not force an absolute
+                # path back in and break the config on another machine.
+                if (work / prior).resolve() == code_path:
+                    repo["code_external"] = prior
+                else:
+                    repo["code_external"] = str(code_path)
+            else:
+                repo["code_external"] = str(code_path)
     if wiki:
         wiki_path = Path(wiki).expanduser()
         if wiki_path.is_absolute():
@@ -144,6 +154,19 @@ def _write_marker_file(path: Path, source: str, body: str) -> None:
     util.write_text(path, header + "\n\n" + body.rstrip() + "\n")
 
 
+def _recorded_hashes(work: Path, hashes: dict[str, str]) -> dict[str, str]:
+    """Hashes for the init record's generated-file table.
+
+    A re-run over an initialized repo writes nothing, so ``hashes`` is empty and
+    the table would collapse to ``_none_`` even though the files exist. Fall
+    back to the hashes recorded at the last generation, keeping only files that
+    are still on disk.
+    """
+    merged = dict(config_mod.load_state(work).get("generated_files") or {})
+    merged.update(hashes)
+    return {rel: digest for rel, digest in merged.items() if (work / rel).is_file()}
+
+
 def _write_init_record(
     layout: Layout,
     config: dict[str, Any],
@@ -180,7 +203,12 @@ def _write_init_record(
         "",
         "## Assumptions",
         "",
-        "- Values not present in the answers file came from factory defaults; review `.factory/factory.yaml` before implementation.",
+        (
+            "- No answers file was passed to this run; the project values come from the existing"
+            " `.factory/factory.yaml`, so the Effective configuration above is their source of truth."
+            if not answers
+            else "- Values not present in the answers file came from factory defaults; review `.factory/factory.yaml` before implementation."
+        ),
         "- Owner paths and commands are placeholders until the project fills them in.",
         "- The first generated owner profiles are starting points; later edits are project-owned.",
         "",
@@ -273,12 +301,22 @@ GITIGNORE_BLOCK = """
 def _ensure_gitignore(work: Path) -> bool:
     path = work / ".gitignore"
     existing = path.read_text(encoding="utf-8-sig") if path.is_file() else ""
-    required = [".factory/local.yaml", ".factory/state.json", ".factory/worktrees/"]
-    missing = [item for item in required if item not in existing]
+    lines = {line.strip() for line in existing.splitlines()}
+    required = [line.strip() for line in GITIGNORE_BLOCK.splitlines() if line.strip() and not line.startswith("#")]
+    missing = [item for item in required if item not in lines]
     if not missing:
         return False
-    text = existing.rstrip() + "\n" + GITIGNORE_BLOCK
-    util.write_text(path, text)
+    header = "# --- HighLand-factory machine state (never commit) ---"
+    if not existing.strip():
+        text = GITIGNORE_BLOCK
+    elif header in existing:
+        # The block header is already there; append only the gaps.
+        text = existing.rstrip() + "\n" + "\n".join(missing) + "\n"
+    else:
+        # The template may already list some entries under another heading, so
+        # append only what is genuinely absent and never repeat an existing line.
+        text = existing.rstrip() + "\n\n" + header + "\n" + "\n".join(missing) + "\n"
+    util.write_text(path, text if text.endswith("\n") else text + "\n")
     return True
 
 
@@ -353,6 +391,12 @@ def _ensure_reachability(layout: Layout) -> list[str]:
     return linked
 
 
+def _config_for_run(work: Path, answers: dict[str, Any]) -> dict[str, Any]:
+    """Base the config on the recorded one when the repo is already initialized."""
+    existing = config_mod.load_config(work) if config_mod.config_path(work).is_file() else None
+    return config_mod.merge_onto_existing(existing, answers)
+
+
 def _finish_init(
     work: Path,
     config: dict[str, Any],
@@ -370,7 +414,8 @@ def _finish_init(
     plan = renderer.plan(force=force)
     hashes = renderer.apply(plan)
     skipped = [item.rel for item in plan.files if item.action == "skip"]
-    _write_init_record(layout, config, mode=mode, answers=answers, hashes=hashes, skipped=skipped)
+    recorded = _recorded_hashes(work, hashes)
+    _write_init_record(layout, config, mode=mode, answers=answers, hashes=recorded, skipped=skipped)
     _write_baseline(layout, config)
     gitignore_updated = _ensure_gitignore(work)
     linked = _ensure_reachability(layout)
@@ -397,7 +442,7 @@ def cmd_init(args: Any) -> int:
         )
         return 2
     answers = _load_answers(args.answers)
-    config = config_mod.merge_answers(answers)
+    config = _config_for_run(work, answers)
     _apply_identity(config, work)
     mode = args.mode or "new"
     if mode not in {"new", "adopt"}:
@@ -441,7 +486,7 @@ def cmd_adopt(args: Any) -> int:
         util.echo_stderr("adopt requires --code <existing code repo path>")
         return 2
     answers = _load_answers(args.answers)
-    config = config_mod.merge_answers(answers)
+    config = _config_for_run(work, answers)
     _apply_identity(config, work)
     try:
         _apply_repo_topology(config, work, args.code, _detect_wiki_path(work, args.wiki))
