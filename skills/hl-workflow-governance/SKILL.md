@@ -42,6 +42,7 @@ stops the skill with one concrete repair instruction.
 | Semantic wiki merge after preflight and authorization, including MOC updates, full validator, retained-history transformation, authority switch | `$hl-wiki-merge` |
 | Provenance / why / history question while reading canonical authority | `$hl-history-trace` (isolated subagent) |
 | Bounded bugfix or detail adjustment that may escalate | `$hl-quick-change` |
+| When to commit inside the workflow, and what one commit may contain | `references/commit-boundaries.md` plus the opt-in `$hl-commit` pack |
 | A change to these rules themselves | **Workflow Maintenance** below |
 
 Never treat a narrative report, a chat summary or a directory guess as state authority. Resolve
@@ -154,6 +155,28 @@ in the feature workspace; current canonical facts belong in the current or domai
   the record escalates to the feature workflow instead of stretching its own boundary.
 - When `workflow.quick_change` is false, do not open the lightweight path at all; route the
   request through intake and decomposition.
+
+## Commit Boundaries
+
+Commits stay optional and authorization-gated. The governed boundary list lives in
+`references/commit-boundaries.md`: ten points where a commit is allowed, the gate that must already
+pass at each, and the two packaging modes.
+
+- This is process guidance for the opt-in `$hl-commit` pack. It adds no lifecycle state, no
+  manifest field, no schema value and no state-machine branch, and a commit never records a
+  transition.
+- Commit only behind a passing gate. A failing gate, unreviewed implementation or unaccepted
+  acceptance must never be committed as if it were complete — that is the one rule the whole list
+  serves.
+- A commit authorization is never a push authorization.
+- Freeze before verifying: commit the implementation state to obtain the revision that review,
+  verification and Initiative integration run against, then commit the evidence that names it.
+  Evidence roots live inside the repository, so verification dirties the tree; the reverse order
+  makes every later result unreproducible.
+- `split` mode commits the wiki repository and the code repository separately. Worktree mode puts
+  code commits on the Feature branch while manifests and evidence stay in the work root.
+- When `packs.enabled` does not enable `commit`, follow the project's documented policy instead of
+  inventing one.
 
 ## Workflow Maintenance
 

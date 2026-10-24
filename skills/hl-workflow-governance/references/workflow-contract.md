@@ -49,6 +49,13 @@ authority stays with the feature-workspace tools and documentation named by
   interaction rule never weakens an authorization or machine gate.
 - User authorization is required for actual merge, deletion, commit and push operations whenever
   the profile requires it.
+- Commit boundaries are governed by `references/commit-boundaries.md`, not scattered through prose.
+  Commits happen only behind a passing gate, at one of the named boundaries; a commit authorization
+  is never a push authorization; the freeze-then-seal order means implementation is committed to
+  obtain the revision that review, verification and Initiative integration run against, and the
+  evidence naming that revision is committed afterwards. Commit boundaries add no lifecycle state,
+  manifest field or state-machine branch, and the core workflow must still run with
+  `packs.enabled: []`.
 - Parallel development mode — shared checkout sequentially, or one dedicated git worktree per
   Feature — is an implementation decision recorded in the discussion workbench, never a lifecycle
   value. A worktree isolates code only: manifests, evidence and the workspace gate stay in the work
@@ -92,4 +99,5 @@ authority stays with the feature-workspace tools and documentation named by
 | Long-term wiki merge validator and inventory | `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts` and its tests |
 | Provenance lookup | `<FACTORY_ROOT>/skills/hl-history-trace/scripts` and its tests |
 | Operator process | feature-workspace README/schema for lifecycle changes; affected workflow skills plus this skill's `references/entry-point.md` and `references/workflow-contract.md` |
+| Commit boundaries and commit packaging | this skill's `references/commit-boundaries.md`, the opt-in `packs/hl-commit` skill, and the generated `wiki/code-ai/_blocks/commit-granularity.md` block |
 | Actual Feature status | Feature and Initiative manifests, updated only through approved workflow boundaries |

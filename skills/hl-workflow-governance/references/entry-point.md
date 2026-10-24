@@ -52,16 +52,19 @@ need a human-readable report.
 create Initiative
   -> complete initial Feature inventory + depends_on + wave
   -> per-candidate Scope Gate and mandatory splitting
-  -> finalize-decomposition
+  -> finalize-decomposition              [commit boundary 2]
   -> parallel-development choice: shared checkout or dedicated git worktree
   -> first dependency-ready Leaf discussion
   -> domain implementation documents + Code AI profiles in that same discussion session
+                                        [commit boundaries 3 and 4]
   -> copyable $hl-feature-orchestrator startup prompt for a new session
   -> implementation, independent review, Feature acceptance
+                                        [commit boundaries 5, 6 and 7]
   -> ready-to-merge / ready for every non-cancelled, non-superseded Leaf
   -> worktree merge-back, only after the Feature is ready and only if authorized
   -> Initiative integration-test handoff
   -> new immutable integration evidence + PASS
+                                        [commit boundary 8]
   -> Initiative merge-ready
   -> explicit merge authorization (when policy requires it)
   -> semantic wiki merge per Feature in depends_on topological order
@@ -70,6 +73,7 @@ create Initiative
   -> retained-history transformation after PASS
   -> Feature merged / completed
   -> authority switch and routing-record update
+                                        [commit boundary 9, one per Feature]
 ```
 
 Rules:
@@ -91,6 +95,11 @@ Rules:
   `code-ai-profiles / completed` with one copyable `$hl-feature-orchestrator` startup prompt
   (workspace paths, must-read documents, confirmed conclusions, parallel development choice, target
   state); the implementation session starts from that prompt and needs no chat history.
+- Commits follow `references/commit-boundaries.md`: only behind a passing gate, only at a named
+  boundary, never for a failing gate or unreviewed implementation, and never as an implied push
+  authorization. Verification freezes first — commit the implementation state to obtain the
+  revision that review, verification and Initiative integration run against, then commit the
+  evidence naming it.
 - Entering implementation sets one continuous goal: advance the Feature to `ready-to-merge /
   ready`. The goal is updated once when evidence changes status and completes only after that
   transition is recorded.
@@ -179,6 +188,8 @@ merge skill that bypasses the Initiative integration gate.
 ## Authorities
 
 - Entry and invariants: this file and `references/workflow-contract.md`.
+- Commit boundaries: `references/commit-boundaries.md`, executed through the opt-in `$hl-commit`
+  pack.
 - Lifecycle state machine: `<FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py`.
 - Long-term wiki content gate: `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`.
 - Provenance reader: `<FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py`.
