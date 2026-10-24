@@ -224,6 +224,19 @@ Feature 一个 worktree）。真正约束并发的是依赖、owner、文件与�
 状态只由流程技能在阶段边界更新；人工修正 YAML 后必须运行共享校验，不要手工把
 phase 推到后续阶段。
 
+## 提交边界
+
+提交是可选的、需要单独授权的动作，不是流程状态的一部分：它不产生 phase/state，也
+不被任何门禁当作证据。允许提交的时机由 `$hl-workflow-governance` 的
+`references/commit-boundaries.md` 统一定义，要点：
+
+- 只在门禁通过之后提交。失败的 gate、未 review 的实现、未通过的验收不得当作完成态。
+- 先冻结再验证：先提交实现状态得到 revision，让 review、验证和 Initiative 集成测试
+  跑在这个干净 revision 上，再把记明该 revision 的证据提交上去。
+- 提交授权不等于推送授权。
+- `split` 模式下 wiki 仓与代码仓分别提交；worktree 模式下代码提交在功能分支，而
+  manifest 与证据留在工作仓库，交接必须写明对应关系。
+
 ## 隔离规则
 
 - 本目录默认排除在长期搜索、派生索引、Graph、MOC、长期记忆和知识发现之外。

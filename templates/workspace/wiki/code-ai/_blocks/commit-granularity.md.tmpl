@@ -11,6 +11,30 @@
 4. 提交前确认工作区只包含本次变更；不夹带无关格式化或重排。
 5. 逻辑重构与行为变更分开；依赖升级与业务改动分开。
 6. 只有取得提交授权后才执行提交与推送；未授权时停在“变更就绪”并交接。
+7. 只在门禁通过之后提交。失败的测试、未 review 的实现、未通过的验收不得当作完成态提交。
+8. 先冻结再验证：先提交实现状态得到 revision，让 review、验证和集成测试跑在这个干净
+   revision 上，再把记明该 revision 的证据提交上去。证据根在仓库内，先跑检查必然弄脏
+   工作树，反过来做会让下一次验证失去可复现基线。
+9. 提交授权不等于推送授权；推送始终需要单独授权，也不与任何提交边界捆绑。
+
+## 提交边界
+
+完整清单见 `$hl-workflow-governance` 的 `references/commit-boundaries.md`。常见落点：
+
+| 边界 | 前置门禁 | 提交内容 |
+| --- | --- | --- |
+| 初始化 / adopt 完成 | `doctor` 与 workspace、wiki 两项 gate | 骨架、生成配置、初始化记录、baseline |
+| 初始分解封存 | `finalize-decomposition` 与 `validate` | registry、initiative 与全部候选 feature manifest |
+| 讨论结论与实现文档完成 | `gate workspace` | workbench、已确认结论、领域实现文档 |
+| Code AI profiles 完成 | `gate workspace` | feature `code-ai/` |
+| 实现冻结 | 实现与文档同步完成、`gate workspace` | 代码、文档同步 |
+| review 通过 | 固定 review 门禁（含修复后复审） | review 证据与修复 |
+| 验收与 closure 完成 | 验收全过、closure 记录、`ready-to-merge/ready` | 验收证据、closure、最终 manifest |
+| Initiative 集成证据封存 | 冻结 revision + 干净工作树跑完并登记结果 | handoff、不可变证据根 |
+| 每个 Feature 的 wiki 合并收尾 | 全量 validator PASS 后完成 retained history 与权威切换 | 权威文档、MOC、tombstone、retained 材料 |
+| Quick Change 完成 | 具备可重复验证证据且记录 `completed` | quick 记录、修复、验证证据 |
+
+不该提交的时机：每问一次讨论问题、每次重跑 validator、任何门禁失败、未完成的实现。
 
 ## 当仓库模式为单仓库（`mono`）
 
@@ -28,6 +52,12 @@
 - 交接中必须写明两个仓库各自的提交标识与对应关系。
 - 任一仓库未就绪时，不得只提交另一半并声称完成。
 
+## 当使用 git worktree 隔离开发
+
+- 代码提交落在 worktree 的功能分支上；Feature manifest、证据和工作区门禁留在工作仓库。
+- 交接中必须写明“哪个 worktree revision 对应哪个 manifest/证据提交”。
+- worktree 合回 `repo.default_branch` 之前必须已到 `ready-to-merge/ready`，且合回是独立操作。
+
 ## 其他模式
 
 若 `{{repo.mode}}` 不是上述取值，由项目在接入时补充规则；补充前不得默认沿用任一模式，应先确认再提交。
@@ -37,4 +67,7 @@
 - [ ] 每个提交只有一个关注点。
 - [ ] 文档与代码的先后符合当前仓库模式。
 - [ ] 没有夹带无关文件或生成物。
-- [ ] 已获得提交授权，提交信息能独立解释变更。
+- [ ] 提交落在 `$hl-workflow-governance` 的 `references/commit-boundaries.md` 某个边界上，
+      且该边界的门禁已通过。
+- [ ] 证据引用的 revision 工作树是干净的；没有先跑检查再提交。
+- [ ] 已获得提交授权，提交信息能独立解释变更；推送另有授权。
