@@ -59,6 +59,15 @@ def load_yaml_file(path: Path) -> Any:
     return {} if data is None else data
 
 
+def load_yaml_text(text: str, *, origin: str = "<inline>") -> Any:
+    yaml = require_yaml()
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise FactoryError(f"invalid YAML in {origin}: {exc}") from exc
+    return {} if data is None else data
+
+
 def dump_yaml(data: Any) -> str:
     yaml = require_yaml()
     return yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=1000, default_flow_style=False)

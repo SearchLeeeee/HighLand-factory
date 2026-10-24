@@ -296,3 +296,20 @@ def test_adopt_rerun_keeps_init_record_generated_files(tmp_path: Path) -> None:
     assert "| _none_ | _n/a_ |" not in record, record
     assert "workflow-profile.md" in record
 
+
+def test_adopt_rerun_keeps_recorded_answers(tmp_path: Path) -> None:
+    """The answers block is provenance; a re-run without answers must keep it."""
+    work = tmp_path / "docs-repo"
+    work.mkdir()
+    (work / "wiki").mkdir()
+    (work / "wiki" / "README.md").write_text("# Home\n", encoding="utf-8")
+    code = tmp_path / "code-repo"
+    code.mkdir()
+    answers = write_answers(tmp_path / "answers.yaml", name="Provenance Project")
+    adopt = ["adopt", "--work", str(work), "--code", str(code), "--python", sys.executable]
+    assert run(*adopt, "--answers", str(answers)).returncode == 0
+    assert run(*adopt).returncode == 0
+    record = (work / "wiki" / "governance" / "init-record.md").read_text(encoding="utf-8")
+    assert "Provenance Project" in record, record
+    assert "python -m pytest" in record, record
+

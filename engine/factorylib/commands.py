@@ -154,6 +154,47 @@ def _write_marker_file(path: Path, source: str, body: str) -> None:
     util.write_text(path, header + "\n\n" + body.rstrip() + "\n")
 
 
+def _previous_answers(layout: Layout) -> dict[str, Any] | None:
+    """Recover the answers block of an existing init record, if any.
+
+    Re-running without an answers file used to overwrite the recorded answers
+    with ``{}``, erasing the only copy of what the project originally supplied.
+    """
+    if not layout.init_record.is_file():
+        return None
+    text = layout.init_record.read_text(encoding="utf-8-sig")
+    marker = "## Answers supplied at init"
+    index = text.find(marker)
+    if index == -1:
+        return None
+    fence_start = text.find("```yaml", index)
+    if fence_start == -1:
+        return None
+    body_start = text.find("\n", fence_start)
+    fence_end = text.find("```", body_start)
+    if body_start == -1 or fence_end == -1:
+        return None
+    body = text[body_start + 1 : fence_end].strip()
+    if not body or body == "{}":
+        return None
+    try:
+        parsed = util.load_yaml_text(body)
+    except Exception:  # noqa: BLE001 - provenance is best effort
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _answers_for_record(layout: Layout, answers: dict[str, Any]) -> dict[str, Any]:
+    """Answers to write into the init record.
+
+    A re-run without an answers file must keep the provenance of the original
+    run instead of replacing it with an empty mapping.
+    """
+    if answers:
+        return answers
+    return _previous_answers(layout) or {}
+
+
 def _recorded_hashes(work: Path, hashes: dict[str, str]) -> dict[str, str]:
     """Hashes for the init record's generated-file table.
 
@@ -415,7 +456,9 @@ def _finish_init(
     hashes = renderer.apply(plan)
     skipped = [item.rel for item in plan.files if item.action == "skip"]
     recorded = _recorded_hashes(work, hashes)
-    _write_init_record(layout, config, mode=mode, answers=answers, hashes=recorded, skipped=skipped)
+    _write_init_record(
+        layout, config, mode=mode, answers=_answers_for_record(layout, answers), hashes=recorded, skipped=skipped
+    )
     _write_baseline(layout, config)
     gitignore_updated = _ensure_gitignore(work)
     linked = _ensure_reachability(layout)
