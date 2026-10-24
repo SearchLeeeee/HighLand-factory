@@ -256,6 +256,13 @@ understand merged behaviour. If the semantic merge or the full-wiki validation f
 stays `ready-to-merge / ready`: do not add a tombstone, switch authority, transform retained history,
 or mark it merged/completed. This gate introduces no lifecycle state and no manifest field.
 
+Commit boundaries are governed by `$hl-workflow-governance`'s `references/commit-boundaries.md`.
+The close phase is one such boundary, one commit per Feature in `depends_on` topological order:
+canonical wiki edits, affected MOCs, the validator receipt, the tombstone and routing record, and
+the retained-history marker, route and checksums land together, because the authority switch is a
+multi-file state change that stops being auditable if it is split or left uncommitted. The validator
+must pass before that commit exists; a commit is not evidence that the validator passed.
+
 ## File I/O Routing
 
 Inventory and inspect staged and current wiki files with read tools. Make semantic document and MOC

@@ -162,6 +162,11 @@ A user request to fix or adjust authorizes ordinary local implementation after t
 does not authorize the wiki merge, commit, push, deletion, broad refactoring, or heavy-workflow
 implementation. Obtain the applicable authorization and follow the owning skill for those actions.
 
+Completion is a governed commit boundary (`references/commit-boundaries.md` under
+`$hl-workflow-governance`): the quick record, the fix and its repeatable verification artefact are
+committed together, and only after the record reaches `completed`. Never commit a quick change whose
+verification is failing or still in progress.
+
 ## Language
 
 Talk to the user in their language. For any persisted document, use `project.language.docs` when the

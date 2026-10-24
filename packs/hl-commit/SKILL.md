@@ -31,6 +31,13 @@ Use this pack when the user asks to commit, stage, or persist changes, or when a
 reaches a commit boundary and the change set is ready. Use it for the commit **and** the
 optional push, because both carry the same authorization and scope discipline.
 
+Commit boundaries are defined once, in `$hl-workflow-governance`'s
+`references/commit-boundaries.md`: initialization, sealed decomposition, discussion documents,
+Code AI profiles, frozen implementation, passed review, acceptance closure, sealed Initiative
+integration evidence, per-Feature wiki-merge closure, and quick-change completion. Treat that list
+as the set of legal points, not as a schedule: a boundary opens only when its gate has passed and
+the user or governing workflow authorized the commit.
+
 Do not use it to inspect history, to review a diff as its primary goal, or to commit work no
 workflow authorized. If the pack is disabled, or the repo topology is not `mono`/`split`, stop
 instead of improvising a different commit flow.
@@ -78,9 +85,14 @@ Add it, run factory doctor --work <work>, then retry.
 
 ### 1. Check authorization
 
-Commit only when the governing workflow or the user authorized committing this change.
-Otherwise stop at "changes ready", list them, and hand off. Push required its own explicit
-authorization — a commit authorization is not a push authorization.
+Commit only when the governing workflow or the user authorized committing this change, and only
+behind a gate that has already passed. Otherwise stop at "changes ready", list them, and hand off.
+Push requires its own explicit authorization — a commit authorization is not a push authorization.
+
+For a workflow commit, also record which boundary it belongs to, because review, verification and
+Initiative integration evidence may only cite a commit whose worktree was clean at that revision.
+When the evidence must name a revision, commit the implementation state first and the evidence
+second; never run checks and commit in the other order.
 
 ### 2. Scan every target repo
 
@@ -179,8 +191,11 @@ report both commit ids and their correspondence. Match the user's language.
 
 ## What this pack must never do
 
+- Never commit a failing gate, unreviewed implementation, or acceptance that has not passed, as if
+  the stage were complete.
 - Never commit unrelated dirty changes or "clean up" a tree that spans several concerns.
 - Never push without explicit authorization; never force-push or rewrite shared history.
+- Never infer a commit boundary from a workflow stage name; read the gate result.
 - Never mix wiki-repo and code-repo changes in one commit in `split` mode.
 - Never infer ownership from a filename or directory.
 - Never stage secrets, credentials, local machine config, or generated runtime artifacts.

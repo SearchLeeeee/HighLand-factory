@@ -76,7 +76,7 @@ Entering this skill means entering the code implementation environment, so set o
 
 4. For `mono`, the worktree path is inside the work repository, so prove it is ignored before creating it: `git -C <WORK_ROOT> check-ignore -v .factory/worktrees/<feature-id-lowercase>`. If it is not ignored, stop and tell the user to add `.factory/worktrees/` to `.gitignore` and commit that change, then retry. A worktree must never be committed as a nested tree. For `split`, the path is outside the code repository, so only confirm it is not inside that repository.
 5. Create it from the owning repository, based on the branch that will receive the merge: `git -C <OWNING_REPO> worktree add <WORK_ROOT>/.factory/worktrees/<feature-id-lowercase> -b feature/<feature-id-lowercase> <repo.default_branch>`. If the branch already exists, stop and report it; do not reuse or force-create branches.
-6. Report the actual worktree path to every implementation subagent as its implementation root, and keep allowed and forbidden file scopes relative to it. Lifecycle manifests, evidence and the workspace gate stay in `WORK_ROOT`; commit from the worktree only when the commit boundary below is satisfied.
+6. Report the actual worktree path to every implementation subagent as its implementation root, and keep allowed and forbidden file scopes relative to it. Lifecycle manifests, evidence and the workspace gate stay in `WORK_ROOT`; commit from the worktree only at a commit boundary in the table below, and report which revision in the worktree corresponds to which manifest or evidence commit in `WORK_ROOT`.
 7. A worktree merge back to `repo.default_branch` is a separate operation that is offered only after the Feature reaches `ready-to-merge / ready`. Before that point, do not propose it, do not merge, and do not delete the branch. When the Feature is ready, ask the user explicitly whether to merge the worktree back; perform it only with that authorization, and when `workflow.merge_requires_authorization` is true treat an absent answer as no. Report the branch, the target branch and the resulting commit, and leave removing the worktree and branch to an explicit follow-up.
 8. On a blocked or abandoned worktree path, keep the worktree and branch as they are and report them; never silently delete unmerged work. A code merge into `repo.default_branch`, the `ready-to-merge / ready` lifecycle state and the long-term wiki authority merge remain three separate operations.
 
@@ -261,13 +261,29 @@ Keep the goal set on entry active through the whole sequence: only the recorded 
 
 ## Commit Boundary
 
-Commit only when all of the following hold:
+Commit points inside this workflow are governed by `$hl-workflow-governance`'s
+`references/commit-boundaries.md`. Within one implementation session the applicable points are:
 
-- the Feature is at `ready-to-merge / ready`;
-- the user explicitly authorized a commit in this session;
-- the optional commit pack is enabled in `packs.enabled` — if it is not, follow the project's documented policy and do not invent one.
+| Point | Gate that must already pass | Commit |
+| --- | --- | --- |
+| Implementation frozen | Implementation and documentation sync complete, `gate workspace` passes | Code and doc sync, to obtain the revision review and verification run against |
+| Review passed | The fixed review gate passes after required fixes and re-review | Review evidence and its remediation |
+| Closure reached | Acceptance passes, closure recorded, `ready-to-merge / ready` recorded | Acceptance evidence, closure data, final manifest |
 
-Do not commit before `ready`. Never push without an explicit instruction. Report the commit result, including its identifier, in the final handoff.
+Requirements that apply to every one of them:
+
+- The governing workflow or the user must authorize committing this change set. Commit
+  authorization in this session covers these boundaries only; it is never a push authorization.
+- The optional commit pack must be enabled in `packs.enabled`. If it is not, follow the project's
+  documented policy and do not invent one.
+- Freeze before verifying. Commit the implementation state first, run review, verification and any
+  Integration work against that clean revision, then commit the evidence that names it. Running the
+  checks first dirties the tree and makes the next run unreproducible.
+- Never commit a failing gate, an unreviewed change, or acceptance that has not passed. Reporting
+  `ready` while the manifest still shows an earlier phase is the same defect in a different place.
+- Never push without an explicit instruction.
+
+Report every commit identifier in the final handoff, together with which point it belongs to.
 
 ## Final Handoff
 
@@ -280,7 +296,8 @@ The visible handoff is the last step, not a substitute for lifecycle maintenance
 5. Advance the manifest to `acceptance / completed` with the correct `next_action`.
 6. Run `factory gate workspace --work <WORK_ROOT>` and confirm it passes.
 7. Advance to `ready-to-merge / ready` through the closure gate.
-8. Commit only if the commit boundary above is satisfied.
+8. Commit the closure point only if the commit boundary above is satisfied; any earlier point in
+   that table may already have been committed during the sequence.
 9. Then send the final handoff and state the actual completion boundary.
 
 If steps 3-7 do not succeed, send a truthful incomplete or blocked handoff and do not claim completion.

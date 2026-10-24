@@ -275,6 +275,11 @@ include:
 If a required row is failed, blocked or unbound, do not register the result. Keep the Initiative
 integration gate failed or blocked and preserve the evidence.
 
+Sealing the run is a governed commit boundary (`references/commit-boundaries.md`): the handoff, the
+new immutable evidence root and the registered result land together, and the evidence must name the
+revision the run executed against and state that its worktree was clean. A failing or blocked run is
+never committed as if it had passed.
+
 ## Phase D: Authorized Wiki Merge
 
 Do not merge merely because `initiative-merge-ready` passes. When
