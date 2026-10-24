@@ -17,7 +17,7 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 | `hl-feature-profile-generate` | Compose executable Code AI profiles by relative-path reference | feature `code-ai/` profiles + index | `factory gate workspace` |
 | `hl-feature-orchestrator` | Dispatch owners, plan approval, implementation → review → acceptance; sets one goal to reach `ready-to-merge / ready` and, in worktree mode, merges back only after that state and authorization | code changes, review/acceptance evidence, lifecycle transitions | `feature_workspace.py`, `factory gate` |
 | `hl-feature-progress` | Read-only progress, blockers, parallelizable work, next-session prompt | report | `feature_workspace.py report` |
-| `hl-workflow-governance` | Routing and durable invariants entry point | decisions, maintenance | all of the above |
+| `hl-workflow-governance` | Routing and durable invariants entry point, including the commit-boundary list (`references/commit-boundaries.md`) | decisions, maintenance | all of the above |
 | `hl-initiative-merge` | Initiative-level cross-Feature integration acceptance before merge | frozen evidence, PASS record | `feature_workspace.py`, `factory gate` |
 | `hl-wiki-merge` | Semantic long-term wiki merge, validator gate, retained history | merged authority, MOC updates, retained-history bundle | `validate_llm_wiki.py`, `inventory_llm_wiki_merge.py` |
 | `hl-history-trace` | Isolated provenance lookup through tombstones and history routes | compact handoff | `trace_feature_history.py` |
@@ -29,7 +29,7 @@ Enable with `packs.enabled: [<id>]` in `.factory/factory.yaml`, then `factory up
 
 | Pack id | Skill | Role | Required config |
 | --- | --- | --- | --- |
-| `commit` | `hl-commit` | Repo-mode aware granular commits; commit only when authorized, push only on separate authorization | `repo.*`, `project.language.commit` |
+| `commit` | `hl-commit` | Repo-mode aware granular commits at the governed boundaries in `$hl-workflow-governance`'s `references/commit-boundaries.md`; commit only behind a passed gate and when authorized, push only on separate authorization | `repo.*`, `project.language.commit` |
 | `dev-runtime` | `hl-dev-runtime` | Start/stop/restart configured local services with health verification | `packs.dev-runtime.services[]` |
 | `remote-verify` | `hl-remote-verify` | Run one commit through an isolated/remote clone and return a machine verdict | `packs.remote-verify.{host,user,clone_path,entry,evidence_root}` |
 

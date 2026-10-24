@@ -381,6 +381,19 @@ $hl-wiki-merge <feature-root>
 | 进度查询 | `$hl-feature-progress` | 只读报告、下一会话提示词 | `gate workspace`（只读） |
 | 小改动 | `$hl-quick-change` | quick 记录、验证证据、wiki 目标 | 硬门槛自检 |
 
+#### 提交边界
+
+提交是可选、需单独授权的动作，不产生流程状态，也不是任何门禁的证据。允许的位置由
+`$hl-workflow-governance` 的 `references/commit-boundaries.md` 统一说明（关闭 `commit`
+pack 时按项目自己的策略执行）。上表里的每一行都可能对应一个提交点，要点是：
+
+1. **只在门禁通过后提交**——失败的测试、未 review 的实现、未通过的验收不得当作完成态提交；
+2. **先冻结再验证**——先提交实现状态得到 revision，review、验证和集成测试跑在这个干净
+   revision 上，再把记明该 revision 的证据提交上去；
+3. **提交授权不等于推送授权**，推送始终单独授权；
+4. `split` 模式 wiki 仓与代码仓分别提交；worktree 模式代码提交在功能分支，manifest
+   与证据留在工作仓库，交接必须写明对应关系。
+
 ### 3. Feature 生命周期状态机
 
 ```mermaid

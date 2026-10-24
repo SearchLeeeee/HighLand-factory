@@ -164,3 +164,21 @@ Owner profiles and owner manifests are generated once per configured owner. An o
 - A pack reads the same `.factory/local.yaml` + `wiki/governance/workflow-profile.md` and never requires core skills to depend on it.
 - A pack must not add lifecycle states, a second state machine, or a second wiki validator.
 - Packs are installed only with `install --with-packs` (or by linking `packs/hl-<id>` manually); the default install is core-only.
+
+## 11. Commit boundary contract
+
+`$hl-workflow-governance` owns the single list of workflow points where a commit is allowed
+(`references/commit-boundaries.md`). It carries three standing obligations for any skill that
+touches the repository:
+
+- Commit only behind a passed gate. A failing gate, unreviewed implementation, or acceptance that
+  has not passed is never committed as if the stage were complete.
+- Freeze before verifying. Implementation is committed first to obtain the revision that review,
+  verification and Initiative integration run against; the evidence naming that revision is
+  committed afterwards. Evidence roots live inside the repository, so the reverse order destroys
+  the next run's baseline.
+- A commit authorization is never a push authorization, and no commit boundary implies a push.
+
+The list adds no lifecycle state, schema field or state-machine branch. Skills must keep working
+with `packs.enabled: []`; where the commit pack is disabled, the project's documented commit policy
+governs and no skill may invent one.
