@@ -34,7 +34,7 @@
 
 owner profile 的标准块集合固定为：
 
-`startup-core`、`project-safety-boundaries`、`doc-sync-rule`、`readme-sync-rule`、`agent-notes-rule`、`commit-granularity`、`logging-and-diagnostics`、`handoff-output`、`common-definition-of-done`、`review-gate`、`review-agent-contract`、`testing-quality-gate`、`fixture-governance`。
+`startup-core`、`project-safety-boundaries`、`doc-sync-rule`、`readme-sync-rule`、`agent-notes-rule`、`commit-granularity`、`logging-and-diagnostics`、`handoff-output`、`common-definition-of-done`、`review-gate`、`review-agent-contract`、`coding-discipline`、`testing-quality-gate`、`fixture-governance`。
 
 评审 profile 不需要 `commit-granularity`，其余块保持同等安全与质量下限。
 

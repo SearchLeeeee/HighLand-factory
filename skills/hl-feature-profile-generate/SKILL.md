@@ -65,7 +65,7 @@ If the documents are missing or acceptance criteria are unconfirmed, return to t
 
 1. Read the workbench and every domain implementation document of the feature.
 2. Re-validate the `consistency_matrix`; an incomplete matrix blocks generation.
-3. Read the generic library to fix the reference set: `wiki/code-ai/README.md`, `wiki/code-ai/project-facts.md`, `wiki/code-ai/subagent-flow.md`, `wiki/code-ai/review-agent.md`, the relevant `<owner>-agent.md` profile for each domain, and the relevant files under `wiki/code-ai/_blocks/`.
+3. Read the generic library to fix the reference set: `wiki/code-ai/README.md`, `wiki/code-ai/project-facts.md`, `wiki/code-ai/subagent-flow.md`, `wiki/code-ai/review-agent.md`, the relevant `<owner>-agent.md` profile for each domain, and the relevant files under `wiki/code-ai/_blocks/`. `wiki/code-ai/_blocks/coding-discipline.md` is always part of that set for implementation and review profiles: it owns the implementation order and the code-quality discipline, and a profile that restates those rules instead of referencing them is a defect.
 4. Decide which owners the feature touches, using the profile owners table — never a remembered list of owners. One implementation profile per touched owner/domain.
 5. Write each profile with the template below. Every in-repo reference is a relative path from the work repo root, for example `wiki/code-ai/project-facts.md`. Never use an absolute path or a machine token.
 6. Write the `code-ai/README.md` index in `project.language.docs`: profile responsibilities, required reading, execution order and handoff expectations, following the fixed order in `wiki/code-ai/subagent-flow.md`.
@@ -112,7 +112,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 
 **Reading agent profile** — given a scope (list of module paths) and focus points; may add or update agent notes, must not change business logic; produces the fixed reading handoff. Generate only when the touched modules have no prior survey or agent notes are missing.
 
-**Implementation agent profile** — one per domain. It references the matching owner profile for boundaries and review focus, and writes only the feature's business logic, file-level allowed and forbidden scope, TDD order, mandatory test list and acceptance criteria. Definition of done references `wiki/code-ai/_blocks/common-definition-of-done.md` plus feature-specific additions.
+**Implementation agent profile** — one per domain. It references the matching owner profile for boundaries and review focus, and writes only the feature's business logic, file-level allowed and forbidden scope, TDD order, mandatory test list and acceptance criteria. The TDD order is stated in the feature's own terms but derives from `wiki/code-ai/_blocks/coding-discipline.md`; the profile references that block rather than restating its rules. Definition of done references `wiki/code-ai/_blocks/common-definition-of-done.md` plus feature-specific additions.
 
 **Review agent profile** — must state this six-step procedure:
 
@@ -129,13 +129,14 @@ The output follows the format in `wiki/code-ai/review-agent.md`, including the d
 
 ## Quality Gate
 
-All six must hold before delivery:
+All seven must hold before delivery:
 
 - [ ] Every reference path in every profile resolves to a file that exists.
 - [ ] No block or generic profile content was pasted into a feature profile.
 - [ ] Generic constraints and feature content are cleanly separated: each constraint is either feature-specific or a relative-path reference.
 - [ ] Each profile is directly executable: identity, required reading, boundary, tests, acceptance and handoff are all present; no empty section, no placeholder.
 - [ ] Agent notes, README sync, test and verification, and commit granularity requirements are all present via reference.
+- [ ] Implementation and review profiles reference `wiki/code-ai/_blocks/coding-discipline.md` instead of restating its rules.
 - [ ] `code-ai/README.md` lists every profile, the execution order and the handoff expectations.
 
 ## Orchestration Boundary

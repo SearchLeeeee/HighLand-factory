@@ -51,5 +51,6 @@
 | [common-definition-of-done.md](common-definition-of-done.md) | 通用完成定义与交付前自检 |
 | [review-gate.md](review-gate.md) | 强制评审条件、独立性与阻断规则 |
 | [review-agent-contract.md](review-agent-contract.md) | 评审报告的固定章节与结论约定 |
+| [coding-discipline.md](coding-discipline.md) | 实现顺序与编码纪律：先让它对、再让它干净、收尾习惯 |
 | [testing-quality-gate.md](testing-quality-gate.md) | 测试分层、回归与证据质量要求 |
 | [fixture-governance.md](fixture-governance.md) | 测试夹具的来源、脱敏、确定性与治理 |
