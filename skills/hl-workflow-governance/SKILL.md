@@ -43,6 +43,7 @@ stops the skill with one concrete repair instruction.
 | Provenance / why / history question while reading canonical authority | `$hl-history-trace` (isolated subagent) |
 | Bounded bugfix or detail adjustment that may escalate | `$hl-quick-change` |
 | When to commit inside the workflow, and what one commit may contain | `references/commit-boundaries.md` plus the opt-in `$hl-commit` pack |
+| Cleaning up a finished or residual worktree and its Feature branch | `references/worktree-lifecycle.md` |
 | A change to these rules themselves | **Workflow Maintenance** below |
 
 Never treat a narrative report, a chat summary or a directory guess as state authority. Resolve
@@ -177,6 +178,21 @@ pass at each, and the two packaging modes.
   code commits on the Feature branch while manifests and evidence stay in the work root.
 - When `packs.enabled` does not enable `commit`, follow the project's documented policy instead of
   inventing one.
+
+## Worktree Lifecycle And Cleanup
+
+The conditions for retiring a dedicated git worktree and its Feature branch after implementation
+live in `references/worktree-lifecycle.md`, which is the single rule source; do not restate them
+here or in another skill.
+
+- Trigger a cleanup review when the implementation session reaches `ready-to-merge / ready`, when
+  the user asks whether disk space can be released, or when a residual worktree is found under the
+  work root.
+- This skill rules on whether cleanup is permitted and what must be retained. It performs no
+  lifecycle transition for cleanup, edits no manifest, and never treats a removed worktree as a
+  Feature state change.
+- When the reference's preconditions do not hold, refuse the cleanup and report the worktree, its
+  branch and the blocking reason instead of deleting anything.
 
 ## Workflow Maintenance
 

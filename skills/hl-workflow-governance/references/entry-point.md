@@ -190,6 +190,8 @@ merge skill that bypasses the Initiative integration gate.
 - Entry and invariants: this file and `references/workflow-contract.md`.
 - Commit boundaries: `references/commit-boundaries.md`, executed through the opt-in `$hl-commit`
   pack.
+- Worktree and branch cleanup: `references/worktree-lifecycle.md`; cleanup is an operational
+  action, never a lifecycle transition.
 - Lifecycle state machine: `<FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py`.
 - Long-term wiki content gate: `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`.
 - Provenance reader: `<FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py`.

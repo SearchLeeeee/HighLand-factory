@@ -100,4 +100,5 @@ authority stays with the feature-workspace tools and documentation named by
 | Provenance lookup | `<FACTORY_ROOT>/skills/hl-history-trace/scripts` and its tests |
 | Operator process | feature-workspace README/schema for lifecycle changes; affected workflow skills plus this skill's `references/entry-point.md` and `references/workflow-contract.md` |
 | Commit boundaries and commit packaging | this skill's `references/commit-boundaries.md`, the opt-in `packs/hl-commit` skill, and the generated `wiki/code-ai/_blocks/commit-granularity.md` block |
+| Worktree and branch cleanup | this skill's `references/worktree-lifecycle.md` and the affected skill's cleanup steps |
 | Actual Feature status | Feature and Initiative manifests, updated only through approved workflow boundaries |

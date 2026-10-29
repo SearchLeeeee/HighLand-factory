@@ -23,7 +23,7 @@ Run this before anything else, including reading the request.
    - `workflow.review_required`, `workflow.verification_separate`, `workflow.merge_requires_authorization`.
    - `repo.mode`, `repo.default_branch`, `repo.code_path`, `repo.code_external` — the code root and the branch a worktree merges back into.
    - `security.forbidden_operations`, `security.sensitive_classes`.
-   - `packs.enabled` — whether an optional commit or remote-verify policy exists at all.
+   - `packs.enabled` — whether an optional commit, remote-verify or quality-gate policy exists at all.
    Section titles are rendered in the project document language: locate sections by topic.
 5. Run the gates through the engine instead of composing paths:
    ```bash
@@ -77,7 +77,7 @@ Entering this skill means entering the code implementation environment, so set o
 4. For `mono`, the worktree path is inside the work repository, so prove it is ignored before creating it: `git -C <WORK_ROOT> check-ignore -v .factory/worktrees/<feature-id-lowercase>`. If it is not ignored, stop and tell the user to add `.factory/worktrees/` to `.gitignore` and commit that change, then retry. A worktree must never be committed as a nested tree. For `split`, the path is outside the code repository, so only confirm it is not inside that repository.
 5. Create it from the owning repository, based on the branch that will receive the merge: `git -C <OWNING_REPO> worktree add <WORK_ROOT>/.factory/worktrees/<feature-id-lowercase> -b feature/<feature-id-lowercase> <repo.default_branch>`. If the branch already exists, stop and report it; do not reuse or force-create branches.
 6. Report the actual worktree path to every implementation subagent as its implementation root, and keep allowed and forbidden file scopes relative to it. Lifecycle manifests, evidence and the workspace gate stay in `WORK_ROOT`; commit from the worktree only at a commit boundary in the table below, and report which revision in the worktree corresponds to which manifest or evidence commit in `WORK_ROOT`.
-7. A worktree merge back to `repo.default_branch` is a separate operation that is offered only after the Feature reaches `ready-to-merge / ready`. Before that point, do not propose it, do not merge, and do not delete the branch. When the Feature is ready, ask the user explicitly whether to merge the worktree back; perform it only with that authorization, and when `workflow.merge_requires_authorization` is true treat an absent answer as no. Report the branch, the target branch and the resulting commit, and leave removing the worktree and branch to an explicit follow-up.
+7. A worktree merge back to `repo.default_branch` is a separate operation that is offered only after the Feature reaches `ready-to-merge / ready`. Before that point, do not propose it, do not merge, and do not delete the branch. When the Feature is ready, ask the user explicitly whether to merge the worktree back; perform it only with that authorization, and when `workflow.merge_requires_authorization` is true treat an absent answer as no. Report the branch, the target branch and the resulting commit, and leave removing the worktree and branch to an explicit follow-up under `$hl-workflow-governance`'s `references/worktree-lifecycle.md`; that follow-up never silently deletes unmerged work.
 8. On a blocked or abandoned worktree path, keep the worktree and branch as they are and report them; never silently delete unmerged work. A code merge into `repo.default_branch`, the `ready-to-merge / ready` lifecycle state and the long-term wiki authority merge remain three separate operations.
 
 ## Source Discovery
@@ -124,6 +124,17 @@ Own coordination and quality gates:
 - Report true status: completed, blocked, validation results, remaining risk, decisions needed.
 
 Do not delegate final acceptance. Subagents produce owner work; the main agent decides whether it is integrated and acceptable.
+
+## Context Discipline
+
+The main thread is the coordination, judgement and gate surface, not the reading or implementation engine.
+
+- Spend main-thread context on coordination, decisions and gates: intent, scope, approval, integration and final verification.
+- Outsource bulky reading, search and implementation to subagents. Keep the conclusion, the verdict and the evidence location in the main thread.
+- Do not read a large file end to end in the main thread. Use targeted search plus segmented reads, and cite the file and section that support a decision instead of quoting it.
+- Dispatch with the minimum sufficient context: objective, implementation root, allowed and forbidden files, the relevant authority paths, acceptance criteria and required output. Subagents read what they need from disk; do not paste the whole session history into a packet.
+- What the main thread retains is the decision, the approved scope and where the evidence lives, not the source text of documents or subagent transcripts.
+- A subagent summary is a pointer the main thread inspects, never authority by itself.
 
 ## Owner Selection
 
@@ -210,6 +221,8 @@ Give the review subagent:
 - Owner-specific review focus
 - Validation already run
 - Remaining risk areas
+
+When `packs.enabled` in `.factory/factory.yaml` contains `quality-gates`, the review input package must also include the quality evidence files under `packs.quality-gates.evidence_dir` (`quality-*.md`). When the pack is not enabled, the core review gate runs unchanged; never require the user to install the pack first.
 
 Blocker findings must be fixed and re-reviewed. High-severity findings should be fixed and re-reviewed unless the user explicitly accepts the risk. Warnings and nits are surfaced in the final report.
 
