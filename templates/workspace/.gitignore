@@ -4,6 +4,10 @@
 .factory/analysis/
 .factory/worktrees/
 
+# 质量工具产物（可重建；结论证据写在 verification.evidence_root 下，不入这里）
+.metrics/
+target/
+
 # Python
 __pycache__/
 *.py[cod]

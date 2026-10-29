@@ -68,7 +68,7 @@ Follow the P0 order in `docs/init-questionnaire.md`. For each item, detect → p
 15. workflow gates: keep defaults? quick-change? Initiative integration?
 16. naming: ID prefixes, slug rules, wiki taxonomy
 17. git: default branch, commit format, initial commit now?
-18. packs: commit / dev-runtime / remote-verify
+18. packs: commit / dev-runtime / remote-verify / quality-gates
 19. factory version pin and upgrade policy
 
 Do not ask P1/P2 items unless the user chooses the full mode or a P0 answer leaves a real gap.

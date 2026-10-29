@@ -91,3 +91,4 @@ packs:
   disabled:
     - dev-runtime
     - remote-verify
+    - quality-gates
