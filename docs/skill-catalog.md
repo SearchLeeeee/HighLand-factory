@@ -32,6 +32,7 @@ Enable with `packs.enabled: [<id>]` in `.factory/factory.yaml`, then `factory up
 | `commit` | `hl-commit` | Repo-mode aware granular commits at the governed boundaries in `$hl-workflow-governance`'s `references/commit-boundaries.md`; commit only behind a passed gate and when authorized, push only on separate authorization | `repo.*`, `project.language.commit` |
 | `dev-runtime` | `hl-dev-runtime` | Start/stop/restart configured local services with health verification | `packs.dev-runtime.services[]` |
 | `remote-verify` | `hl-remote-verify` | Run one commit through an isolated/remote clone and return a machine verdict | `packs.remote-verify.{host,user,clone_path,entry,evidence_root}` |
+| `quality-gates` | `hl-quality-gates` | Run the configured complexity (CRAP), structural-duplication and mutation-testing tools, translate their exit codes into review findings, and write one evidence file per run | `packs.quality-gates.evidence_dir` plus at least one of `crap` / `dry` / `mutate` with a non-empty `command` list |
 
 ## Adding a skill
 

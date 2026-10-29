@@ -111,6 +111,7 @@ names from pre-factory setups are intentionally not listed here; migrate by role
 | pack `commit` (skill `hl-commit`) | Optional git policy skill |
 | pack `dev-runtime` (skill `hl-dev-runtime`) | Optional service restart/health skill |
 | pack `remote-verify` (skill `hl-remote-verify`) | Optional remote/isolated verification skill |
+| pack `quality-gates` (skill `hl-quality-gates`) | Optional complexity / duplication / mutation evidence skill |
 
 ## 6. Generated files
 

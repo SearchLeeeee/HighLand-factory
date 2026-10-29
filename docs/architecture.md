@@ -97,6 +97,7 @@ Core workflow is project-agnostic. Environment- or vendor-specific behaviour shi
 - `commit` (git policy: repo mode aware, granular commits)
 - `dev-runtime` (start/stop/restart local services and health checks)
 - `remote-verify` (run one commit through an isolated/remote clone and return a machine verdict)
+- `quality-gates` (run the configured complexity, duplication and mutation commands and turn their exit codes into evidence and review findings)
 
 Packs read the same config and declare their own required keys under `packs.<id>`; they are installed only when listed in `packs.enabled`. Domain skills for specific vendors or verticals are not part of this repository.
 

@@ -91,3 +91,17 @@ Never fork a second state machine, never duplicate a validator, never let a skil
 | `wiki/feature-workspace/schema/**` | factory | no — change the factory, not one project |
 
 Project-specific additions belong in new files or project-owned docs, not by rewriting factory-owned generic rules in place. That keeps upgrades possible.
+
+### Adding a factory-owned block
+
+A block is only in effect when all five registration points change in the same commit:
+
+1. the block itself under `templates/workspace/wiki/code-ai/_blocks/`;
+2. the block list in `_blocks/README.md`;
+3. `global_blocks` in `_manifests/owner.yml.tmpl`;
+4. `global_blocks` in `_manifests/review-agent.yml` (omit it only when the block is deliberately owner-only);
+5. the enumeration in `_manifests/README.md`, plus the reference list in `templates/owner-templates/owner-agent.md.tmpl`.
+
+A block present in only some of them is not in effect for generated profiles, and `factory doctor` does not detect the gap — the manifests and profiles stay individually valid.
+
+Existing work repositories do not pick up a new block reference automatically: an owner profile is user-editable authority after its first generation, so `factory upgrade` reports it as locally edited instead of rewriting it. Add the reference to the profile by hand, then confirm the manifest lists the same block. Follow the block's own change flow (`_blocks/README.md` section 4) and re-sync every affected profile.

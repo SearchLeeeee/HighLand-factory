@@ -55,7 +55,7 @@ These are the items most often missing from a first initialization, and the ones
 | 17 | Workflow gates | Keep default Scope Gate thresholds? Enable quick-change? Allow parallel Features in worktrees? Require initiative integration testing? | These are policy, not code; wrong defaults silently weaken gates | keep all gates on; quick-change on; parallel worktrees allowed for dependency-ready, scope-disjoint Features |
 | 18 | Naming | Initiative/Feature ID prefixes, slug rules, wiki taxonomy, file naming? | ID schemes and paths are load-bearing in scripts and docs | `I###` / `I###-F##`, kebab-case slugs, standard taxonomy |
 | 19 | Git | Default branch, commit format and granularity, PR policy, initial commit now? | Commit gate and history hygiene depend on it | `main`, conventional commits, one concern per commit, initial commit only after doctor passes |
-| 20 | Packs | Enable `commit`, `dev-runtime`, `remote-verify`? | Packs add machine-specific behaviour and need config | `commit` on; others off unless the project has a dev server / remote verifier |
+| 20 | Packs | Enable `commit`, `dev-runtime`, `remote-verify`, `quality-gates`? | Packs add machine-specific behaviour and need config | `commit` on; others off unless the project has a dev server / remote verifier / a supported language for the complexity, duplication and mutation gates |
 | 21 | Factory version | Pin engine version range and decide upgrade policy? | Prevents silent drift between work repo and factory | pin `>=0.1 <0.2`; upgrade only through `factory upgrade` |
 
 ## 3. P1 question bank (defaults are fine)

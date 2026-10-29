@@ -27,7 +27,7 @@ v0.1 已可用，核心链路已跑通：
 - [x] 初始化问卷与 DoD：[docs/init-questionnaire.md](docs/init-questionnaire.md)
 - [x] engine：`init / adopt / doctor / upgrade / status / resolve / gate`
 - [x] 工作仓库模板（wiki 权威 + code-ai + feature-workspace + quick-workspace）
-- [x] 核心 skills（14 个，统一 `hl-` 前缀，避免与其他流程重名）+ 3 个可选 pack（`hl-commit` / `hl-dev-runtime` / `hl-remote-verify`）
+- [x] 核心 skills（14 个，统一 `hl-` 前缀，避免与其他流程重名）+ 4 个可选 pack（`hl-commit` / `hl-dev-runtime` / `hl-remote-verify` / `hl-quality-gates`）
 - [x] AI 引导初始化 prompt：[prompts/quickstart.md](prompts/quickstart.md)
 - [x] 安装脚本 + CI 守卫（模板冒烟、门禁测试、无项目泄漏）
 - [x] 已用一套现有双仓项目的临时副本做 split 模式 adopt 验证（0 门禁错误）
@@ -581,7 +581,7 @@ HighLand-factory/
   templates/         # 工作仓库骨架（wiki / code-ai / .factory / code）
   prompts/           # 交给 AI 的启动 prompt（quickstart.md）
   install/           # 安装/升级脚本、生成 factory 命令
-  packs/             # 可选能力（hl-commit / hl-dev-runtime / hl-remote-verify）
+  packs/             # 可选能力（hl-commit / hl-dev-runtime / hl-remote-verify / hl-quality-gates）
   docs/              # 架构、技能契约、初始化问卷、定制、升级、FAQ
   examples/          # 最小示例、adopt 现有项目的配置示例
 ```
