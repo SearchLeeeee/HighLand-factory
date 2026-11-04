@@ -16,9 +16,8 @@ from .layout import Layout
 PLACEHOLDER_RE = re.compile(r"\{\{([A-Za-z0-9_.:\-]+)\}\}")
 TEMPLATE_SUFFIX = ".tmpl"
 
-# Maintainer-only files that must never be copied into a generated work repo.
+# Template artifacts that are not work-repo outputs.
 SKIP_TEMPLATE_FILES = {
-    "README.md",
     ".factory/factory.yaml.tmpl",
     "wiki/code-ai/_manifests/owner.yml.tmpl",
 }

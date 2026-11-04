@@ -66,6 +66,12 @@ def test_init_doctor_and_gates(tmp_path: Path) -> None:
     assert (work / "wiki" / "governance" / "workflow-profile.md").is_file()
     assert (work / "wiki" / "feature-workspace" / "registry.yaml").is_file()
     assert (work / "wiki" / "code-ai" / "core-agent.md").is_file()
+    workspace_readme = (work / "README.md").read_text(encoding="utf-8")
+    assert workspace_readme.startswith("# Smoke Project")
+    assert "workspace template maintenance" not in workspace_readme.lower()
+    for topic in ("architecture", "domain", "features", "implementation", "product", "testing"):
+        assert not (work / "wiki" / topic / "README.md").exists()
+        assert f"{topic}/README.md" not in (work / "wiki" / "README.md").read_text(encoding="utf-8")
     gitignore = (work / ".gitignore").read_text(encoding="utf-8")
     assert ".factory/local.yaml" in gitignore
     assert ".factory/worktrees/" in gitignore
