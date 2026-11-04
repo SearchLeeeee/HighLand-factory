@@ -34,6 +34,8 @@ HighLand-factory instead standardises the layout (`code/` + `wiki/` and fixed pa
 
 If a project insists on different folder names, only `repo.code_path` and `repo.wiki_path` move; all other wiki-internal paths stay fixed. This is deliberate: a small contract is what makes the workflow reusable.
 
+The semantic Wiki areas remain distinct, but topic MOCs are created only when the first authority document for that area is added. Greenfield projects do not start with empty topic indexes or a separate taxonomy-mode setting.
+
 ## 3. Repository modes
 
 | Mode | Layout | Use |

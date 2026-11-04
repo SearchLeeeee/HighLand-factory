@@ -93,8 +93,10 @@ begin a partial merge.
 
 1. For a registered Feature, confirm explicit authorization before the first canonical write when
    `workflow.merge_requires_authorization` is true.
-2. Apply only the completed mapping to canonical wiki documents and affected MOCs. Record
-   before/after hashes in the apply receipt.
+2. Apply only the completed mapping to canonical wiki documents and affected MOCs. Create a topic
+   MOC only when the merge adds the first authority document in that area, then link the new MOC
+   from the root home. Do not create empty MOCs for unused topics. Record before/after hashes in the
+   apply receipt.
 3. Keep integration semantic and concise. Do not modify source Feature manifests, retained-history
    files, tombstones or registry routing during this phase.
 

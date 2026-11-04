@@ -1,24 +1,20 @@
-# workspace 模板维护说明
+# Workspace Template Maintenance
 
 > **这是模板维护者文档，不是工作仓库的内容。**
 >
-> 两条硬性约束：
+> 本文位于 `docs/`，说明 `templates/workspace/` 的渲染规则与文件映射，不会被工作仓库模板复制。
 >
-> 1. **不要在本目录写任何项目事实。** 项目名称、命令、owner、端口、验收结论都属于
+> 一条硬性约束：
+>
+> 1. **不要在模板目录写任何项目事实。** 项目名称、命令、owner、端口、验收结论都属于
 >    具体工作仓库，属于 `.factory/factory.yaml` 和 `wiki/`。模板里只能出现结构性
 >    说明、占位符和默认值。
-> 2. **本文件与 `README.md.tmpl` 争用同一个产物路径。** 引擎当前已在
->    `engine/factorylib/render.py` 的 `SKIP_TEMPLATE_FILES` 中排除本文件，因此它不会
->    被复制进工作仓库。改引擎时必须保留这个排除项，否则本文件会覆盖渲染后的
->    `README.md`。
-
 ## 这个目录是什么
 
-`templates/workspace/` 是一个工作仓库的完整骨架。`factory init` 把它实例化到
+`templates/workspace/` 是一个工作仓库的骨架。`factory init` 把它实例化到
 目标目录：标量占位符被替换，`.tmpl` 去掉后缀，其余文件原样复制。
 
-`templates/workspace/wiki/code-ai/` 由另一份模板负责，本目录不包含、也不应创建
-该子目录下的任何文件（根 MOC 只是链接到 `code-ai/README.md`，由对方保证存在）。
+`templates/workspace/wiki/code-ai/` 由 Code AI 模板维护流程单独负责，不属于普通 Wiki 骨架的随手改动范围。只有在 Code AI artifact 阶段明确批准后，才在该目录新增或修改文件（根 MOC 仍链接到 `code-ai/README.md`）。
 
 ## 引擎契约（摘要）
 
@@ -86,14 +82,8 @@
 | `code/.gitkeep` | `code/.gitkeep` |
 | `wiki/human/README.md` | `wiki/human/README.md` |
 | `wiki/human/system-overview.md` | `wiki/human/system-overview.md` |
-| `wiki/product/README.md` | `wiki/product/README.md` |
-| `wiki/domain/README.md` | `wiki/domain/README.md` |
-| `wiki/architecture/README.md` | `wiki/architecture/README.md` |
-| `wiki/implementation/README.md` | `wiki/implementation/README.md` |
-| `wiki/features/README.md` | `wiki/features/README.md` |
 | `wiki/governance/README.md` | `wiki/governance/README.md` |
 | `wiki/governance/init-record.md` | `wiki/governance/init-record.md`（骨架，init 会用真实记录覆盖） |
-| `wiki/testing/README.md` | `wiki/testing/README.md` |
 | `wiki/validation/README.md` | `wiki/validation/README.md` |
 | `wiki/validation/init-baseline.md` | `wiki/validation/init-baseline.md`（骨架，`Status: pending`） |
 | `wiki/feature-workspace/README.md` | `wiki/feature-workspace/README.md` |
@@ -104,7 +94,10 @@
 | `wiki/quick-workspace/schema/quick-record-schema.md` | 同名 |
 | `wiki/quick-workspace/{active,completed,escalated}/.gitkeep` | 同名 |
 
-`templates/workspace/README.md`（本文件）**不参与复制**，见顶部第 2 条。
+`docs/workspace-template.md`（本文件）位于模板树之外，不参与复制。
+
+Product/domain/architecture/implementation/features/testing topic MOCs are created with the first
+authoritative document in that area, not as empty placeholders during `factory init`.
 
 ## 改模板后的验证
 
@@ -119,9 +112,9 @@
    `factory gate all --work <临时目录>`，必须是 `VALID` / `feature workspace is
    valid`，且 `factory doctor` 为 0 error。
 
-## 与引擎的已知缺口（需要引擎侧或 init 侧决定）
+## 与引擎的模板渲染约定
 
-1. `templates/workspace/.factory/factory.yaml.tmpl` 目前在
+1. `templates/workspace/.factory/factory.yaml.tmpl` 仍在
    `engine/factorylib/render.py` 的 `SKIP_TEMPLATE_FILES` 里：`factory init` 用
    `DEFAULT_CONFIG` + answers 序列化生成 `.factory/factory.yaml`，不使用本模板。本
    文件因此是可读的规格说明。若引擎改为渲染它，必须保持
@@ -148,4 +141,4 @@
 - 不要新增未在引擎中注册的占位符名字。
 - 不要在 `templates/workspace/wiki/` 里创建 `moc/`、`maps/`、`decisions/`
   `discussions/` 之类的第二套入口目录。
-- 不要创建或修改 `templates/workspace/wiki/code-ai/`。
+- 普通 Wiki 骨架维护不要顺带修改 `templates/workspace/wiki/code-ai/`；其改动走单独确认的 Code AI artifact 阶段。

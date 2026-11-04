@@ -1,197 +1,50 @@
 # Workflow Governance — Entry Point
 
-Load factory context first: read `.factory/local.yaml` and then
-`wiki/governance/workflow-profile.md` before making any workflow decision. If either is missing,
-stop and route to `$hl-factory-init` or `$hl-factory-doctor`; do not reconstruct values from memory,
-chat history or directory guesses.
+Load factory context first: read `.factory/local.yaml`, then
+`wiki/governance/workflow-profile.md`. If either is missing, stop and route to `$hl-factory-init`
+or `$hl-factory-doctor`; do not reconstruct values from memory, chat history or directory guesses.
 
-This file is the entry point for a fresh session. It governs Feature lifecycle, cross-Feature
-dependencies, Initiative integration and documentation merge gates. It does not replace product
-decisions and does not implement a business Feature.
+This page is a fresh-session map. It does not restate every procedure. `$hl-workflow-governance`
+owns routing and workflow maintenance; the skill named for the current action owns its detailed
+steps; executable and schema authorities below own machine-enforced behavior.
 
-## Scope
+## Fresh-session entry
 
-Use this skill for:
+1. Read `wiki/feature-workspace/README.md` and
+   `wiki/feature-workspace/schema/feature-workspace-schema.md`.
+2. Read `$hl-feature-workspace/SKILL.md` for lifecycle commands and the
+   `$hl-workflow-governance/SKILL.md` for request routing and maintenance.
+3. Run `factory gate workspace --work <WORK_ROOT>`. Use the registry and current manifests as
+   lifecycle authority; narrative reports are not state.
 
-- creating, validating, transitioning, blocking and closing Initiatives and Leaf Features;
-- `ready-to-merge` dependency rules and per-Feature merge-ready checks;
-- the Initiative integration-test handoff, evidence registration and `initiative-merge-ready`
-  after every Leaf Feature is ready;
-- merging Feature documents one at a time in `depends_on` topological order once the Initiative
-  gate passes;
-- maintaining the workflow itself: rules, scripts, schema, tests and prose;
-- isolating provenance lookup for already-merged Features while reading canonical authority.
+## Route
 
-Do not use it for product decisions, code implementation, feature testing or merge authorization
-for a specific Feature. Those stay with the owning Feasibility, Discussion, implementation,
-review, verification and acceptance skills, and with the user.
+Use `$hl-workflow-governance/SKILL.md`'s request table to select the owner: Feature workspace,
+Feature discussion/orchestration, Initiative integration, wiki merge, history trace, Quick Change,
+or workflow maintenance. Do not carry out a Feature transition in the routing skill.
 
-## Fresh-Session Entry
+## Shared invariants
 
-1. Read `wiki/feature-workspace/README.md`.
-2. Read `wiki/feature-workspace/schema/feature-workspace-schema.md`.
-3. Read `$hl-feature-workspace` (`<FACTORY_ROOT>/skills/hl-feature-workspace/SKILL.md`).
-4. Read this skill's `SKILL.md`.
+- Complete Initiative inventory, dependency/wave registration and Scope Gate before Leaf discussion.
+- Dependencies count as satisfied only after acceptance and closure are complete.
+- An Initiative merge requires every active Leaf ready, new Initiative integration evidence, a
+  passing merge-ready gate, and the required authorization.
+- Per Feature, merge semantic content, update affected MOCs, pass the full long-term wiki
+  validator, retain the source, then switch authority and close the Feature.
+- Wiki content validation is not a lifecycle state. A failed validator keeps the Feature ready and
+  blocks authority switch and closure.
+- Keep future work in the Feature or Quick Change workspace; keep the canonical wiki as current
+  authority. Retained sources are history only.
+- Before workflow maintenance, state compatibility and fail-closed behavior, update every owning
+  surface, and keep generic documents free of project-specific facts.
 
-Then judge state only from `wiki/feature-workspace/registry.yaml`, the Initiative and Feature
-manifests, and their `context_refs`. Chat records, folder guesses and old reports are not state.
-
-Run the read-only checks first:
-
-```bash
-factory gate workspace --work <WORK_ROOT>
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry wiki/feature-workspace/registry.yaml
-```
-
-`factory gate workspace` runs `validate` against the same registry; use the explicit form when you
-need a human-readable report.
-
-## Daily Flow
-
-```text
-create Initiative
-  -> complete initial Feature inventory + depends_on + wave
-  -> per-candidate Scope Gate and mandatory splitting
-  -> finalize-decomposition              [commit boundary 2]
-  -> parallel-development choice: shared checkout or dedicated git worktree
-  -> first dependency-ready Leaf discussion
-  -> domain implementation documents + Code AI profiles in that same discussion session
-                                        [commit boundaries 3 and 4]
-  -> copyable $hl-feature-orchestrator startup prompt for a new session
-  -> implementation, independent review, Feature acceptance
-                                        [commit boundaries 5, 6 and 7]
-  -> ready-to-merge / ready for every non-cancelled, non-superseded Leaf
-  -> worktree merge-back, only after the Feature is ready and only if authorized
-  -> Initiative integration-test handoff
-  -> new immutable integration evidence + PASS
-                                        [commit boundary 8]
-  -> Initiative merge-ready
-  -> explicit merge authorization (when policy requires it)
-  -> semantic wiki merge per Feature in depends_on topological order
-  -> affected MOC updates
-  -> full long-term wiki validator excluding the feature and quick workspaces
-  -> retained-history transformation after PASS
-  -> Feature merged / completed
-  -> authority switch and routing-record update
-                                        [commit boundary 9, one per Feature]
-```
-
-Rules:
-
-- After an Initiative is created, complete the initial decomposition first; a broad F01 must not
-  carry the whole Initiative's discussion.
-- Every initial candidate gets a stable F ID, `depends_on`, `wave` and a Scope Gate. Split
-  `must-split` immediately; keep `split-default` only with an `indivisibility_reason`.
-- Only after `finalize-decomposition` succeeds may the first dependency-ready Leaf enter
-  discussion. The validator and the transition command fail closed on this.
-- A `ready-to-merge / ready` dependency is satisfied only with passed acceptance and complete
-  closure; an incomplete ready state stays fail-closed.
-- Before discussion, check whether other Leaf Features are parallelizable at that moment. When at
-  least one is, ask the user whether to work in the shared checkout or in a dedicated git worktree;
-  record the answer in the workbench. A worktree is created by the implementation session, is
-  gitignored under `.factory/worktrees/`, and never merges back to `repo.default_branch` before the
-  Feature is `ready-to-merge / ready`.
-- Discussion and code implementation never share a session. The discussion session ends at
-  `code-ai-profiles / completed` with one copyable `$hl-feature-orchestrator` startup prompt
-  (workspace paths, must-read documents, confirmed conclusions, parallel development choice, target
-  state); the implementation session starts from that prompt and needs no chat history.
-- Commits follow `references/commit-boundaries.md`: only behind a passing gate, only at a named
-  boundary, never for a failing gate or unreviewed implementation, and never as an implied push
-  authorization. Verification freezes first — commit the implementation state to obtain the
-  revision that review, verification and Initiative integration run against, then commit the
-  evidence naming it.
-- Entering implementation sets one continuous goal: advance the Feature to `ready-to-merge /
-  ready`. The goal is updated once when evidence changes status and completes only after that
-  transition is recorded.
-- No merge starts before every non-cancelled, non-superseded Leaf in the Initiative is ready.
-- After all Leaf Features are ready, generate the integration handoff and execute cross-Feature
-  tests in a new immutable evidence root.
-- `initiative-merge-ready` must pass before any merge. It requires an integration result of PASS
-  and evidence files that exist on disk inside the Initiative directory.
-- Feature merges follow `depends_on` topological order. Never fake completion or downgrade an
-  upstream Feature to bypass a dependency.
-- After the semantic merge, update every affected MOC, then run the full long-term wiki validator
-  from `$hl-wiki-merge`. The validator covers the whole long-term wiki and excludes the feature and
-  quick workspaces.
-- That validator is a `$hl-wiki-merge` machine gate, not a Feature lifecycle field. Never add a
-  status, schema field or state-machine branch for it.
-- Only after validator PASS may you transform retained history, record `merged / completed`, and
-  update the authority switch and the external routing record.
-- On validator FAIL the Feature stays `ready-to-merge / ready`; do not create a tombstone or
-  routing record, switch authority, transform retained history, or mark it merged/completed.
-- After the merge, retain the complete Feature source directory as non-authoritative provenance,
-  but remove it from active manifest references, default discovery and reporting, and from new
-  `context_refs`. Only an explicit history audit may read it. The long-term wiki is the sole
-  current authority; later changes and open questions become a new Feature in the feature
-  workspace.
-
-Key commands:
-
-```bash
-# Seal the initial decomposition after inventory, dependencies, waves and Scope Gate
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py finalize-decomposition --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
-
-# Single Feature closure
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py merge-ready --feature <feature.yaml>
-
-# Generate the handoff once every Leaf Feature is ready
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-handoff --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx> --output <initiative-dir>/integration-testing/integration-test-handoff.md
-
-# Register real integration evidence after tests pass
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-result --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx> --evidence <initiative-relative-evidence-file>
-
-# Final gate before merge
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
-```
-
-Documentation merge happens only after the last command passes and the user has authorized the
-merge, and it runs through `$hl-wiki-merge`. Follow the fixed per-Feature order: semantic merge,
-affected MOC updates, full wiki validation excluding the workspaces, retained-history
-transformation after PASS, `merged / completed`, then the authority switch and routing-record
-update.
-
-## History Lookup
-
-When a reader asks why a rule exists while reading the long-term wiki, call `$hl-history-trace` with
-the concrete question and the current canonical document path. That skill must spawn a fresh
-isolated subagent to resolve the tombstone, route, checksums and historical body; the main session
-receives only the fixed compact handoff.
-
-Canonical documents must not contain feature or Initiative IDs, retained paths or reverse history
-links. Routing entries live only in the external merged record and in `history-route.yaml` inside
-the retained directory. When no route exists, report a provenance gap instead of scanning the
-workspace.
-
-## Workflow Maintainer Guide
-
-When the request is to change the workflow itself rather than to advance a Feature:
-
-1. State the new rule, compatibility impact and fail-closed behaviour first. Never prove a rule
-   with a hand-edited manifest.
-2. Change `<FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py` only for
-   lifecycle status or transition rules, and sync its tests with the feature-workspace README and
-   schema.
-3. Content-completeness gates for merges live in `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts`; they
-   never enter the lifecycle schema, status values or the state machine.
-4. Sync the affected workflow skills (at least `$hl-feature-workspace` and `$hl-wiki-merge`) plus this
-   skill's `SKILL.md`, `references/entry-point.md` and `references/workflow-contract.md`.
-5. Run every affected check: state-machine tests plus a real workspace `validate` for lifecycle
-   changes; validator positive/negative tests plus a full wiki validation for merge-gate changes;
-   `$hl-factory-doctor` for configuration or generated-file changes.
-6. Confirm no project fact leaked into the generic surface: no project names, no absolute paths,
-   no machine tokens.
-
-Unacceptable maintenance: a second state machine, a validator elevated into a lifecycle field,
-prose changed without the matching machine gate, a validator changed without its tests, or a
-merge skill that bypasses the Initiative integration gate.
+Detailed commit and worktree rules live in `references/commit-boundaries.md` and
+`references/worktree-lifecycle.md`. Shared policy details and change-surface ownership live in
+`references/workflow-contract.md`.
 
 ## Authorities
 
-- Entry and invariants: this file and `references/workflow-contract.md`.
-- Commit boundaries: `references/commit-boundaries.md`, executed through the opt-in `$hl-commit`
-  pack.
-- Worktree and branch cleanup: `references/worktree-lifecycle.md`; cleanup is an operational
-  action, never a lifecycle transition.
-- Lifecycle state machine: `<FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py`.
-- Long-term wiki content gate: `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`.
-- Provenance reader: `<FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py`.
+- Lifecycle state machine: `<FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py`
+- Long-term Wiki validator: `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`
+- Semantic merge workflow: `$hl-wiki-merge/SKILL.md`
+- Provenance resolver: `<FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py`

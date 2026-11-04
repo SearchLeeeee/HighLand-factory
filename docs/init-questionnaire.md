@@ -53,7 +53,7 @@ These are the items most often missing from a first initialization, and the ones
 | 15 | Authorization | Who authorizes commit, push, merge, delete, production writes? Are review and verification roles independent? | Gates are meaningless without a decision owner | user authorizes all outward actions; review/verify independent |
 | 16 | Verification | Baseline evidence path, evidence root, isolated-environment policy, reproducibility requirements? | Defines what evidence a future session can trust | local evidence root under feature workspace; no isolation for v0.1 unless needed |
 | 17 | Workflow gates | Keep default Scope Gate thresholds? Enable quick-change? Allow parallel Features in worktrees? Require initiative integration testing? | These are policy, not code; wrong defaults silently weaken gates | keep all gates on; quick-change on; parallel worktrees allowed for dependency-ready, scope-disjoint Features |
-| 18 | Naming | Initiative/Feature ID prefixes, slug rules, wiki taxonomy, file naming? | ID schemes and paths are load-bearing in scripts and docs | `I###` / `I###-F##`, kebab-case slugs, standard taxonomy |
+| 18 | Naming | Initiative/Feature ID prefixes, slug rules, wiki taxonomy, file naming? | ID schemes and paths are load-bearing in scripts and docs | `I###` / `I###-F##`, kebab-case slugs, standard semantic taxonomy with topic MOCs created when they first have content |
 | 19 | Git | Default branch, commit format and granularity, PR policy, initial commit now? | Commit gate and history hygiene depend on it | `main`, conventional commits, one concern per commit, initial commit only after doctor passes |
 | 20 | Packs | Enable `commit`, `dev-runtime`, `remote-verify`, `quality-gates`? | Packs add machine-specific behaviour and need config | `commit` on; others off unless the project has a dev server / remote verifier / a supported language for the complexity, duplication and mutation gates |
 | 21 | Factory version | Pin engine version range and decide upgrade policy? | Prevents silent drift between work repo and factory | pin `>=0.1 <0.2`; upgrade only through `factory upgrade` |
@@ -65,7 +65,7 @@ These are the items most often missing from a first initialization, and the ones
 - MCP servers the workflow may use (wiki query, indexer, tracker).
 - Agent platforms in use and their skill installation method.
 - Model tier mapping for owner / review / verification / delegation.
-- Wiki taxonomy additions and which domains get their own MOC.
+- Wiki taxonomy additions and which domains need a MOC; create a topic MOC when its first authority document is introduced.
 - Decision record policy (this template defaults to "current decisions doc + git history", no ADR directory).
 - Glossary / ubiquitous language terms.
 - Fixture and test-data policy (synthetic vs captured, metadata requirements).

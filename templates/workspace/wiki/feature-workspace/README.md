@@ -113,10 +113,16 @@ Initiative 的 `initial_decomposition.status` 必须是 `completed`，否则先�
 
 只写「未来支持某能力」或留 TODO 不算完成拆分。
 
+讨论结论要清楚列出行为新增、保留、移除或降级。高影响的用户可见移除/降级需逐项
+确认。行为、契约或兼容性变化须按 `wiki/02-file-authority-map.md` 找到相关现行权威并
+核对语义冲突；视觉或交互变化须确认是否需要绑定版本、状态和 viewport 的证据。细节由
+`$hl-feature-discuss` 执行，本手册不重复对话步骤。
+
 ### 4. 生成实现资料
 
 讨论结论、测试场景和验收标准确认后，才生成领域实现文档和 Code AI profiles。生成
 前再次确认：仍是 Leaf、Scope Gate 仍通过、没有未处理的阻塞子项、验收可观察可判定。
+只有在 Feature 涉及行为、契约或兼容性变化时才核对相关权威文档，不要求无差别扫描整份 Wiki。
 
 讨论和代码实现不在同一个会话：讨论会话只写 workbench、领域实现文档和 profiles，
 不写业务代码、不派发实现子 agent、不做 review 与验收。profiles 完成后，讨论会话交
@@ -136,6 +142,9 @@ worktree 选择），由用户在**新会话**里粘贴它启动实现；实现�
 
 实现完成后依次经过独立 review 和独立验收。只有验收通过并把结论写进
 `feature.yaml` 的 `closure:` 块，Feature 才能进入 `ready-to-merge`。
+评审基于冻结 revision；按评审文件列表生成 snapshot，并在采纳结论前复核 revision 与
+SHA-256。快照不一致时本轮结论失效。修复后复审限于改动和相关发现，除非契约、范围或
+依赖方向变化。
 
 ### 6. Initiative 合并屏障
 

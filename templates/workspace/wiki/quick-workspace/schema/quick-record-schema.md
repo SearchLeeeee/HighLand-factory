@@ -42,7 +42,7 @@ registry 或长期 Wiki 权威文档。
 2. Feasibility Grill：可行性追问的关键结论。
 3. Scope Gate：`scope_verdict` 的判定依据。
 4. Confirmed Change Points：确认要改的点，逐条对应文件范围。
-5. Context Compaction：可复用的压缩上下文。
+5. Context Transfer：说明是否需要跨会话交接及理由；跨会话、上下文较重或确需交接时，记录可复用的 handoff block。短小且同会话继续时无需压缩，记录范围和验收条件即可。
 6. Implementation Notes：实现摘要与取舍。
 7. Verification Evidence：证据字段见下节。
 8. Wiki Merge Handoff：`wiki_targets` 与待合并结论。
@@ -68,6 +68,8 @@ verification:
 - `result` 必须可判定；失败就是失败，不得用「部分通过」模糊。
 - 证据文件与记录一起保留，不因完成而删除。
 - 证据中不得出现真实密钥、完整账号或私有端点。
+
+测试选择必须说明受影响的模块/行为、实际运行的命令，以及每条省略的配置测试为何不会受影响。共享契约、持久化/迁移、安全/权限、跨模块变更或无法界定影响时运行完整验证；影响可界定的局部变更可运行相关测试和兼容检查。
 
 ## 升级规则
 

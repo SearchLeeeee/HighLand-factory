@@ -10,6 +10,7 @@
 
 - 项目工程事实：[project-facts.md](project-facts.md)
 - 四角色子代理流程：[subagent-flow.md](subagent-flow.md)
+- Feature 实施计划格式：[implementation-plan-template.md](implementation-plan-template.md)
 - 独立评审门：[review-agent.md](review-agent.md)
 - 可组合约束块：[_blocks/README.md](_blocks/README.md)
 - profile 组合声明：[_manifests/README.md](_manifests/README.md)
@@ -37,6 +38,9 @@
 8. 具体任务本身。
 
 阅读完成后，先在交接中复述范围、权威来源与不确定点，得到确认后再进入实现。
+
+具体 Feature 的实现计划由 orchestrator 在代码调研后保存到该 Feature 的
+`code-ai/implementation-plan.md`。阅读/规划角色可以在计划建立前受派调查；实现、评审和验证角色必须从 dispatch 读取当前同一份计划。计划缺失或与任务不一致时不得开工或出具结论。
 
 ## 4. 共享边界（所有角色一致）
 

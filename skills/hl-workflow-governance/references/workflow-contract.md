@@ -38,6 +38,9 @@ authority stays with the feature-workspace tools and documentation named by
   authority.
 - Future discussions and open questions stay in the feature workspace; canonical current facts go
   into the current or domain authority document.
+- A topic MOC is created when its first canonical document is added. Do not create or link empty
+  topic MOCs from the default wiki home; all existing canonical Markdown must remain reachable from
+  the root home within the validator's depth limit.
 - Historical lookup starts from a concrete question and canonical path, runs in a fresh isolated
   subagent through the external routing record and the retained `history-route.yaml`, and returns
   only a compact handoff to the main session.
@@ -62,6 +65,20 @@ authority stays with the feature-workspace tools and documentation named by
   root, `.factory/worktrees/` stays gitignored, and the worktree is never merged back into
   `repo.default_branch` before the Feature reaches `ready-to-merge / ready`. That merge is a
   separate operation with its own explicit authorization.
+- Batch discussion makes behavior added, preserved, removed or degraded explicit; high-impact
+  removals or degradations need individual user confirmation. Material behavior, contract or
+  compatibility changes require a semantic conflict check against the relevant documents in the
+  authority map, not an indiscriminate whole-Wiki scan.
+- UI/interaction scope is classified during discussion. Applicable visual evidence is persistent
+  and bound to build, route/state and viewport; non-applicability is recorded with a reason.
+- Review conclusions bind to a frozen revision and the SHA-256 fingerprints of the reviewed source
+  set. A changed revision or reviewed file invalidates that run; remediation re-review is limited to
+  changed files and affected findings unless the contract, scope or dependency direction changes.
+- Quick Change records test impact, selected commands and reasons for omitted commands. Full
+  verification remains required for shared contracts, persistence/migration, security/permissions,
+  cross-module changes or unbounded impact. Context compaction is required only for a real session
+  transfer, substantial context or a needed handoff; a short same-session path records its scope and
+  criteria without a no-op handoff block.
 - The implementation session carries one continuous goal: advance the Feature to
   `ready-to-merge / ready`. Update it once when new evidence changes the status, never create a
   second goal, never emit a next-session handoff mid-workflow, and complete it only after the

@@ -28,22 +28,18 @@
 
 ## 新增或修改 Feature
 
-1. [Features](features/README.md)：确认是否已有稳定说明需要更新。
-2. [File Authority Map](02-file-authority-map.md)：列出受影响的权威文档。
-3. [Current Decisions](03-current-decisions.md)：确认不会与现行规则冲突。
-4. 按受影响领域进入 [Product](product/README.md)、[Domain](domain/README.md)、
-   [Architecture](architecture/README.md) 或 [Implementation](implementation/README.md)。
-5. 临时讨论、状态与证据只写在 `wiki/feature-workspace/` 中；稳定结论验收后才回到
+1. 从[文件权威地图](02-file-authority-map.md)确定需要检查和更新的权威文档。
+2. 查看[当前决策](03-current-decisions.md)，确认不会与现行规则冲突。
+3. 按受影响领域进入对应主题目录；该主题尚无权威文档时，先添加首篇文档并创建
+   `README.md` 作为 MOC。
+4. 临时讨论、状态与证据只写在 `wiki/feature-workspace/` 中；稳定结论验收后才回到
    长期文档。
 
 ## 专题深入
 
-- 产品与需求：[Product](product/README.md)
-- 业务概念：[Domain](domain/README.md)
-- 系统设计：[Architecture](architecture/README.md)
-- 实现与契约：[Implementation](implementation/README.md)
-- 测试工程：[Testing](testing/README.md)
-- 验证证据：[Validation](validation/README.md)
+按需进入 `product/`、`domain/`、`architecture/`、`implementation/`、`features/`、
+`testing/` 或 `validation/`。一个主题有首篇权威文档时，再创建该目录的 `README.md`
+作为 MOC；空主题不需要索引文件。
 
 领域 MOC 只负责发现。遇到冲突时回到[文件权威地图](02-file-authority-map.md)，
 不能按目录位置、文件新旧或历史命名猜测权威。

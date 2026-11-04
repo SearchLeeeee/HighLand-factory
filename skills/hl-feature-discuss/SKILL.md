@@ -109,8 +109,11 @@ During the discussion phase:
 - Use implementation-document targets and profile targets as planned paths only.
 - Before asking detailed questions, enumerate every known question and write it into the workbench.
 - In interactive mode keep asking one unresolved question at a time until behaviour, domain ownership, test cases and acceptance criteria are confirmed or explicitly deferred. In batch-review mode write reviewable batches of pending questions and wait for the user's bulk review; never treat silence or your own recommendation as confirmation.
+- Summarize behavior added, preserved, removed, or degraded relative to the current system. A high-impact removal or degradation requires explicit per-item confirmation, even in batch review; do not bury it in blanket acceptance of recommendations.
+- For behavior, contract, or compatibility changes, use `wiki/02-file-authority-map.md` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are approved. Do not scan unrelated wiki areas.
+- Classify visual/interaction impact while confirming acceptance criteria. When in scope, require persistent evidence tied to the tested build, route/state, and viewport. When not applicable, record why.
 
-Before leaving the discussion phase, summarize: confirmed conclusions, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
+Before leaving the discussion phase, summarize: confirmed conclusions, the behavior-change summary, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
 
 Only after explicit confirmation may you create domain folders, final documents, `code-ai/README.md` and profile files.
 
@@ -154,12 +157,27 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 - Record only confirmed conclusions and still-open questions.
 - Keep unresolved questions until answered or explicitly deferred.
 - Treat test cases and acceptance criteria as required topics before documents are stable.
+- Include the behavior-change, authority-consistency, and visual/interaction acceptance summaries required above; high-impact behavior loss needs individual confirmation.
 
 ## Known constraints
 [Confirmed boundaries, dependencies, compatibility requirements, excluded scope.]
 
 ## Confirmed conclusions
 [Grouped by topic or domain.]
+
+## Behavior change summary
+- Added:
+- Preserved:
+- Removed or degraded:
+- High-impact removals confirmed individually:
+
+## Authority consistency check
+- Relevant authority documents from `wiki/02-file-authority-map.md`:
+- Semantic conflicts and resolution:
+
+## Visual and interaction acceptance
+- In scope: yes | no
+- Evidence required or reason not applicable:
 
 ## Question inventory
 [All known questions, stable IDs, kept until answered, deferred or split.]

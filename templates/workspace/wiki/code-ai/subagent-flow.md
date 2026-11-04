@@ -15,21 +15,26 @@
 
 ## 2. 编排顺序（固定）
 
-`intake → preflight → goal → plans → implementation → review → verification/acceptance → closure → commit（仅在被授权时）`
+`intake → preflight → goal → source survey / plan proposals → integrated plan → implementation → review → verification/acceptance → closure → commit（仅在被授权时）`
 
 | 阶段 | 产出 | 退出条件 |
 | --- | --- | --- |
 | intake | 任务陈述、干系人、期望 | 任务可被一句话说清 |
 | preflight | 权威来源、范围、风险、缺口 | 无阻塞性缺口，或缺口已被显式记录 |
 | goal | 目标、验收标准、非目标 | 验收标准可被验证 |
-| plans | 最小改动计划、影响文件、验证方式 | 计划获批或有明确授权 |
-| implementation | 变更与自检 | 自检通过，交接已写 |
+| source survey / plan proposals | 阅读交接与各 owner 的只读 plan proposal；列出代码事实、候选文件、依赖和验证 | 资料足以形成整 Feature 计划，或缺口已明确升级 |
+| integrated plan | 唯一 Feature 计划 `<feature-root>/code-ai/implementation-plan.md`，按 [implementation-plan-template.md](implementation-plan-template.md) 记录 owner/file map、顺序、依赖、验收、条件风险和有意义的集成检查点 | 主编排者批准；用户需要决定的事项已解决；所有 worker scope 来自获批计划 |
+| implementation | 按已分配的 plan item 实现并在原位验证，超出计划时停止受影响部分 | 计划项完成并交付证据；必要的里程碑或集成检查通过 |
 | review | 评审报告与发现级别 | 无 Blocker/High，或已获明确处置 |
 | verification/acceptance | 证据、覆盖情况、结论 | 验收项全部有证据或明确未覆盖 |
 | closure | 关闭说明、遗留项、同步清单 | 无未登记遗留项 |
 | commit | 提交与推送（如授权） | 授权明确、提交粒度合规 |
 
 任一阶段发现需要改变目标、验收标准、契约或写入范围时，回到对应阶段，不得在实现中偷偷改目标。
+
+计划格式的唯一来源是 [implementation-plan-template.md](implementation-plan-template.md)。阅读角色可在计划创建前调查代码并提出计划建议，但不得修改业务逻辑。主编排者结合实际代码调研和各 owner 的 plan-only proposal，维护一份整 Feature 计划；不得为每个 worker 复制一份主计划。计划须在第一个实现文件改动前获批。计划深度按风险选择：有界单 owner 工作可以短一些；跨 owner、共享契约、schema/state、数据迁移、安全或高风险行为需要按模板填写条件章节。
+
+并行 item 必须依赖已满足，且文件范围和契约范围都不重叠。计划安排必要的集成验证点，最终集成由主编排者负责。每个实现步骤仍在原位验证；相同模型/会话不必为每个微步骤写重复 handoff。仅在有意义的里程碑、多 agent 汇合、高风险变化或重大偏差时做简短检查点。重大范围、契约、安全或产品决策停下升级；获批的实现调整更新同一份计划并批准受影响部分后继续。
 
 ## 3. 阅读交接（固定标题）
 
@@ -58,7 +63,7 @@
 
 ## 5. 评审交接
 
-评审角色按 [review-agent.md](review-agent.md) 与 [_blocks/review-agent-contract.md](_blocks/review-agent-contract.md) 的固定报告结构输出，明确结论、发现级别、未覆盖项与复审建议。
+评审角色必须拿到当前批准的 `implementation-plan.md`，核对改动是否符合获批 scope、owner/file 边界、依赖和集成安排；计划与实际或评审期间的计划版本不一致时，停止并交还主编排者处理。之后按 [review-agent.md](review-agent.md) 与 [_blocks/review-agent-contract.md](_blocks/review-agent-contract.md) 的固定报告结构输出，明确结论、发现级别、未覆盖项与复审建议。
 
 ## 6. 验证交接（固定标题）
 
@@ -80,6 +85,7 @@
 通过、有条件通过、不通过；有条件通过必须列出条件与责任人。
 
 验证交接不得修改被验证对象；发现问题回到实现或评审阶段。
+验证角色使用同一份当前批准计划，逐项确认计划结果和 Feature 验收标准都有可复现证据。
 
 ## 7. 冲突处理
 

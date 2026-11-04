@@ -93,7 +93,9 @@ Rules:
 4. Do not copy README or comments wholesale; synthesize and de-duplicate across slices.
 5. Do not write into `wiki/feature-workspace/`; this is baseline authority, not a Feature.
 6. Link every new document from its domain MOC (and the root MOC when it is a primary entry),
-   so the long-term wiki stays within three hops and has no orphan Markdown.
+   so the long-term wiki stays within three hops and has no orphan Markdown. If that domain has no
+   MOC yet, create the directory `README.md` now and add it to the root MOC; do not create MOCs for
+   domains with no authority documents.
 7. Update `wiki/02-file-authority-map.md` and `wiki/code-ai/project-facts.md` in the same pass.
 8. Append a short summary to `wiki/governance/init-record.md`: slices run, documents written,
    unresolved unknowns and conflicts found.

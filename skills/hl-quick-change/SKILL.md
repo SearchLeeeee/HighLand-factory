@@ -97,12 +97,12 @@ answered the current grill question, remain in `grilling`; never proceed on sile
 recommendation. The record must identify which required points the user explicitly confirmed and
 which were marked not applicable with a reason.
 
-At grill completion, write the required `context_compaction` block into the record, then perform one
-context compaction or handoff action when the host supports it. Record a non-empty ISO-8601 timestamp
-and the method (`native` or `fixed-block`). If native compaction is unavailable, treat the fixed block
-as the mandatory implementation handoff and record that method explicitly. A blank timestamp or an
-unrecorded method is a verification failure: remain in `grilling` or `blocked`. The implementation
-phase reads the compact block first and uses the full grill record only for audit detail.
+At grill completion, record the confirmed scope, acceptance criteria and verification commands.
+Use a `context_compaction` block and perform a compaction/handoff only when implementation will
+cross sessions, the context is substantial, or a real handoff is needed. For short, self-contained
+work continuing in the same session, record `handoff required: no` with a brief reason and proceed
+without a compaction step. When a handoff is needed but native compaction is unavailable, the fixed
+block is the handoff; record that explicitly. A required but missing handoff blocks implementation.
 
 ## Record Contract
 
@@ -126,7 +126,8 @@ evidence. Every terminal record ends with one explicit `Final State` addendum co
 ## Implementation And Verification
 
 When the user asked for a fix or adjustment, implementation may begin automatically after the grill
-compaction handoff. Analysis-only requests stop after discussion.
+when the scope is confirmed. Analysis-only requests stop after discussion. If the task crosses
+sessions, begin implementation from its recorded handoff.
 
 Every request needs at least one repeatable verification artefact:
 
@@ -137,6 +138,12 @@ Every request needs at least one repeatable verification artefact:
 - documentation or configuration: format, reference, schema or consistency checks;
 - environment limitation: the exact steps, environment, observation and residual risk; keep
   `blocked` when the result is not sufficient.
+
+Select the final test commands by documented impact. Record the affected surfaces, commands run, and
+each omitted configured test command with why the change cannot affect it. Run full verification for
+shared contracts, persistence or migration, security/permissions, cross-module changes, or when the
+impact cannot be bounded. For an isolated change, run the directly affected suite plus any relevant
+compatibility checks; do not rerun unrelated suites only to satisfy a blanket count.
 
 On failure, remain in `verification` or `blocked`. If implementation reveals new scope, stop and
 escalate. Never mark `completed` with missing or failed evidence. Use the profile's configured

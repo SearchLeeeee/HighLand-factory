@@ -86,7 +86,7 @@ At the start of each orchestration task:
 
 1. Resolve the feature root from the user's invocation and confirm it is a Leaf Feature, not an Initiative or a container.
 2. List the `*.md` files directly under the feature `code-ai/` directory.
-3. Exclude `README.md` from worker candidates.
+3. Exclude `README.md` and `implementation-plan.md` from worker candidates. The latter is the canonical orchestration plan, not an agent profile.
 4. Exclude non-profile drafts only when their own content says they are not agent profiles.
 5. Read `code-ai/README.md` when present and treat it as the live routing table.
 6. If it is missing or stale, still consider the discovered profiles by reading each relevant one and inferring scope from title, headings and body.
@@ -114,8 +114,8 @@ Own coordination and quality gates:
 - Read the minimum required authority and profile sources; fully read only selected profiles.
 - Keep documentation decisions ahead of code or contract changes.
 - Select the right owner from the owners table.
-- Create subagents with narrow scope, explicit allowed files, forbidden files, acceptance criteria and validation expectations.
-- Require every implementation subagent to return a plan first and wait for main-agent approval before changing files; batch-approve independent plans when scopes do not overlap.
+- Create subagents with narrow scope, explicit allowed files, forbidden files, acceptance criteria, validation expectations and an assigned item from the canonical implementation plan.
+- Require each implementation worker to return a plan-only proposal first. Integrate those proposals into one Feature-level plan and approve that plan before any implementation file changes.
 - Prevent two agents from touching the same files or redefining the same contract unless explicitly sequenced.
 - Maintain or update documents before contract, schema, API, state, security, workflow or ownership changes.
 - Integrate outputs in the main thread and resolve cross-owner boundaries through documented contracts, not ad hoc edits.
@@ -124,6 +124,28 @@ Own coordination and quality gates:
 - Report true status: completed, blocked, validation results, remaining risk, decisions needed.
 
 Do not delegate final acceptance. Subagents produce owner work; the main agent decides whether it is integrated and acceptable.
+
+## Feature Implementation Plan
+
+Every Feature implementation requires one durable plan before the first implementation edit. Store it at:
+
+```text
+<feature-root>/code-ai/implementation-plan.md
+```
+
+Use the shared format in `wiki/code-ai/implementation-plan-template.md` as the single authority for plan sections. Do not copy the full discussion or domain documents into the plan; cite them and record only the decisions needed to guide execution.
+
+After preflight and source discovery, inspect the actual code for the touched modules. Ask each selected implementation owner for a plan-only proposal where needed, then consolidate the proposals into the canonical plan. A bounded single-owner change still needs a short ordered plan; multi-owner, contract, schema/state, migration, security or otherwise high-risk work needs the applicable conditional details. If the main agent is also the implementer, write and check the plan in the same session without inventing an independent approval or a separate handoff.
+
+The plan must express the approved scope, owner/file boundaries, ordered work items, dependencies, expected results, verification/acceptance links and applicable risks or stop conditions. For parallel work, dependencies must be satisfied and both file and contract scopes must be non-overlapping. Put integration and verification checkpoints in the sequence; the main agent remains responsible for integration.
+
+No implementation worker may edit files until the main agent has consolidated and approved the plan and assigned that worker a specific plan item. The approval is an orchestration gate, not an additional user-approval requirement. Escalate only when a product decision or authorization is needed, or when the plan would materially change scope, contract, security or ownership.
+
+Treat the plan as the current execution authority, not a second lifecycle state. When a failed assumption or material change affects scope, files, dependencies, contract, tests or acceptance, stop the affected work, update the same plan, and approve the revised portion before continuing. Preserve unaffected plan items. Do not create per-worker copies.
+
+Verify each implementation step in place. Do not require a separate report after every step when the same model/session is implementing and coordinating. Use concise explicit checkpoints at planned milestones, multi-agent integration points, high-risk changes or material deviations. Record evidence in the normal handoff; deviations needing a product, contract, security or scope decision return to the user.
+
+Review and verification use the same current plan to check approved scope, dependencies, integration and acceptance. Include the plan file among reviewed source documents in the repository that contains it; in split mode, capture a separate review snapshot for `WORK_ROOT` as well as each implementation repository. The plan must be frozen with the implementation/doc-sync commit before review, and a plan change during review invalidates the affected review run.
 
 ## Context Discipline
 
@@ -151,9 +173,9 @@ Do not select the reviewer from the feature worker set. Review always uses the f
 
 If a task crosses owner boundaries, document or confirm the shared contract first, then dispatch in a safe order. Prefer one primary owner at a time unless files and contracts are clearly independent.
 
-## Dispatch Protocol
+## Planning Dispatch Protocol
 
-Apply the preflight gate, then send a compact packet:
+Apply the preflight gate, then send a compact planning packet to each selected owner. The first response is a proposal for the canonical plan, not permission to edit:
 
 ```text
 You are <Owner Agent Name>.
@@ -164,19 +186,24 @@ Implementation root: <implementation root>
 Task objective:
 Required startup reads:
 - <authority and profile files relevant to this task>
-Allowed files:
+Tentative files in scope:
 Forbidden files:
 Expected documentation updates:
 Acceptance criteria:
 Validation commands:
 Output required:
-1. First reply with a plan only. Do not modify files until the main agent approves.
-2. After approval, work only inside the allowed scope.
-3. Stop and escalate before changing an API, schema, state, security, workflow, file ownership or published contract not already covered by this packet.
-4. Final handoff must include modified files, validation results, doc-sync status, review needs, remaining risks and open questions.
+1. Return a plan-only proposal with expected files, dependencies, tests and risks. Do not modify files.
+2. Flag any missing authority or decision that prevents a reliable proposal.
 ```
 
-Approve, revise or reject the plan before implementation starts, and record the approved file scope in the main thread.
+After consolidating the proposals, write and approve the canonical plan at
+`<feature-root>/code-ai/implementation-plan.md`. Then send the implementation dispatch with the
+plan path, assigned plan item, final allowed/forbidden files and only the task-specific context the
+worker still needs. Do not resend the whole discovery packet if its sources are already available.
+The worker follows only the approved item, stops before changing an uncovered API, schema, state,
+security boundary, workflow, ownership or published contract, and returns the fixed implementation
+handoff with modified files and evidence. The main agent records the plan approval and scope in the
+main thread.
 
 ## Monitoring and Stall Handling
 
@@ -221,6 +248,37 @@ Give the review subagent:
 - Owner-specific review focus
 - Validation already run
 - Remaining risk areas
+- The review snapshot receipt and the exact frozen revision and file set it identifies
+
+Before dispatching the reviewer, create a snapshot for each implementation repository. The helper
+requires every reviewed file to be committed at the captured `HEAD` and records its SHA-256:
+
+```bash
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-orchestrator/scripts/review_snapshot.py capture \
+  --repo <CODE_REPO> \
+  --file <repo-relative-reviewed-file> \
+  --file <another-repo-relative-reviewed-file> \
+  --output <WORK_ROOT>/<feature-root>/evidence/review-snapshot-<repo>.json
+```
+
+Include all implementation, design, acceptance and other source files in the review scope. Keep the
+review report and snapshot receipt out of the fingerprinted file list. For a `split` project,
+capture one receipt per repository. A missing or uncommitted reviewed file blocks review start.
+
+After the review report is complete and before accepting its verdict, verify each receipt against
+the same repository:
+
+```bash
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-orchestrator/scripts/review_snapshot.py verify \
+  --repo <CODE_REPO> \
+  --snapshot <WORK_ROOT>/<feature-root>/evidence/review-snapshot-<repo>.json
+```
+
+Only `REVIEW SNAPSHOT VALID` permits the report to count. A revision or reviewed-file change makes
+the report stale: discard that verdict, create a fresh snapshot and repeat the affected review.
+After remediation, re-review only the changed files and affected findings unless the fix changes the
+contract, scope or dependency direction, which triggers a full review. Every new review run gets a
+new snapshot receipt.
 
 When `packs.enabled` in `.factory/factory.yaml` contains `quality-gates`, the review input package must also include the quality evidence files under `packs.quality-gates.evidence_dir` (`quality-*.md`). When the pack is not enabled, the core review gate runs unchanged; never require the user to install the pack first.
 
@@ -230,7 +288,7 @@ Blocker findings must be fixed and re-reviewed. High-severity findings should be
 
 When `workflow.verification_separate` is on, verification runs in a session separate from implementation, and the implementer never accepts its own work. Use `verification.isolated_env` for how isolation is achieved. When it is off, record that the project deliberately weakened the gate; do not describe a self-check as independent verification.
 
-Classify acceptance criteria before implementation. An externally dependent or unprovable item needs an approved evidence mode or a scope decision. Unsupported API or contract conflicts pause the affected work and return to the workbench; keep the goal active.
+Classify acceptance criteria before implementation. An externally dependent or unprovable item needs an approved evidence mode or a scope decision. Unsupported API or contract conflicts pause the affected work and return to the workbench; keep the goal active. For visual or interaction criteria, require persistent evidence tied to the tested revision, route/state and viewport. Record why visual evidence is not applicable when the Feature has no visual/interaction impact.
 
 Evidence lands under `verification.evidence_root`, baseline evidence is compared against `verification.baseline_evidence`, and every criterion is recorded as pass, fail, blocked or not verified.
 

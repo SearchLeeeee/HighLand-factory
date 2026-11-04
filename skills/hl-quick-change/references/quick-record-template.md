@@ -48,7 +48,13 @@ the lightweight eligibility conclusion.
 - Files/modules and ownership boundaries:
 - Failure and compatibility behavior:
 
-## Context Compaction
+## Context Transfer (conditional)
+
+- Handoff required: yes | no
+- Reason:
+
+Complete the following only when crossing sessions, context is substantial, or a real handoff is
+needed. If not needed, leave the fields empty and record the reason above.
 
 - Goal:
 - Non-goals:
@@ -57,8 +63,8 @@ the lightweight eligibility conclusion.
 - Verification commands:
 - Risks and escalation triggers:
 - Open items:
-- Compaction performed at (ISO-8601, required):
-- Compaction method: native | fixed-block
+- Handoff created at (ISO-8601, required only when handoff is yes):
+- Transfer method: native | fixed-block | same-session
 
 ## Implementation Notes
 
@@ -67,6 +73,8 @@ Append implementation decisions, changed paths, and deviations from the compact 
 ## Verification Evidence
 
 - Command or reproducible manual path:
+- Affected surfaces and selected test commands:
+- Omitted configured test commands and why they cannot be affected:
 - Expected result:
 - Observed result:
 - Evidence path or reference:
