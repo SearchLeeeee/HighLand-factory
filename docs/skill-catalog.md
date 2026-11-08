@@ -27,6 +27,10 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 
 Enable with `packs.enabled: [<id>]` in `.factory/factory.yaml`, then `factory upgrade --apply` and `factory doctor`. Pack **config ids stay unprefixed**; the installed skill is `hl-<id>`.
 
+Install and upgrade link all pack skills by default; installation does not enable them.
+Use `-NoPacks` / `--no-packs` to skip pack linking, or `-NoSkills` / `--no-skills`
+to skip all skill linking. Existing links are retained when linking is skipped.
+
 | Pack id | Skill | Role | Required config |
 | --- | --- | --- | --- |
 | `commit` | `hl-commit` | Repo-mode aware granular commits at the governed boundaries in `$hl-workflow-governance`'s `references/commit-boundaries.md`; commit only behind a passed gate and when authorized, push only on separate authorization | `repo.*`, `project.language.commit` |
@@ -47,4 +51,4 @@ Enable with `packs.enabled: [<id>]` in `.factory/factory.yaml`, then `factory up
 1. Create `packs/hl-<id>/SKILL.md`; declare it opt-in and list its config keys. The pack config id stays `<id>` (`packs.enabled: [<id>]`), while the installed skill is `hl-<id>`.
 2. Fail closed with a named-key message when config is missing.
 3. Core skills must keep working with the pack disabled.
-4. Add the pack to the installer documentation (`install --with-packs`).
+4. Document its configuration; install and upgrade discover pack folders automatically.

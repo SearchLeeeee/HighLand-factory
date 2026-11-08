@@ -124,7 +124,9 @@ cd <work>
 <factory>\bin\factory.cmd doctor --work .
 ```
 
-如果你已经用别的工具管理 agent skills（例如 agent-config），用 `-NoSkills` / `--no-skills` 只装引擎，再把 `<factory>/skills` 注册为该工具的 external skill root；需要可选 pack 时加 `-WithPacks` / `--with-packs`。
+install 和 upgrade 默认链接全部核心 skills 和 packs；pack 是否启用仍由工作仓库的 `packs.enabled` 控制。使用 `-NoPacks` / `--no-packs` 可跳过 pack 链接（不会删除已安装的链接）。
+
+如果你已经用别的工具管理 agent skills（例如 agent-config），用 `-NoSkills` / `--no-skills` 只装引擎，再把 `<factory>/skills` 和 `<factory>/packs` 注册为该工具的 external skill roots，并确认该工具会将它们同步到目标 agent。
 
 手动初始化之前，用你惯用的 agent 打开工作仓库，输入 `$hl-factory-init`（对话式初始化）；已经手动 `factory init` 过的仓库直接从 `$hl-feasibility-grill` 或 `$hl-quick-change` 开始。也可以直接用 AI 引导 prompt 接管未完成的初始化。
 
@@ -527,7 +529,8 @@ git pull --ff-only
 | `-ApplyWorkUpgrade` / `--apply-work-upgrade` | 对 work repo 执行 `factory upgrade --apply` + doctor |
 | `-NoSkills` / `--no-skills` | 只更新引擎，不动 agent 技能根（适合 agent-config 等外部管理器） |
 | `-SkillsRoot <path>` / `--skills-root <path>` | 链接到自定义技能根，而不是自动探测的 agent 目录 |
-| `-WithPacks` / `--with-packs` | 同时链接可选 packs |
+| `-NoPacks` / `--no-packs` | 只链接核心 skills；跳过 packs，保留已有 pack 链接 |
+| `-WithPacks` / `--with-packs` | 兼容旧命令；现在默认链接全部 packs，不能与 NoPacks 同用 |
 
 同步后重启 agent 会话，让技能列表重新加载。
 
