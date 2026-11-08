@@ -24,6 +24,7 @@ NO_SKILLS=""
 SKILLS_ROOT=""
 FORCE=""
 WITH_PACKS=""
+NO_PACKS=""
 APPLY_WORK_UPGRADE=""
 WORK_PATHS=()
 
@@ -36,9 +37,14 @@ while [[ $# -gt 0 ]]; do
     --skills-root) SKILLS_ROOT="$2"; shift 2 ;;
     --force) FORCE="1"; shift ;;
     --with-packs) WITH_PACKS="1"; shift ;;
+    --no-packs) NO_PACKS="1"; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+
+if [[ -n "$WITH_PACKS" && -n "$NO_PACKS" ]]; then
+  echo "--with-packs and --no-packs cannot be combined" >&2; exit 2
+fi
 
 step() { echo "[upgrade] $*"; }
 warn() { echo "[upgrade] WARN: $*" >&2; }
@@ -61,6 +67,7 @@ INSTALL_ARGS=()
 [[ -n "$SKILLS_ROOT" ]] && INSTALL_ARGS+=("--skills-root" "$SKILLS_ROOT")
 [[ -n "$FORCE" ]] && INSTALL_ARGS+=("--force")
 [[ -n "$WITH_PACKS" ]] && INSTALL_ARGS+=("--with-packs")
+[[ -n "$NO_PACKS" ]] && INSTALL_ARGS+=("--no-packs")
 
 bash "$INSTALL_SCRIPT" "${INSTALL_ARGS[@]}"
 

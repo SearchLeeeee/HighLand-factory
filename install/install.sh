@@ -20,6 +20,7 @@ PYTHON_ARG=""
 NO_SKILLS=""
 SKILLS_ROOT=""
 WITH_PACKS=""
+NO_PACKS=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -29,9 +30,14 @@ while [[ $# -gt 0 ]]; do
     --no-skills) NO_SKILLS="1"; shift ;;
     --skills-root) SKILLS_ROOT="$2"; shift 2 ;;
     --with-packs) WITH_PACKS="1"; shift ;;
+    --no-packs) NO_PACKS="1"; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+
+if [[ -n "$WITH_PACKS" && -n "$NO_PACKS" ]]; then
+  echo "--with-packs and --no-packs cannot be combined" >&2; exit 2
+fi
 
 step() { echo "[install] $*"; }
 warn() { echo "[install] WARN: $*" >&2; }
@@ -150,13 +156,13 @@ if [[ -n "$NO_SKILLS" ]]; then
   step "Skipping skill linking (--no-skills)"
 elif [[ -n "$SKILLS_ROOT" ]]; then
   link_skills "$REPO_ROOT/skills" "$SKILLS_ROOT" "custom"
-  if [[ -n "$WITH_PACKS" ]]; then link_skills "$REPO_ROOT/packs" "$SKILLS_ROOT" "custom-packs"; fi
+  if [[ -z "$NO_PACKS" ]]; then link_skills "$REPO_ROOT/packs" "$SKILLS_ROOT" "custom-packs"; fi
 else
   for pair in "$HOME/.dsh/skills:dsh" "$HOME/.claude/skills:claude" "$HOME/.codex/skills:codex"; do
     parent="${pair%%:*}"; label="${pair##*:}"
     if [[ -d "$(dirname "$parent")" ]]; then
       link_skills "$REPO_ROOT/skills" "$parent" "$label"
-      if [[ -n "$WITH_PACKS" ]]; then link_skills "$REPO_ROOT/packs" "$parent" "$label-packs"; fi
+      if [[ -z "$NO_PACKS" ]]; then link_skills "$REPO_ROOT/packs" "$parent" "$label-packs"; fi
     fi
   done
 fi

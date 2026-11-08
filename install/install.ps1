@@ -18,10 +18,12 @@ param(
     [string]$Python = "",
     [switch]$NoSkills,
     [string]$SkillsRoot = "",
-    [switch]$WithPacks
+    [switch]$WithPacks,
+    [switch]$NoPacks
 )
 
 $ErrorActionPreference = "Stop"
+if ($WithPacks -and $NoPacks) { throw "-WithPacks and -NoPacks cannot be combined" }
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $VenvDir = Join-Path $RepoRoot ".venv"
 $BinDir = Join-Path $RepoRoot "bin"
@@ -184,11 +186,11 @@ if ($NoSkills) {
 } else {
     if ($SkillsRoot) {
         Link-Skills $canonicalSkills $SkillsRoot "custom"
-        if ($WithPacks) { Link-Skills $canonicalPacks $SkillsRoot "custom-packs" }
+        if (-not $NoPacks) { Link-Skills $canonicalPacks $SkillsRoot "custom-packs" }
     } else {
         foreach ($root in Get-SkillRoots) {
             Link-Skills $canonicalSkills $root.Path $root.Agent
-            if ($WithPacks) { Link-Skills $canonicalPacks $root.Path "$($root.Agent)-packs" }
+            if (-not $NoPacks) { Link-Skills $canonicalPacks $root.Path "$($root.Agent)-packs" }
         }
     }
 }

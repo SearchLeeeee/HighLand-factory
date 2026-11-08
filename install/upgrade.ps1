@@ -20,10 +20,12 @@ param(
     [switch]$NoSkills,
     [string]$SkillsRoot = "",
     [switch]$Force,
-    [switch]$WithPacks
+    [switch]$WithPacks,
+    [switch]$NoPacks
 )
 
 $ErrorActionPreference = "Stop"
+if ($WithPacks -and $NoPacks) { throw "-WithPacks and -NoPacks cannot be combined" }
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $InstallScript = Join-Path $PSScriptRoot "install.ps1"
 $FactoryCmd = Join-Path $RepoRoot "bin\factory.cmd"
@@ -51,6 +53,7 @@ if ($NoSkills) { $installArgs["NoSkills"] = $true }
 if ($SkillsRoot) { $installArgs["SkillsRoot"] = $SkillsRoot }
 if ($Force) { $installArgs["Force"] = $true }
 if ($WithPacks) { $installArgs["WithPacks"] = $true }
+if ($NoPacks) { $installArgs["NoPacks"] = $true }
 
 & $InstallScript @installArgs
 if ($LASTEXITCODE -ne 0) { throw "install.ps1 failed" }
