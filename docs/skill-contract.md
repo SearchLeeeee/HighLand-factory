@@ -174,10 +174,11 @@ touches the repository:
 
 - Commit only behind a passed gate. A failing gate, unreviewed implementation, or acceptance that
   has not passed is never committed as if the stage were complete.
-- Freeze before verifying. Implementation is committed first to obtain the revision that review,
-  verification and Initiative integration run against; the evidence naming that revision is
-  committed afterwards. Evidence roots live inside the repository, so the reverse order destroys
-  the next run's baseline.
+- Identify the source before verifying: an existing Git revision plus relevant diff/new files is
+  sufficient by default. New freeze commits, byte receipts, clones and full reruns require an actual
+  identity or interference need, not a phase change alone. Evidence-only writes do not invalidate
+  unchanged implementation results. Explicit immutable-commit acceptance requirements still need
+  authorization and that commit before execution; never attribute uncommitted content to HEAD alone.
 - A commit authorization is never a push authorization, and no commit boundary implies a push.
 
 The list adds no lifecycle state, schema field or state-machine branch. Skills must keep working

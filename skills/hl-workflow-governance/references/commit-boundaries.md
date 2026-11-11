@@ -21,7 +21,12 @@ not invent one and do not treat this file as that policy.
 2. **A commit authorization is not a push authorization.** Push remains a separate explicit
    instruction at every boundary. No boundary in this file implies a push.
 
-## Required Boundaries
+## Permitted Commit Boundaries
+
+These are legal opportunities when committing is authorized, not a requirement to create a new
+commit at every phase. Routine review and verification can use an existing revision plus the
+relevant diff/new files. A missing commit authorization blocks Git mutation, not unrelated
+authorized reading, review or testing. Explicit immutable-artifact requirements still govern.
 
 | # | Boundary | Gate that must pass first | Commit contains | Why it must be atomic |
 | --- | --- | --- | --- | --- |
@@ -29,10 +34,10 @@ not invent one and do not treat this file as that policy.
 | 2 | Initial decomposition sealed | `finalize-decomposition` plus a passing `validate` | Registry, Initiative manifest, every candidate Feature manifest with `depends_on`, `wave` and Scope Gate | Discussion admissibility and dependency release are derived from these manifests; an uncommitted edit can silence a `must-split` verdict with nothing in history showing it |
 | 3 | Discussion conclusions and implementation documents complete | `gate workspace` passes with the discussion documents written | Workbench, confirmed conclusions, domain implementation documents | The orchestrator's preflight reads these as the contract; the implementation session starts fresh and can only trust what is on disk |
 | 4 | Code AI profiles complete | `gate workspace` passes at `code-ai-profiles / completed` | Feature `code-ai/` profiles and their routing README | This is the exact input the implementation session is dispatched from |
-| 5 | Implementation frozen | Implementation work complete and `gate workspace` passes | Code, documentation sync, and anything else that will be reviewed | Review, verification and the Initiative integration run must all point at one revision; an unfrozen tree makes every later result unreproducible |
+| 5 | Implementation ready | Implementation work complete and `gate workspace` passes | Code and documentation sync | Keep reviewed changes identifiable; commit when authorized or when the actual acceptance requires an immutable commit |
 | 6 | Review passed, including its fixes | The fixed review gate passes after required fixes and re-review | Review evidence and the remediation it demanded | Findings and their fixes must be reviewable and revertable together |
 | 7 | Acceptance and closure complete | Acceptance criteria all pass, closure recorded, and `ready-to-merge / ready` is recorded through the state machine | Acceptance evidence, closure data, final `feature.yaml` | A dependency counts as satisfied only when this state is real on disk for the downstream Feature |
-| 8 | Initiative integration evidence sealed | Handoff generated, the run executed at the frozen revision on a clean tree, and the result registered | Handoff, new immutable evidence root, Initiative integration status | Integration evidence must name a revision and a clean worktree, or it cannot be compared against any later run |
+| 8 | Initiative integration evidence sealed | Handoff generated, applicable source/runtime identity recorded, required rows passed and result registered | Handoff, integration evidence and status | Preserve the source, conditions and provenance needed to judge each required row; do not imply unchecked work passed |
 | 9 | Per-Feature wiki merge closure | Full long-term wiki validation passes, then retained history, `merged / completed` and authority switch complete | Canonical wiki edits, affected MOCs, validator receipt, tombstone and routing record, retained-history marker, route and checksums | The authority switch is a multi-file state change; if it is not atomic, "which version is current" stops being auditable. One commit per Feature, in `depends_on` topological order |
 | 10 | Quick change completed | Its required repeatable verification artefact exists and the record reaches `completed` | Quick record, fix, verification evidence | The lightweight path needs one revertible point so its evidence stays comparable with the Feature path |
 
@@ -52,13 +57,15 @@ Choose the mode per boundary; never mix them inside one boundary.
 
 - **State wrapper** (2, 3, 4, 6, 7, 9, 10): the gate passes, then the state and the evidence that
   justify it go into one commit.
-- **Freeze → verify → seal** (5, 7, 8): commit the implementation state first to obtain revision A,
-  run review, verification and the Initiative integration run against A with a clean worktree, then
-  commit the evidence that names A. Because the evidence root lives inside the repository, running
-  the checks first necessarily dirties the tree and invalidates the next run — the order is not
-  negotiable.
+- **Identify → verify → seal** (5, 7, 8): identify sources with an existing revision and any
+  relevant diff/new files, run the necessary checks and commit the evidence when authorized.
+  Evidence-only or unrelated working-tree changes do not invalidate checked source content.
+  If an explicit criterion requires a clean immutable commit or published artifact, obtain commit
+  authorization and establish that target before executing that criterion.
 
-A commit may be cited as evidence only when the worktree was clean at that revision.
+State any relevant uncommitted content honestly; do not cite a commit alone as its identity. Use
+extra byte snapshots, hashes or isolated clones only when the actual identity or interference risk
+requires them. Packaging is a delivery choice, not another approval or configuration mechanism.
 
 ## Repository Mode And Worktrees
 

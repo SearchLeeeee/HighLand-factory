@@ -32,6 +32,33 @@ lifecycle state machine.
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy
 stops the skill with one concrete repair instruction.
 
+## Minimum Sufficient Verification
+
+Use the smallest set of checks that can decide the current requirements and real risks. Reuse
+applicable results for unchanged sources and conditions; choose reruns by impact, not by phase,
+agent count or a desire for more evidence. A brief reason in the normal handoff is enough when
+additional work is necessary; do not add configuration, approval steps or a separate proof process.
+
+Ordinary source identity is a Git revision plus the relevant diff and new-file contents. Keep the
+reviewed sources stable. Do not default to per-file hashes, whole-tree snapshots, extra freeze
+commits, fresh clones or repeated environment provisioning. Use extra identity or isolation only
+when a concrete source ambiguity, state contamination, concurrency conflict, artifact-integrity
+requirement or explicit acceptance criterion needs it. Existing strictly bound receipts remain
+usable for the scope and identity they actually record.
+
+Independent review and verification require independent judgement. They do not automatically
+require repeating every successful check. The coordinator inspects the findings and decisive
+evidence and samples or reruns checks where a concrete risk warrants it; final acceptance remains
+the coordinator's responsibility.
+
+On failure or missing evidence, preserve the observation, diagnose the affected part and repair
+only the resulting gap. Keep unaffected valid results with their provenance. Missing or ambiguous
+results are not passes, but formatting, metadata changes or a lost record do not automatically
+invalidate every other result. Preserve failure facts; harmless presentation corrections may be
+noted without recreating a run. Keep raw logs separate from output directories tools may clean.
+Do not hash every log or add multiple summaries to prove the same fact. Stop once the stated
+acceptance and delivery boundary is satisfied. Safety and authorization boundaries still apply.
+
 ## Route The Request
 
 | Request | Owning skill |
@@ -79,8 +106,9 @@ boundary. Parallelise only tasks with disjoint ownership and no ordering depende
 Do not delegate product decisions, security or privacy judgements, lifecycle transitions, merge
 gates, integration PASS registration, retained-source authority changes, commit/push, or final
 acceptance. Every delegated task states paths, allowed mutation scope, acceptance criteria and a
-structured handoff. The main session inspects the result and reruns material checks; a delegated
-answer is never authority by itself.
+structured handoff. The main session inspects the result and decisive evidence, using targeted
+checks when needed for an identified risk; delegation alone does not require rerunning every check.
+A delegated answer is never authority by itself.
 
 ## Required Initiative Intake Gate
 
@@ -170,10 +198,10 @@ pass at each, and the two packaging modes.
   acceptance must never be committed as if it were complete — that is the one rule the whole list
   serves.
 - A commit authorization is never a push authorization.
-- Freeze before verifying: commit the implementation state to obtain the revision that review,
-  verification and Initiative integration run against, then commit the evidence that names it.
-  Evidence roots live inside the repository, so verification dirties the tree; the reverse order
-  makes every later result unreproducible.
+- Identify the source before verifying: an existing Git revision plus relevant diff/new files
+  is the default. A new freeze commit is required only by a concrete immutable-commit acceptance
+  or artifact identity. Obtain authorization before that commit, and bind evidence to the source
+  actually checked. Evidence-only writes do not invalidate unchanged implementation results.
 - `split` mode commits the wiki repository and the code repository separately. Worktree mode puts
   code commits on the Feature branch while manifests and evidence stay in the work root.
 - When `packs.enabled` does not enable `commit`, follow the project's documented policy instead of

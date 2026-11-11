@@ -25,6 +25,11 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
 
 ## Shared invariants
 
+- Use minimum sufficient verification: one identifiable source target, applicable evidence reuse,
+  affected checks and risk-based sampling. Do not default to layered hashes, repeated freezes, fresh
+  clones or full reruns. Repair evidence gaps locally, retain failure facts, and keep safety,
+  independent judgement, machine gates and authorization. No new mode or approval is required.
+
 - Complete Initiative inventory, dependency/wave registration and Scope Gate before Leaf discussion.
 - Dependencies count as satisfied only after acceptance and closure are complete.
 - An Initiative merge requires every active Leaf ready, new Initiative integration evidence, a

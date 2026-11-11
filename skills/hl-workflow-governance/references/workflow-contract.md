@@ -54,9 +54,10 @@ authority stays with the feature-workspace tools and documentation named by
   the profile requires it.
 - Commit boundaries are governed by `references/commit-boundaries.md`, not scattered through prose.
   Commits happen only behind a passing gate, at one of the named boundaries; a commit authorization
-  is never a push authorization; the freeze-then-seal order means implementation is committed to
-  obtain the revision that review, verification and Initiative integration run against, and the
-  evidence naming that revision is committed afterwards. Commit boundaries add no lifecycle state,
+  is never a push authorization. Identify reviewed/tested sources using an existing revision
+  and the relevant diff/new files. New freeze commits are needed only for a concrete immutable
+  artifact or acceptance requirement, with authorization; evidence-only changes do not invalidate
+  unchanged source results. Commit boundaries add no lifecycle state,
   manifest field or state-machine branch, and the core workflow must still run with
   `packs.enabled: []`.
 - Parallel development mode — shared checkout sequentially, or one dedicated git worktree per
@@ -71,12 +72,14 @@ authority stays with the feature-workspace tools and documentation named by
   authority map, not an indiscriminate whole-Wiki scan.
 - UI/interaction scope is classified during discussion. Applicable visual evidence is persistent
   and bound to build, route/state and viewport; non-applicability is recorded with a reason.
-- Review conclusions bind to a frozen revision and the SHA-256 fingerprints of the reviewed source
-  set. A changed revision or reviewed file invalidates that run; remediation re-review is limited to
-  changed files and affected findings unless the contract, scope or dependency direction changes.
-- Quick Change records test impact, selected commands and reasons for omitted commands. Full
-  verification remains required for shared contracts, persistence/migration, security/permissions,
-  cross-module changes or unbounded impact. Context compaction is required only for a real session
+- Review conclusions bind to identifiable source changes and applicable criteria. Git revision
+  plus relevant diff/new files is the default; per-file hashes, receipts, extra clones and clean-tree
+  freeze commits are not mandatory. Changes invalidate affected conclusions only; metadata or an
+  unrelated HEAD change does not automatically invalidate review. Broaden checks when real impact
+  requires it, and preserve applicable unaffected results with their provenance.
+- Quick Change records test impact, selected commands and reasons for omitted commands. Shared contracts, persistence/migration, security/permissions and cross-module changes require
+  coverage of the affected compatibility and safety boundaries; broaden verification when impact
+  cannot be bounded, without automatically rerunning unrelated suites. Context compaction is required only for a real session
   transfer, substantial context or a needed handoff; a short same-session path records its scope and
   criteria without a no-op handoff block.
 - The implementation session carries one continuous goal: advance the Feature to
@@ -90,6 +93,13 @@ authority stays with the feature-workspace tools and documentation named by
   must-read documents, the confirmed conclusions and the parallel development choice, so the
   implementation session needs no chat history. Starting implementation in the discussion session,
   or reopening product discussion in the implementation session, is invalid.
+- Minimum sufficient verification is the default: reuse applicable evidence and environments,
+  rerun affected checks, preserve actual failures, and repair gaps locally. Independent roles do
+  not require duplicate full execution. Coordinators inspect decisive evidence and sample by risk;
+  they do not recursively re-prove every record. Keep logs outside tool-cleaned output, permit noted
+  non-semantic corrections, and stop at the agreed delivery boundary. Extra work needs a concrete
+  risk reason in the normal handoff, not a new configuration or approval process. Safety, required
+  machine gates and explicit authorization remain binding.
 - Main-session responsibility cannot be delegated: a lower-cost model tier may prepare bounded
   work, but the main session owns authority, lifecycle decisions, gates and final verification.
 
