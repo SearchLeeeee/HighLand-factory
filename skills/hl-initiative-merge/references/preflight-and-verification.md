@@ -5,14 +5,15 @@ Load factory context first: read `.factory/local.yaml` and
 profile's `commands` section; evidence goes to the configured evidence root. If a command is not
 configured, do not invent one and do not claim verification.
 
-Every item below is a recipe: run it, record the output.
+These are recipes for the risks that actually apply, not a mandatory checklist. Reuse
+applicable results and record only the checks needed for the current criteria.
 
 ## Classify Blockers Before Freezing The Matrix
 
 Do this before the run, not during it: who owns the ports the criteria name, whether privilege
 escalation exists, whether logs are readable by the test user, whether the deployment root exists at
-all. A handful of read-only checks decides several rows at once, and finding a blocker after writing
-the matrix forces a re-freeze.
+all. A handful of read-only checks can decide several rows at once. A later blocker invalidates
+only affected rows; do not restart unaffected checks merely to rebuild a complete-looking record.
 
 ## Dependency Provisioning
 
@@ -24,15 +25,18 @@ is an environment prerequisite, not a code defect.
 
 ## Proving A Failure Is Pre-Existing
 
-Export the last commit into a temporary directory (`git archive HEAD | tar -x -C <tmp>`) and run the
-same test selection there before accepting a "pre-existing failure" claim. Running only the changed
-files cannot separate new breakage from old.
+First inspect existing baseline evidence for the same source and conditions. If it cannot
+distinguish a new regression from a pre-existing failure, run the affected selection against the
+relevant baseline source. Use a temporary export only when a comparison cannot safely share the
+checkout. Do not rerun unrelated suites or claim the failure pre-existed without sufficient evidence.
 
 ## Verifying A Fix Without Disturbing The Frozen Tree
 
-Verify in a separate clone, never in the frozen read-only clone: copy the changed files elsewhere,
-run with the module search path pointed at the code under test, then confirm the frozen clone still
-reports its recorded revision with zero dirty entries.
+Keep the currently reviewed source identifiable and stable. A sequential checkout can be reused
+when no review still depends on its old contents. Use an affected-file copy, temporary export or
+separate clone only when concurrent work, immutable-artifact requirements or state interference
+actually requires isolation. Choose the smallest sufficient option; do not rebuild all dependencies
+or create another repository merely because a new role is checking the result.
 
 A mode-only version-control fix is provable: `git update-index --chmod=+x` plus
 `git diff --cached --numstat` showing zeros for every touched path.

@@ -71,7 +71,10 @@ If it fails because integration evidence is absent, generate the handoff exactly
 <PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-handoff --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx> --output <initiative-dir>/integration-testing/integration-test-handoff.md
 ```
 
-Freeze before testing:
+Identify the required criteria and sources before testing. Apply `$hl-workflow-governance`'s
+minimum sufficient verification rules; preserve required cross-Feature execution and safety checks,
+without repeating unrelated Leaf checks, provisioning or evidence certification. No new mode or
+approval process is needed.
 
 - Capture the registry/manifest revision or working-tree identity, the build identity, the runtime
   configuration identity, the state-store identity, and external-dependency session identity where
@@ -86,8 +89,8 @@ Freeze before testing:
   marked `RE-SCOPED` with the new wording, and the result is reported as a pass of the new wording
   only. Never present a re-scoped row as a pass of the original criterion, and never let one
   decision relax its neighbours — unmentioned rows keep their wording or become `BLOCKED`.
-- Revising a Feature's own frozen acceptance text is a second, separate authorization: update the
-  Feature's testing or acceptance documents with a dated note naming the authorization and the
+- Revising a Feature's acceptance contract needs authorization covering that change; reuse an
+  existing authorization when it already covers it. Update the Feature's testing or acceptance documents with a dated note naming the authorization and the
   disproving run, keep the original verdict visible and mark the row `REVISED`, and leave the
   lifecycle YAML alone. The earlier acceptance evidence is stale against the revised criterion and
   the revised row stays unverified until something re-executes it on the new contract.
@@ -95,22 +98,22 @@ Freeze before testing:
   preserve only explicitly required configuration, establish and verify the clean baseline once,
   and do not repeat destructive resets inside the same run. A reset invalidates prior evidence; it
   does not repair it.
-- Landing a fix moves the baseline. Open a new run with a new run id, leave the previous evidence
-  root untouched as history, record the predecessor run id in the new run identity, and re-establish
-  every row against the new revision. Never carry a prior run's passing rows forward and never
-  re-stamp the old root as current. A follow-up run scoped to the repaired Feature alone leaves the
-  matrix straddling two revisions; that state cannot be registered — either re-execute the whole
-  matrix at the final revision or report the matrix as blocked on that consolidation.
-- Create a new immutable evidence root. Do not reseal old Feature evidence as Initiative evidence.
-- Re-derive, at the frozen revision, every inherited factual claim a required row depends on.
-  Acceptance documents, review and verification reports, and handoff summaries are claims, not
-  facts: check the artefact itself and record any divergence as a finding instead of inheriting
-  the claim.
-- Freeze the evidence-root layout before running: one `frozen/` directory holding the run identity
-  and the pre-execution matrix with its own hash manifest, one directory per Feature, plus
-  cross-Feature, safety and raw-log areas. Keep the frozen matrix immutable and publish results
-  separately so a later reader can prove the criteria were not rewritten after the outcome was
-  known. Layout and binding rules: `references/evidence-root-layout.md`.
+- After a fix or evidence gap, preserve prior observations and identify the changed source and
+  affected rows. Re-execute those rows and any dependent cross-Feature path. Unchanged rows remain
+  usable when their relevant source, runtime, fixtures and criterion conditions are still
+  applicable; record their provenance rather than re-stamping them as newly executed. Broaden the
+  run if real compatibility impact cannot be bounded. Rows explicitly requiring the same artifact,
+  session or clean-state sequence must still satisfy that requirement together.
+- Give the integration result its own run record, distinct from Leaf evidence. Reference applicable
+  Leaf results where useful, but execute the required cross-Feature path; Leaf success alone cannot
+  replace it. Do not overwrite failure facts. Note non-semantic corrections without recreating a run.
+- Inspect the decisive artifacts and inherited claims needed for the current decision. Use targeted
+  sampling or checks where the actual risk needs them; do not re-prove every unchanged source claim
+  or hash the whole repository merely because it came from another agent or phase.
+- Keep one criteria-to-result mapping, command exits and sufficient runtime/source identity in the
+  normal evidence record. Use the smallest directory layout needed; no mandatory hash manifests,
+  duplicate indexes, per-Feature directories or full log checksums. Keep raw logs separate from
+  output directories test tools may clear. Layout guidance: `references/evidence-root-layout.md`.
 - Record which observations are current-run evidence, historical capability evidence,
   replay/idempotency evidence, or diagnostic evidence. Only the categories the matrix allows may
   satisfy a criterion.
@@ -129,14 +132,12 @@ Evidence substitution rules:
   action, end-to-end persistence, or presentation criterion.
 - A unit, contract or component test may support a shared contract, but cannot prove cross-Feature
   runtime behaviour.
-- A prior successful run may establish historical capability, but cannot prove the current run
-  unless the criterion explicitly permits historical evidence.
-- A prior-run artefact is admissible only when its recorded revision **and** its recorded worktree
-  cleanliness both match the frozen baseline. Evidence produced at a different revision, or on a
-  dirty tree, makes the comparison invalid and the row failed; do not re-run only the missing half
-  to manufacture agreement. The same holds for a cross-platform pair — mismatched revision, fixture
-  hashes, runner identity or runtime version invalidates the comparison even when both results look
-  right alone.
+- Reuse a prior result only after checking that the source, runtime, fixtures and criterion
+  conditions relevant to the row remain applicable, and record the original execution provenance.
+  Unrelated commits or evidence-only changes do not invalidate it. Cross-Feature runtime criteria
+  still need actual cross-Feature evidence. When a comparison explicitly requires the same artifact,
+  runtime or session, a mismatch invalidates that comparison; repair the affected rows rather than
+  automatically repeating the entire matrix.
 - When a required row cannot be executed inside the stated safety boundary, record `BLOCKED` with
   its smallest prerequisite and continue with the independent rows. Do not substitute a nearby
   environment (another port, a developer entry point, a mocked layer) for the named surface and call
@@ -166,33 +167,29 @@ tests, or draft evidence; it may not decide lifecycle state, register integratio
 merge, switch authority, or close the goal. The main session inspects material outputs and makes the
 final gate decision.
 
-Default the mechanical legs to subagents and keep this session for coordination, gating and final
-verification. Long runs drown the coordinating session in tool output, and a context full of log
-tails makes worse gate decisions. Hand the fixing and the disjoint testing to children, run them in
-parallel when their file scopes do not overlap, and keep here only the frozen matrix, the acceptance
-verdict, the review of each child's diff, and the user-facing report.
-
-Provisioning is the exception: build the environment yourself and hand the child a base that already
-answers its health check. A child asked to install a runtime and repair its own toolchain tends to
-stall before running a single test, and re-dispatching repeats the same failure.
+Delegate bounded collection when it reduces coordination cost. Keep lifecycle and final acceptance
+judgement in the main session; do not create additional workers or reports merely to repeat a
+successful check. Reuse suitable runtime/dependency environments and caches. Prepare missing
+prerequisites once in the role best placed to do it, rather than rebuilding the environment for
+every worker.
 
 Disjoint file scopes are not enough when children share one host: they collide on runtime resources.
 Partition ports, state-store paths, service names and log directories explicitly in each brief —
 otherwise one child's cleanup tears down a sibling's service, and two children initialising the same
 store contradict each other's evidence.
 
-Treat every child's completion message as a self-report, including claims like "all tests pass",
-"mode fixed", "nothing committed" or "leak removed". Before accepting work that touches the
-repository, re-run the decisive query yourself and read the diff. Row ids do not survive delegation:
-give each child the exact row ids with criterion text, and map results back by criterion text rather
-than by id. Counts a child writes into an acceptance document need re-executing; they are claims
-until your own run reproduces them.
+Treat a child's conclusion as a report to judge, not automatic authority. Read the relevant diff,
+findings and decisive evidence, and use targeted sampling or reruns where a concrete risk warrants
+it. Do not mechanically duplicate all checks, hashes or counts performed independently. Give each
+child the relevant criterion text and map its actual results back to those criteria; do not infer
+coverage from ids or totals alone. Final acceptance and lifecycle decisions remain in the main
+session.
 
-An interrupted child runs no cleanup. Stopping one that started services leaves its process still
-listening until you sweep the port, the process table and the container list yourself. Do the sweep
-before reporting, and never leave a delegated service listening on a network address across a
-session break. Then inspect what actually landed before re-dispatching: an interrupted child may
-have written complete and valid edits, or nothing at all.
+An interrupted child may leave its resources running or may already have completed cleanup.
+Inspect the processes and temporary resources it actually owned before reusing them or reporting
+cleanup. Stop only confirmed owned resources within the task's authorization; do not sweep or
+modify unrelated host services. Inspect partial artifacts before re-dispatching and preserve valid
+results rather than assuming nothing completed.
 
 When delegated work moves a real secret out of the codebase (account id, token, key, credential),
 require synthetic values in every fixture, comment and docstring, then grep the whole tree for the
@@ -206,7 +203,7 @@ the evidence is sanitised.
 
 Classify environment blockers before freezing the matrix — port ownership, privilege escalation,
 log readability, deployment-root existence — because a handful of read-only checks decides several
-rows at once, and finding a blocker after the freeze forces a re-freeze.
+rows at once; a later blocker affects the rows that depend on it, not automatically the whole run.
 
 Concrete recipes live in `references/preflight-and-verification.md`: dependency extras, proving a
 failure is pre-existing, verifying a fix outside the frozen clone, mode-only version-control fixes,
@@ -277,7 +274,7 @@ integration gate failed or blocked and preserve the evidence.
 
 Sealing the run is a governed commit boundary (`references/commit-boundaries.md`): the handoff, the
 new immutable evidence root and the registered result land together, and the evidence must name the
-revision the run executed against and state that its worktree was clean. A failing or blocked run is
+source and relevant diff the run actually checked, including any reused-result provenance. A failing or blocked run is
 never committed as if it had passed.
 
 ## Phase D: Authorized Wiki Merge

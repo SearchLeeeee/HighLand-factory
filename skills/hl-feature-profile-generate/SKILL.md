@@ -135,14 +135,14 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 1. Read the feature profile, domain documents and relevant authority documents — including the behavior-change summary, any resolved authority conflict, and acceptance criteria.
 2. Read the generic constraints: `wiki/code-ai/review-agent.md` and the affected owner profile's review focus.
 3. Read the current canonical implementation plan and verify the reviewed work matches its approved scope, dependencies and integration points.
-4. Check that the supplied review snapshot identifies the target revision and file set. The orchestrator verifies freshness before accepting the report; never claim review of a different or unstated revision.
+4. Check the target Git revision, relevant diff/new files and source scope. The orchestrator checks affected-source freshness before accepting the report. Separate hashes, receipts, freeze commits or clones are not defaults; never claim review of different or unidentified changes.
 5. Check the change against business requirements and acceptance criteria, including any individually confirmed high-impact behavior loss.
 6. Check that agent notes for modified files are maintained and whether a README needs syncing.
 7. Check test coverage including negative and guardrail cases, that verification commands were actually run, that any required visual/interaction evidence is bound to build/state/viewport, and that `security.sensitive_classes` boundaries are preserved.
 
 The output follows the format in `wiki/code-ai/review-agent.md`, including the doc-sync review. Findings must be actionable: file or area, why, required fix.
 
-**Verification agent profile** — independently re-verifies, separate from the implementer: use the same current plan, walk every acceptance criterion, re-run the verification commands, check handoff completeness and documentation sync, and produce the fixed verification handoff. It must not reuse the implementer's self-assessment.
+**Verification agent profile** — judges independently, separate from the implementer: use the same current plan and cover every criterion with sufficient applicable evidence. Execute missing or affected configured checks and independently assess the source/conditions of any reused results; do not accept the implementer's self-assessment as proof. Reuse suitable environments and caches, isolate state/data/processes as required, and do not default to fresh clones, all-command reruns or layered hashes. Record actual results, limits, provenance and documentation sync in the existing handoff. Repair gaps locally, preserve failure facts and stop at the delivery boundary; no extra configuration or approval process.
 
 ## Quality Gate
 

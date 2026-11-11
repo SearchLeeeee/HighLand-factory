@@ -48,6 +48,14 @@ wiki/feature-workspace/initiatives/<initiative>/features/<feature>/code-ai/
 
 The review gate is the fixed exception and is not discovered dynamically: `wiki/code-ai/review-agent.md`, resolved relative to `WORK_ROOT`. If it is not readable when review is required, stop and report that the review gate cannot run instead of substituting another review profile.
 
+## Minimum Sufficient Verification
+
+Apply `$hl-workflow-governance`'s minimum sufficient verification rules. Default to one identifiable
+source target, applicable result/environment reuse, affected checks and risk-based sampling.
+Independent judgement, actual acceptance, safety and authorization remain mandatory. Do not add
+hash layers, freeze commits, clones, full reruns or proof-of-proof records without a concrete need;
+repair gaps locally and stop at the stated delivery boundary. No extra mode or approval is needed.
+
 ## Goal
 
 Entering this skill means entering the code implementation environment, so set one session goal before dispatching any implementation subagent. Use the platform's goal mechanism when it provides one; otherwise state the objective as the first main-thread statement and keep it there. A todo list or a subagent task list is not a substitute for the goal.
@@ -145,7 +153,7 @@ Treat the plan as the current execution authority, not a second lifecycle state.
 
 Verify each implementation step in place. Do not require a separate report after every step when the same model/session is implementing and coordinating. Use concise explicit checkpoints at planned milestones, multi-agent integration points, high-risk changes or material deviations. Record evidence in the normal handoff; deviations needing a product, contract, security or scope decision return to the user.
 
-Review and verification use the same current plan to check approved scope, dependencies, integration and acceptance. Include the plan file among reviewed source documents in the repository that contains it; in split mode, capture a separate review snapshot for `WORK_ROOT` as well as each implementation repository. The plan must be frozen with the implementation/doc-sync commit before review, and a plan change during review invalidates the affected review run.
+Review and verification use the same current plan to check approved scope, dependencies, integration and acceptance. Identify the approved plan together with the relevant source changes for each affected repository. A material plan or source change invalidates only affected conclusions; administrative or presentation changes do not automatically restart review. A separate snapshot or pre-review commit is not required by default.
 
 ## Context Discipline
 
@@ -248,37 +256,27 @@ Give the review subagent:
 - Owner-specific review focus
 - Validation already run
 - Remaining risk areas
-- The review snapshot receipt and the exact frozen revision and file set it identifies
+- The source identity and file scope: Git revision plus relevant diff/new files when uncommitted
 
-Before dispatching the reviewer, create a snapshot for each implementation repository. The helper
-requires every reviewed file to be committed at the captured `HEAD` and records its SHA-256:
+Before review, identify the implementation and the design or acceptance sources needed to judge
+the change. An existing commit normally identifies committed content sufficiently. Uncommitted
+work may be reviewed using HEAD plus the relevant diff and new-file contents; retain the patch or
+new-file content necessary to reconstruct that target when no commit identifies it. Keep those
+sources stable during review. Missing source that prevents a reliable judgement blocks that
+part; lack of commit authorization alone does not block otherwise authorized review or testing.
 
-```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-orchestrator/scripts/review_snapshot.py capture \
-  --repo <CODE_REPO> \
-  --file <repo-relative-reviewed-file> \
-  --file <another-repo-relative-reviewed-file> \
-  --output <WORK_ROOT>/<feature-root>/evidence/review-snapshot-<repo>.json
-```
+Before accepting the verdict, check whether the reviewed sources, contract or acceptance conditions
+changed. Re-review affected findings and files. Unrelated commits, lifecycle/evidence updates and
+non-semantic edits do not invalidate unchanged conclusions. Broaden review when the actual impact
+crosses the prior boundary or cannot be bounded, rather than automatically restarting every check.
 
-Include all implementation, design, acceptance and other source files in the review scope. Keep the
-review report and snapshot receipt out of the fingerprinted file list. For a `split` project,
-capture one receipt per repository. A missing or uncommitted reviewed file blocks review start.
-
-After the review report is complete and before accepting its verdict, verify each receipt against
-the same repository:
-
-```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-orchestrator/scripts/review_snapshot.py verify \
-  --repo <CODE_REPO> \
-  --snapshot <WORK_ROOT>/<feature-root>/evidence/review-snapshot-<repo>.json
-```
-
-Only `REVIEW SNAPSHOT VALID` permits the report to count. A revision or reviewed-file change makes
-the report stale: discard that verdict, create a fresh snapshot and repeat the affected review.
-After remediation, re-review only the changed files and affected findings unless the fix changes the
-contract, scope or dependency direction, which triggers a full review. Every new review run gets a
-new snapshot receipt.
+The existing `scripts/review_snapshot.py` is an optional strict receipt tool for a concrete need to
+bind exact committed file bytes. It still captures SHA-256 and rejects changes to its captured HEAD
+or files; old receipts keep that meaning. Use it only for the necessary file set, keep its report
+and receipt outside that set, and run its `verify` before relying on the strict receipt. Do not
+require it for routine review, expand it to the whole repository, or create a clone/commit merely
+to satisfy the helper. If that strict receipt becomes stale, determine the affected content and
+renew only the needed evidence; do not discard unrelated valid conclusions.
 
 When `packs.enabled` in `.factory/factory.yaml` contains `quality-gates`, the review input package must also include the quality evidence files under `packs.quality-gates.evidence_dir` (`quality-*.md`). When the pack is not enabled, the core review gate runs unchanged; never require the user to install the pack first.
 
@@ -286,11 +284,11 @@ Blocker findings must be fixed and re-reviewed. High-severity findings should be
 
 ## Acceptance and Verification Separation
 
-When `workflow.verification_separate` is on, verification runs in a session separate from implementation, and the implementer never accepts its own work. Use `verification.isolated_env` for how isolation is achieved. When it is off, record that the project deliberately weakened the gate; do not describe a self-check as independent verification.
+When `workflow.verification_separate` is on, verification runs in a session separate from implementation, and the implementer never accepts its own work. Use `verification.isolated_env` for required isolation. Reuse suitable runtimes, dependencies and caches; isolate state, data and processes where needed. Role separation alone does not require another clone or a rebuilt environment. The verifier independently judges whether existing results apply and executes the missing or affected checks, rather than adopting the implementer's self-assessment. When separation is off, record that limitation; do not describe a self-check as independent verification.
 
 Classify acceptance criteria before implementation. An externally dependent or unprovable item needs an approved evidence mode or a scope decision. Unsupported API or contract conflicts pause the affected work and return to the workbench; keep the goal active. For visual or interaction criteria, require persistent evidence tied to the tested revision, route/state and viewport. Record why visual evidence is not applicable when the Feature has no visual/interaction impact.
 
-Evidence lands under `verification.evidence_root`, baseline evidence is compared against `verification.baseline_evidence`, and every criterion is recorded as pass, fail, blocked or not verified.
+Evidence lands under `verification.evidence_root`, applicable baseline evidence is compared against `verification.baseline_evidence`, and every criterion is recorded as pass, fail, blocked or not verified. Each criterion needs sufficient applicable evidence, not necessarily a new execution. Record the source and conditions of reused evidence; rerun only what changed or remains unproven. Explicit acceptance requirements and safety boundaries are not relaxed.
 
 Git merge, `ready-to-merge / ready`, and long-term wiki authority merge are three separate operations. A git merge requires an explicit request; only `$hl-wiki-merge` changes long-term wiki authority.
 
@@ -337,7 +335,7 @@ Commit points inside this workflow are governed by `$hl-workflow-governance`'s
 
 | Point | Gate that must already pass | Commit |
 | --- | --- | --- |
-| Implementation frozen | Implementation and documentation sync complete, `gate workspace` passes | Code and doc sync, to obtain the revision review and verification run against |
+| Implementation ready | Implementation and documentation sync complete, `gate workspace` passes | Code and doc sync, when committing is authorized and useful |
 | Review passed | The fixed review gate passes after required fixes and re-review | Review evidence and its remediation |
 | Closure reached | Acceptance passes, closure recorded, `ready-to-merge / ready` recorded | Acceptance evidence, closure data, final manifest |
 
@@ -347,11 +345,14 @@ Requirements that apply to every one of them:
   authorization in this session covers these boundaries only; it is never a push authorization.
 - The optional commit pack must be enabled in `packs.enabled`. If it is not, follow the project's
   documented policy and do not invent one.
-- Freeze before verifying. Commit the implementation state first, run review, verification and any
-  Integration work against that clean revision, then commit the evidence that names it. Running the
-  checks first dirties the tree and makes the next run unreproducible.
-- Never commit a failing gate, an unreviewed change, or acceptance that has not passed. Reporting
-  `ready` while the manifest still shows an earlier phase is the same defect in a different place.
+- Identify the source before verifying. Use an existing commit or a clearly recorded relevant
+  diff/new files; evidence-only writes do not change the tested implementation. A new freeze commit
+  is needed only when an explicit acceptance or artifact identity requires an immutable commit;
+  obtain authorization before that operation and bind the result to it. Do not block routine
+  authorized checks because a commit has not been authorized.
+- The gate for the chosen commit boundary must pass; never present unreviewed work as reviewed
+  or incomplete acceptance as passed. Reporting `ready` while the manifest shows an earlier phase
+  remains invalid.
 - Never push without an explicit instruction.
 
 Report every commit identifier in the final handoff, together with which point it belongs to.
