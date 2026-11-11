@@ -86,13 +86,15 @@ Add it, run factory doctor --work <work>, then retry.
 ### 1. Check authorization
 
 Commit only when the governing workflow or the user authorized committing this change, and only
-behind a gate that has already passed. Otherwise stop at "changes ready", list them, and hand off.
+behind a gate that has already passed. Without authorization, do not stage, commit or push;
+continue otherwise authorized reading, review and verification using an identifiable source target.
 Push requires its own explicit authorization — a commit authorization is not a push authorization.
 
-For a workflow commit, also record which boundary it belongs to, because review, verification and
-Initiative integration evidence may only cite a commit whose worktree was clean at that revision.
-When the evidence must name a revision, commit the implementation state first and the evidence
-second; never run checks and commit in the other order.
+For a workflow commit, record its boundary and the source actually reviewed or tested. An
+existing revision plus the relevant diff/new files is sufficient for ordinary work; do not invent
+extra freeze commits or require a globally clean tree merely to run checks. If an explicit
+acceptance or artifact requirement needs an immutable commit, obtain authorization and establish
+that commit before that check. Never attribute uncommitted changes to the old commit alone.
 
 ### 2. Scan every target repo
 
@@ -136,17 +138,13 @@ Never stage generated or local artifacts (build output, dependency caches, logs,
 machine config, secrets, database dumps, editor state) unless the user explicitly asks and the
 project tracks them.
 
-### 7. Reconcile totals
+### 7. Confirm the staged concern
 
-Count dirty entries from `git status --short -uall` (`M` + `D` + `??`) before the first
-commit, then sum the file counts of the commits created (`git log --shortstat` for exactly
-those commits). The numbers must match.
-
-- Shortfall: a dirty file was never committed. Stop, find it, commit or explain it.
-- Excess: a file was counted twice. Stop and re-group.
-- Phantom modification: `git status` reports `M` but `git diff -- <file>` is empty and the
-  index blob hash equals the worktree blob hash. Nothing to commit — leave it alone and
-  subtract it from the expected total. Never `git add` it to fix the count.
+Inspect the actual staged paths and diff against the authorized concern. Leave unrelated work
+untouched and check for omitted intended files. A file count can help investigate a discrepancy;
+it is not a mandatory parallel bookkeeping system and cannot prove content correctness. Do not
+stage a phantom modification solely to make counts agree. Reuse checks whose source and conditions
+remain applicable; an evidence-only change does not require another full test run.
 
 ### 8. Write the message
 
@@ -183,7 +181,7 @@ report both commit ids and their correspondence. Match the user's language.
 | Config missing / key empty | stop before staging; print the fail-closed message above |
 | Doctor fails | stop; route to `$hl-factory-doctor` |
 | Unrelated dirty paths | exclude, leave untouched, report by path |
-| Total reconciliation mismatch | stop, re-inspect; never report success over a mismatch |
+| Unexpected staged scope or missing intended files | inspect the actual diff and correct the affected set; counts alone do not decide correctness |
 | Stage/commit blocked by sandbox | escalate that one git command with a reason; no workaround commits |
 | Hook failure | fix the cause, or report it; `--no-verify` only with explicit authorization |
 | Push rejected non-fast-forward | stop; do not force-push; surface the divergence |
@@ -200,4 +198,4 @@ report both commit ids and their correspondence. Match the user's language.
 - Never infer ownership from a filename or directory.
 - Never stage secrets, credentials, local machine config, or generated runtime artifacts.
 - Never invent a repo, branch, remote or commit format when config is empty.
-- Never claim a commit covers the tree while the reconciliation totals disagree.
+- Never claim a commit includes omitted work or that its tests cover different source changes.
