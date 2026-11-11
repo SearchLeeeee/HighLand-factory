@@ -88,6 +88,19 @@ Read these from `workflow-profile.md` / `factory.yaml`; do not invent them:
 
 If a needed value is empty, the skill must ask the user once and then route to `$hl-workflow-governance` to persist it; it must not silently default.
 
+## 4a. Socratic questioning (mandatory throughout)
+
+Every skill and optional pack must use Socratic questioning for user-facing questions, including
+initialization, feasibility, discussion, implementation clarifications, review and authorization.
+The shared behavioral authority is
+[`socratic-questioning.md`](../skills/hl-workflow-governance/references/socratic-questioning.md).
+Read it before asking. Ground questions in evidence and the user's answers; clarify concepts,
+probe assumptions, examine evidence and alternatives, and trace consequences without leading the
+user to a preferred answer. Interactive mode uses one focused question at a time; explicitly
+selected batch review applies the same method to independent workbench questions. Recommendations
+are conditional proposals, never confirmed answers. Explicit permission and existing gates remain
+binding; the questioning style adds no new approval or lifecycle state.
+
 ## 5. Skill naming
 
 All skill directories and their `name:` fields carry an `hl-` prefix. The agent skill spec

@@ -5,6 +5,13 @@ description: Use when one registered Leaf Feature has completed Code AI profiles
 
 # Feature Orchestrator
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 ## Step 0 — Load factory context
 
 Run this before anything else, including reading the request.

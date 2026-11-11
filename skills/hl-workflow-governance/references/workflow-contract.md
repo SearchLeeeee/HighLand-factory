@@ -46,6 +46,10 @@ authority stays with the feature-workspace tools and documentation named by
   only a compact handoff to the main session.
 - Quick-change records are process material. A fired hard gate escalates to the feature workflow
   instead of widening the lightweight record's authority.
+- Every user-facing question follows `references/socratic-questioning.md`, including initialization,
+  optional packs and batch workbench review. Ground neutral questions in the user's answers to
+  clarify concepts, probe assumptions and evidence, examine alternatives and trace consequences.
+  Recommendations stay conditional; existing authorization gates remain binding.
 - When the user must choose among two or more viable alternatives, use the structured choice panel
   when available: 2-3 mutually exclusive options, the recommended one first, the client-provided
   `Other` for custom input, and one concise plain-text question only as a fallback. This

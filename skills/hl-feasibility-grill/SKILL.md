@@ -5,6 +5,13 @@ description: Use when someone proposes a feature, capability, or change and want
 
 # Feasibility Grill
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 ## Step 0 — Load factory context
 
 Run this before anything else, including reading the proposal.
@@ -85,14 +92,14 @@ Avoid these unless needed to judge feasibility:
 
 ## Question Format
 
-Each question must include:
+Use the shared Socratic method. Briefly state the observed context and which feasibility judgment
+is uncertain, then ask one neutral question about the goal, assumption, evidence, counterexample,
+alternative or consequence that most affects that judgment. Follow the user's answer rather than
+a fixed decision tree. Offer realistic alternatives only when choosing is the unresolved issue.
 
-- **Why this matters**: which feasibility judgment depends on the answer
-- **Possible answers**: two or three realistic options when useful
-- **Recommended answer/direction**: the current best direction given available evidence
-- **Reason**: one sentence on the tradeoff behind the recommendation
-
-This is a decision-tree review, not an open-ended interview. Give a defensible recommendation with every question.
+Give a conditional recommendation when evidence supports one, separately from the question, with
+its tradeoff and what could change it. A recommendation is not required with every exploratory
+question and must never dictate the user's answer.
 
 ## Question Flow
 

@@ -30,7 +30,9 @@ wiki_merge_readiness: ready | needs-target | blocked
 
 ## Feasibility Grill
 
-Record one question and answer at a time. Capture the value, available code and data, compatibility,
+Use the shared Socratic questioning policy: record one neutral question and explicit answer at a
+time, following the user's evidence and examining relevant assumptions and consequences. Keep
+conditional recommendations separate from confirmed conclusions. Capture the value, available code and data, compatibility,
 security, privacy and project-specific risk categories, testing, rollback and failure handling, and
 the lightweight eligibility conclusion.
 

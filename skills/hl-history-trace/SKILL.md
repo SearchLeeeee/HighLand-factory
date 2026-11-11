@@ -5,6 +5,13 @@ description: Use while reading canonical authority documentation when a user or 
 
 # History Trace
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 Operate read-only, and keep historical lookup out of the main session.
 
 ## Step 0 — Load factory context

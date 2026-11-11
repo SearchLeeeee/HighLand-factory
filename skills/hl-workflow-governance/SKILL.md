@@ -5,6 +5,13 @@ description: Use when governing the feature workspace lifecycle rules, dependenc
 
 # Workflow Governance
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 Use this skill to decide which workflow skill owns a request, to check a governed
 transition against policy, and to maintain the workflow itself. It restates the contract;
 it never replaces the owning machine gate. The durable authority remains
@@ -79,10 +86,12 @@ and run `validate` before and after any manifest or workflow change.
 
 ## User Choice Panels
 
-When the workflow needs a decision among two or more viable alternatives, use the structured
-choice-panel tool when the client offers one instead of asking for a number or free-form prose.
+Apply `references/socratic-questioning.md` to every workflow question. First clarify any unresolved
+premise through a neutral Socratic question. When the workflow then needs a decision among two or
+more viable alternatives, use the structured choice-panel tool when the client offers one. Keep
+open exploration in free text rather than forcing it into premature alternatives.
 
-- Ask one decision at a time unless up to three decisions are tightly coupled.
+- Ask one focused question at a time; wait before asking a dependent follow-up.
 - Offer 2-3 mutually exclusive options. Put the recommended option first, mark it
   `(Recommended)`, and state the material impact of each in one short sentence.
 - Do not add an explicit `Other` option; the client supplies it. Treat a custom answer as the

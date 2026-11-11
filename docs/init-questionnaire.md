@@ -14,7 +14,11 @@ Three tiers, progressive disclosure:
 
 Rules:
 
-- Ask one decision at a time; each question carries why it matters, the realistic options, a recommended default, and one sentence of trade-off.
+- Use [Socratic questioning](../skills/hl-workflow-governance/references/socratic-questioning.md)
+  throughout: one focused, neutral question grounded in detected facts and the previous answer.
+  Clarify the need, test the relevant assumption or evidence, and explore consequences as needed.
+  Explain why it matters. Options are for actual choices; defaults below are conditional proposals,
+  not a script that leads the user to agreement. Split bundled bank entries into focused questions.
 - Detect before asking. Stack, commands, existing docs, git remotes, folder structure and licenses are auto-discovered and shown as a proposal to confirm.
 - Record every answer and every assumption in `wiki/governance/init-record.md`.
 - Anything answered "unknown / decide later" becomes an explicit assumption with a re-check trigger, not a silent default.

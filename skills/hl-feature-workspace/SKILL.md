@@ -5,6 +5,13 @@ description: Use when a workflow skill needs to create, validate, transition, sp
 
 # Feature Workspace
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 `wiki/feature-workspace/README.md` and `schema/feature-workspace-schema.md` are the workflow
 authority. YAML manifests are lifecycle-state authority only; they never override product facts in
 the long-term wiki.

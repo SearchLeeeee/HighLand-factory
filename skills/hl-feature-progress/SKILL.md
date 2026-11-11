@@ -5,6 +5,13 @@ description: Use when the user asks for feature progress, remaining work, blocke
 
 # Feature Progress
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 Remain strictly read-only. Do not create, edit, transition, repair or delete workspace files. Work
 correctly in a fresh session without relying on chat history.
 

@@ -5,6 +5,13 @@ description: Use when a user wants to create a new HighLand-factory work repo or
 
 # Factory Init
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 ## What this skill is for
 
 Turn a project idea (or an existing code + docs pair) into a **valid HighLand-factory work repo**:
@@ -20,7 +27,10 @@ This skill is the **conversation**. The engine (`factory init` / `factory adopt`
 
 ## Hard rules
 
-1. Ask one decision at a time. Each question includes: why it matters, 2-3 realistic options, the recommended option first (marked `(Recommended)`), and one sentence of trade-off.
+1. Ask one focused Socratic question at a time: start from detected facts and the user's answer,
+   clarify the need or premise, then examine the relevant evidence or consequence. Explain why it
+   matters. Offer 2-3 options only for an actual decision; recommendations are conditional and
+   separate from the neutral question. Follow the shared questioning policy for panel formatting.
 2. Detect before asking. Inspect the existing directory, git remotes, package manifests, CI files, existing docs, and licenses; present the detection as a proposal to confirm.
 3. Never silently skip a P0 item. If the user says "decide later", record it as an explicit assumption in `wiki/governance/init-record.md` and tell them the consequence.
 4. Never store secrets, tokens, account numbers or private keys in committed files. Only references and policy go into `factory.yaml`.

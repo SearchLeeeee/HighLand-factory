@@ -5,6 +5,13 @@ description: Use when exactly one dependency-ready Leaf Feature is ready to be r
 
 # Feature Discuss
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 ## Step 0 — Load factory context
 
 Run this before anything else, including reading the feature request.
@@ -50,7 +57,10 @@ Both modes are equal in rigor: the same inventory, the same confirmation rule, t
 
 ### Batch review rules
 
-- Write every known question before asking the user to review; each block carries context, 2-4 concrete options, a recommendation with tradeoff, implementation impact, and test or acceptance impact where relevant.
+- Write every known question before asking the user to review; each block carries context, one
+  neutral Socratic question, the assumption or evidence being examined, implementation impact,
+  and test or acceptance impact where relevant. Add options for actual decisions and conditional
+  recommendations only when justified. Dependent follow-ups wait for the user's answer.
 - Keep each batch reviewable: group by domain and impact, at most about 10-12 questions per batch. If the inventory is larger, send the next batch after processing the first.
 - The user may answer by Q ID, explicitly accept a recommendation, defer a question with a reason, or ask to switch to interactive mode.
 - Agent recommendations and silence are not confirmation. Only an explicit answer, or an explicit "accept recommendation for Q-xxx", becomes a confirmed conclusion.
@@ -152,7 +162,9 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 
 ## Discussion rules
 - Follow the mode chosen at startup: interactive asks one question at a time; batch-review writes a reviewable batch of pending questions and waits for the user's bulk review.
-- Every question carries context, concrete options, a recommendation, implementation impact, and test or acceptance impact when relevant.
+- Every question carries context, a neutral Socratic question, the assumption or evidence being
+  examined, implementation impact, and test or acceptance impact when relevant. Include options
+  only for actual choices and conditional recommendations only when supported by evidence.
 - Wait for confirmation before recording a conclusion.
 - Record only confirmed conclusions and still-open questions.
 - Keep unresolved questions until answered or explicitly deferred.
@@ -187,8 +199,10 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 ## Pending questions
 ### Q-001: <question>
 Context:
-Options:
-Recommendation:
+Assumption or evidence to examine:
+Decision and acceptance impact:
+Options (only for a concrete choice):
+Conditional recommendation (if supported):
 Decision status: pending
 
 ## Implementation document targets
@@ -208,11 +222,12 @@ Run this loop until the feature is stable enough to document:
 0. Before detailed questions, list all known questions into the inventory and pending sections.
 1. Read the workbench and the relevant long-term wiki pages.
 2. Pick the unresolved decision with the highest implementation impact.
-3. Ask one concrete question.
-4. Explain why the decision matters.
-5. Give two to four realistic options.
-6. Recommend one and name the tradeoff.
-7. Wait for confirmation.
+3. Ask one neutral Socratic question grounded in the user's latest answer and known evidence.
+4. Explain why this uncertainty matters.
+5. Probe a relevant concept, assumption, evidence, alternative or consequence; use options only
+   when an actual choice is ready to be made.
+6. If supported, state a conditional recommendation separately and name its tradeoff.
+7. Wait for the answer; follow up only on a remaining material uncertainty, then confirm the conclusion.
 8. Update `discussion/workbench.md` with the confirmed conclusion only.
 9. Update document targets and profile targets.
 10. Before leaving discussion, discuss required test cases and acceptance criteria explicitly.
@@ -225,7 +240,7 @@ When the user asks what remains, summarize unresolved decisions and risks only.
 Use this loop instead of the interactive loop when batch-review mode is selected.
 
 1. Build or refresh the complete question inventory (stable IDs, domain, why it matters).
-2. Write detailed pending-question blocks for the next reviewable batch: context, 2-4 options, recommendation with tradeoff, implementation impact, and test or acceptance impact.
+2. Write independent Socratic pending-question blocks for the next reviewable batch: context, one neutral question, the premise or evidence under examination, implementation impact, and test or acceptance impact. Add alternatives or a conditional recommendation only where useful; dependent follow-ups wait.
 3. Tell the user which batch is ready and how to answer: by Q ID, explicitly accept a recommendation, defer with a reason, or ask to switch to interactive mode.
 4. Wait. Do not record any conclusion from silence or from your own recommendation.
 5. Process the answers: move explicit answers to confirmed conclusions, mark deferred items with their reason, and update inventory statuses and targets.

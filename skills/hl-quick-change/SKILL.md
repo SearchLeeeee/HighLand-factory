@@ -5,6 +5,13 @@ description: Handle bounded bugfixes and detail adjustments with a hard-gate sco
 
 # Quick Change
 
+## Questioning Style
+
+All user-facing questions must use Socratic questioning. Before asking, read
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md`
+(relative to the located factory checkout during bootstrap). Follow that shared policy for
+chat, choice panels and workbench questions; preserve existing explicit authorization gates.
+
 Use this skill as the single entry point for small maintenance requests. It owns the lightweight
 record and the routing decision. It never creates or modifies a second lifecycle state machine.
 
@@ -33,7 +40,8 @@ At the start of a new request, read:
 
 1. The long-term wiki entry point: `wiki/README.md`.
 2. `wiki/feature-workspace/README.md` when judging escalation or handing off to the heavy workflow.
-3. The grilling skill for the one-question-at-a-time behaviour.
+3. `<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md` for the
+   shared Socratic, one-question-at-a-time behaviour.
 4. The feasibility or feature-discussion skill only when routing to that heavy workflow.
 
 The quick workspace is process material. Exclude it from long-term memory, default context discovery,
@@ -80,8 +88,10 @@ The lightweight feasibility review must cover value and problem reality, availab
 impact and compatibility, security, privacy and project-specific risk categories named in the
 profile, repeatable testing, rollback and failure handling, and continued lightweight eligibility.
 
-After feasibility is viable, grill the user one question at a time until shared understanding is
-reached. Do not impose a fixed number of questions. Even a one-file change enters this gate. Code
+After feasibility is viable, use Socratic questioning one question at a time until shared
+understanding is reached. Start from the reported behaviour, examine assumptions and evidence,
+and trace consequences; follow the actual answers without leading the user to a preferred fix.
+Do not impose a fixed number of questions. Even a one-file change enters this gate. Code
 inspection and agent inference do not count as user confirmation. Resolve at minimum:
 
 - observed behaviour, reproduction conditions, and desired behaviour;

@@ -25,6 +25,10 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
 
 ## Shared invariants
 
+- All workflow questions follow [Socratic questioning](socratic-questioning.md): grounded,
+  neutral inquiry into concepts, assumptions, evidence, alternatives and consequences, with
+  direct explicit authorization at existing permission gates.
+
 - Use minimum sufficient verification: one identifiable source target, applicable evidence reuse,
   affected checks and risk-based sampling. Do not default to layered hashes, repeated freezes, fresh
   clones or full reruns. Repair evidence gaps locally, retain failure facts, and keep safety,
