@@ -56,6 +56,9 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
 Detailed commit and worktree rules live in `references/commit-boundaries.md` and
 `references/worktree-lifecycle.md`. Shared policy details and change-surface ownership live in
 `references/workflow-contract.md`.
+Starting a registered Leaf with `$hl-feature-orchestrator` grants scoped local commit authorization
+under the commit reference. Preserve it in handoffs; do not ask again at each boundary. Explicit
+restrictions and stricter project policy prevail; push and merge still require separate authorization.
 
 ## Authorities
 

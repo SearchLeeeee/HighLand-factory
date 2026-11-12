@@ -13,6 +13,18 @@ transition, and a transition is never inferred from a commit.
 When `packs.enabled` does not contain `commit`, follow the project's documented commit policy; do
 not invent one and do not treat this file as that policy.
 
+## Feature Implementation Authorization
+
+Invoking `$hl-feature-orchestrator` for a registered Leaf Feature authorizes local commits for
+that Feature at the passed boundaries below, including implementation, documentation sync,
+review fixes and closure evidence in each configured repository. Keep this authorization through
+handoffs and resumed sessions; do not ask again at each boundary or for each new Feature invoked.
+Use `$hl-commit` when enabled. This grants neither push nor merge, deletion, shared-history
+rewrites, unrelated changes, initialization nor Quick Change commits. Explicit user restrictions
+or a stricter project policy still govern; if scope or authority is unresolved, continue unaffected
+work and ask only about the unresolved part. A later explicit user authorization supersedes an
+older handoff's requirement to ask separately.
+
 ## The Two Rules Behind The List
 
 1. **Commit only behind a passed gate.** Every boundary below names the check that must already be
@@ -91,7 +103,7 @@ requires them. Packaging is a delivery choice, not another approval or configura
 
 ## Interaction With Other Gates
 
-Automatic commits are never authorized by this file; each one still needs the commit authorization
-the profile or the user provides. When a boundary and an authorization disagree, the authorization
-wins and the boundary stays open. Escalation, merge, deletion and push authorizations are separate
-and are not granted here.
+Feature implementation receives the scoped standing authorization above; other work still needs
+authorization from its governing workflow or the user. A permitted boundary alone grants no
+authorization. Explicit restrictions prevail and leave that commit boundary open. Escalation,
+merge, deletion and push authorizations are separate and are not granted here.

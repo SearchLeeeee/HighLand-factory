@@ -202,3 +202,9 @@ touches the repository:
 The list adds no lifecycle state, schema field or state-machine branch. Skills must keep working
 with `packs.enabled: []`; where the commit pack is disabled, the project's documented commit policy
 governs and no skill may invent one.
+
+Starting a registered Leaf with `$hl-feature-orchestrator` grants local commit authorization for
+its implementation, documentation sync, review fixes and closure evidence at passed boundaries
+under the commit reference. Preserve the grant through handoffs/resumes without repeated requests.
+Explicit restrictions and stricter project policy prevail; initialization, Quick Change, unrelated
+changes, push and merge retain their separate authorization rules.

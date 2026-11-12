@@ -246,9 +246,13 @@ phase 推到后续阶段。
 
 ## 提交边界
 
-提交是可选的、需要单独授权的动作，不是流程状态的一部分：它不产生 phase/state，也
+提交是可选的、需要授权的动作，不是流程状态的一部分：它不产生 phase/state，也
 不被任何门禁当作证据。允许提交的时机由 `$hl-workflow-governance` 的
 `references/commit-boundaries.md` 统一定义，要点：
+
+- 启动已登记 Leaf 的 `$hl-feature-orchestrator` 即授权该 Feature 在门禁通过后的本地实现、
+  文档同步、评审修复及闭环证据提交；交接和恢复保留授权，不逐阶段重问。用户明确限制及
+  更严格的项目政策优先；初始化、Quick Change 和无关改动不在授权内，推送、合并仍须单独明确授权。
 
 - 只在门禁通过之后提交。失败的 gate、未 review 的实现、未通过的验收不得当作完成态。
 - 先冻结再验证：先提交实现状态得到 revision，让 review、验证和 Initiative 集成测试

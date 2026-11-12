@@ -60,6 +60,11 @@ authority stays with the feature-workspace tools and documentation named by
   interaction rule never weakens an authorization or machine gate.
 - User authorization is required for actual merge, deletion, commit and push operations whenever
   the profile requires it.
+- Starting a registered Leaf through `$hl-feature-orchestrator` supplies standing authorization
+  for its local implementation, documentation sync, review fixes and closure evidence commits at
+  passed boundaries, as defined in `references/commit-boundaries.md`. Preserve it across handoffs
+  and resumes without asking again. Explicit restrictions and stricter project policy prevail;
+  initialization, Quick Change, unrelated changes, push and merge are outside this grant.
 - Commit boundaries are governed by `references/commit-boundaries.md`, not scattered through prose.
   Commits happen only behind a passing gate, at one of the named boundaries; a commit authorization
   is never a push authorization. Identify reviewed/tested sources using an existing revision

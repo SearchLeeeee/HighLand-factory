@@ -97,11 +97,18 @@ behind a gate that has already passed. Without authorization, do not stage, comm
 continue otherwise authorized reading, review and verification using an identifiable source target.
 Push requires its own explicit authorization — a commit authorization is not a push authorization.
 
+For a registered Leaf started through `$hl-feature-orchestrator`, use the standing Feature
+Implementation Authorization in `references/commit-boundaries.md`: local implementation,
+documentation sync, review fixes and closure evidence are authorized at passed boundaries.
+Carry it across handoffs/resumes and do not ask again per boundary. Explicit user restrictions
+and stricter project policy prevail; unrelated work, push and merge remain outside this grant.
+
 For a workflow commit, record its boundary and the source actually reviewed or tested. An
 existing revision plus the relevant diff/new files is sufficient for ordinary work; do not invent
 extra freeze commits or require a globally clean tree merely to run checks. If an explicit
-acceptance or artifact requirement needs an immutable commit, obtain authorization and establish
-that commit before that check. Never attribute uncommitted changes to the old commit alone.
+acceptance or artifact requirement needs an immutable commit, use existing authorization or obtain
+it if absent, and establish that commit before that check. Never attribute uncommitted changes to
+the old commit alone.
 
 ### 2. Scan every target repo
 
@@ -123,7 +130,7 @@ A dirty tree is not evidence that every dirty file belongs to this task.
 
 Use the configured format's types where it applies: `docs`, `feat`, `fix`, `chore`,
 `refactor`, `test`. Never lump unrelated topics. If the grouping needs five or more commits,
-present the grouping and get confirmation before committing.
+present the grouping; get confirmation only when the existing authorization does not cover it.
 
 ### 5. Order the commits
 

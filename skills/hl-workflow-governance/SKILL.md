@@ -212,7 +212,10 @@ in the feature workspace; current canonical facts belong in the current or domai
 
 ## Commit Boundaries
 
-Commits stay optional and authorization-gated. The governed boundary list lives in
+Commits stay optional and authorization-gated. Invoking `$hl-feature-orchestrator` grants scoped
+local Feature commit authorization as defined in `references/commit-boundaries.md`; preserve it
+through handoffs without repeated permission requests, subject to explicit restrictions and stricter
+project policy. Push and merge remain separately authorized. The governed boundary list lives in
 `references/commit-boundaries.md`: ten points where a commit is allowed, the gate that must already
 pass at each, and the two packaging modes.
 
@@ -225,7 +228,7 @@ pass at each, and the two packaging modes.
 - A commit authorization is never a push authorization.
 - Identify the source before verifying: an existing Git revision plus relevant diff/new files
   is the default. A new freeze commit is required only by a concrete immutable-commit acceptance
-  or artifact identity. Obtain authorization before that commit, and bind evidence to the source
+  or artifact identity. Use existing authorization or obtain it if absent before that commit, and bind evidence to the source
   actually checked. Evidence-only writes do not invalidate unchanged implementation results.
 - `split` mode commits the wiki repository and the code repository separately. Worktree mode puts
   code commits on the Feature branch while manifests and evidence stay in the work root.

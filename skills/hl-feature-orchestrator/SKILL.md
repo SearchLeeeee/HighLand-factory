@@ -348,15 +348,19 @@ Commit points inside this workflow are governed by `$hl-workflow-governance`'s
 
 Requirements that apply to every one of them:
 
-- The governing workflow or the user must authorize committing this change set. Commit
-  authorization in this session covers these boundaries only; it is never a push authorization.
+- Invoking this skill for a registered Leaf authorizes local commits for that Feature under
+  `references/commit-boundaries.md`'s Feature Implementation Authorization. It covers implementation,
+  documentation sync, review fixes and closure evidence across handoffs and resumed sessions.
+  Do not ask again at each boundary. Respect explicit user restrictions and stricter project
+  policy; resolve only genuinely missing scope or authority. Push and merge require separate
+  explicit authorization.
 - The optional commit pack must be enabled in `packs.enabled`. If it is not, follow the project's
   documented policy and do not invent one.
 - Identify the source before verifying. Use an existing commit or a clearly recorded relevant
   diff/new files; evidence-only writes do not change the tested implementation. A new freeze commit
   is needed only when an explicit acceptance or artifact identity requires an immutable commit;
-  obtain authorization before that operation and bind the result to it. Do not block routine
-  authorized checks because a commit has not been authorized.
+  use the existing Feature authorization unless explicitly restricted, and bind the result to it.
+  Do not block routine authorized checks because a commit has not been authorized.
 - The gate for the chosen commit boundary must pass; never present unreviewed work as reviewed
   or incomplete acceptance as passed. Reporting `ready` while the manifest shows an earlier phase
   remains invalid.
