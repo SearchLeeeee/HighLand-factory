@@ -50,6 +50,10 @@ authority stays with the feature-workspace tools and documentation named by
   optional packs and batch workbench review. Ground neutral questions in the user's answers to
   clarify concepts, probe assumptions and evidence, examine alternatives and trace consequences.
   Recommendations stay conditional; existing authorization gates remain binding.
+- Discussion persistence follows the same shared questioning reference: accumulate answers in the
+  conversation and save at wrap-up or an earlier required boundary. Interactive question delivery
+  does not require per-answer file writes. Batch-review questions remain available in the workbench;
+  required lifecycle, scope-registration and authorization actions are not deferred.
 - When the user must choose among two or more viable alternatives, use the structured choice panel
   when available: 2-3 mutually exclusive options, the recommended one first, the client-provided
   `Other` for custom input, and one concise plain-text question only as a fallback. This
@@ -76,6 +80,13 @@ authority stays with the feature-workspace tools and documentation named by
   authority map, not an indiscriminate whole-Wiki scan.
 - UI/interaction scope is classified during discussion. Applicable visual evidence is persistent
   and bound to build, route/state and viewport; non-applicability is recorded with a reason.
+- Discussion-completion confirmation covers implementation documents and Code AI profiles.
+  `$hl-feature-discuss` records `implementation-docs / completed` through the state machine and,
+  after the workspace gate passes, automatically invokes `$hl-feature-profile-generate` in the
+  same session. No document approval, profile-phase confirmation or separate user invocation is
+  required. Honor explicit documents-only scope or pause instructions. Missing inputs, failed
+  gates or new unresolved requirements block the affected continuation; resolve the concrete gap
+  without adding a generic permission question. Existing lifecycle phases and gates remain intact.
 - Review conclusions bind to identifiable source changes and applicable criteria. Git revision
   plus relevant diff/new files is the default; per-file hashes, receipts, extra clones and clean-tree
   freeze commits are not mandatory. Changes invalidate affected conclusions only; metadata or an

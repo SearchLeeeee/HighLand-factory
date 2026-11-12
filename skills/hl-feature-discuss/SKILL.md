@@ -1,6 +1,6 @@
 ---
 name: hl-feature-discuss
-description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and Code AI profile inputs inside the feature workspace. At startup asks whether to run an interactive one-question-at-a-time discussion or a batch review written into the workbench, and whether to develop this Feature in a dedicated git worktree when sibling dependency-ready Leaf Features can proceed in parallel; advances lifecycle state only at skill boundaries and ends by emitting one copyable prompt that starts `$hl-feature-orchestrator` in a new session, because discussion and code implementation never share a session.
+description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and executable Code AI profiles inside the feature workspace. At startup asks for discussion and parallel development modes; automatically continues from completed documents to profile generation without another user confirmation, advances lifecycle state only at skill boundaries and ends with one copyable prompt for `$hl-feature-orchestrator` in a new session, because discussion and code implementation never share a session.
 ---
 
 # Feature Discuss
@@ -38,9 +38,9 @@ Run this before anything else, including reading the feature request.
 
 ## Purpose
 
-Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then inputs for executable Code AI profiles.
+Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then executable Code AI profiles.
 
-The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, create the workbench, list every known question before asking any, choose the discussion mode and the parallel development mode with the user, confirm conclusions, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, finish the profile phase through `$hl-feature-profile-generate`, and end the session with one copyable prompt that starts `$hl-feature-orchestrator` in a new session.
+The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, list every known question before detailed questioning, choose the discussion mode and the parallel development mode with the user, confirm conclusions, consolidate the workbench at discussion wrap-up, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, automatically finish the profile phase through `$hl-feature-profile-generate` without another user confirmation, and end the session with one copyable prompt that starts `$hl-feature-orchestrator` in a new session.
 
 Discussion and code implementation never share a session. This session owns the workbench, the domain implementation documents and the Code AI profiles; it never writes application code, never dispatches owner implementation subagents, and never runs review or acceptance.
 
@@ -51,7 +51,7 @@ After Step 0 and after confirming the single Leaf target, ask the user one start
 - **Interactive (default)** — one decision at a time, highest implementation impact first. Best for ambiguous, security-sensitive or contract-changing features.
 - **Batch review** — write the complete initial question inventory and detailed question blocks into `discussion/workbench.md` in one pass, let the user answer, accept or defer them in bulk, then process the batch and continue with another batch or switch to interactive for the remaining high-risk items.
 
-Use the structured choice panel when the platform provides one; otherwise ask one concise question with these two options and allow a custom answer. Record the choice in the workbench under `## Discussion mode`. If a workbench already exists with a recorded mode, continue that mode unless the user asks to change it.
+Use the structured choice panel when the platform provides one; otherwise ask one concise question with these two options and allow a custom answer. Retain the choice in the conversation and include it under `## Discussion mode` at the next workbench save. If a workbench already exists with a recorded mode, continue that mode unless the user asks to change it.
 
 Both modes are equal in rigor: the same inventory, the same confirmation rule, the same phase gates and the same lifecycle transitions. Batch mode changes the interaction order, not the evidence standard.
 
@@ -65,7 +65,7 @@ Both modes are equal in rigor: the same inventory, the same confirmation rule, t
 - The user may answer by Q ID, explicitly accept a recommendation, defer a question with a reason, or ask to switch to interactive mode.
 - Agent recommendations and silence are not confirmation. Only an explicit answer, or an explicit "accept recommendation for Q-xxx", becomes a confirmed conclusion.
 - Security, irreversible-operation, contract-changing, permission and cross-owner boundary questions require an explicit per-question answer; they cannot be covered by a blanket "accept all".
-- After processing a batch: update confirmed conclusions and statuses, re-inventory newly discovered questions, then ask whether to continue with another batch or switch to interactive.
+- After processing a batch: retain confirmed conclusions and statuses in the conversation, re-inventory newly discovered questions, then ask whether to continue with another batch or switch to interactive. Save the answers together with the next batch or at discussion wrap-up.
 - Batch mode never skips required topics (behaviour, ownership, contracts, tests, acceptance criteria) and never writes implementation documents before the phase confirmation.
 
 ## Parallel Development Mode (ask at startup)
@@ -81,7 +81,7 @@ This skill still discusses exactly one Leaf Feature. Before the first detailed q
    There is no numeric concurrency cap: the disjointness test above plus worktree code isolation is what makes concurrent work safe.
 3. Run `feature_workspace.py report` and use its ready and next-action lines as evidence. Never infer parallelism from numbering or from `wave` alone; `wave` is only a scheduling hint.
 4. If at least one sibling qualifies, ask one startup question before writing detailed questions: develop in the shared checkout sequentially, or open a dedicated git worktree for this Feature so the other Features can be developed in parallel. Use the structured choice panel when the platform provides one, put the worktree option first with its tradeoff (isolation buys parallel throughput, at the cost of a later merge-back), and accept a custom answer. If no sibling qualifies, state that in one line and continue without asking.
-5. Record the answer in the workbench under `## Parallel development`.
+5. Retain the answer in the conversation and include it under `## Parallel development` at the next workbench save.
 6. If a workbench already records a parallel development choice, continue it unless the user asks to change it.
 
 Recorded worktree mode is an implementation decision carried to the implementation session; it is not a lifecycle value. The worktree is created and used by `$hl-feature-orchestrator`, which works in it and does not propose merging it back to `repo.default_branch` before the Feature reaches `ready-to-merge / ready`.
@@ -109,7 +109,7 @@ feat-<slug>/
 
 ## Phase Gate Rules
 
-Treat discussion, implementation documents and Code AI profiles as separate phases.
+Treat discussion, implementation documents and Code AI profiles as separate recorded phases. After discussion approval, document production and profile generation run continuously in the same session; the documents-to-profiles boundary needs no additional user confirmation.
 
 During the discussion phase:
 
@@ -117,15 +117,30 @@ During the discussion phase:
 - Do not create final domain implementation documents.
 - Do not create Code AI profile files.
 - Use implementation-document targets and profile targets as planned paths only.
-- Before asking detailed questions, enumerate every known question and write it into the workbench.
+- Before asking detailed questions, enumerate every known question with stable IDs. Interactive mode keeps this inventory in the conversation until the workbench save; batch review writes the inventory and reviewable question blocks before user review.
 - In interactive mode keep asking one unresolved question at a time until behaviour, domain ownership, test cases and acceptance criteria are confirmed or explicitly deferred. In batch-review mode write reviewable batches of pending questions and wait for the user's bulk review; never treat silence or your own recommendation as confirmation.
 - Summarize behavior added, preserved, removed, or degraded relative to the current system. A high-impact removal or degradation requires explicit per-item confirmation, even in batch review; do not bury it in blanket acceptance of recommendations.
-- For behavior, contract, or compatibility changes, use `wiki/02-file-authority-map.md` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are approved. Do not scan unrelated wiki areas.
+- For behavior, contract, or compatibility changes, use `wiki/02-file-authority-map.md` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are produced. Do not scan unrelated wiki areas.
 - Classify visual/interaction impact while confirming acceptance criteria. When in scope, require persistent evidence tied to the tested build, route/state, and viewport. When not applicable, record why.
 
-Before leaving the discussion phase, summarize: confirmed conclusions, the behavior-change summary, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
+At discussion wrap-up, save the accumulated workbench in one pass before presenting it for phase confirmation. Before leaving the discussion phase, summarize: confirmed conclusions, the behavior-change summary, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
 
 Only after explicit confirmation may you create domain folders, final documents, `code-ai/README.md` and profile files.
+
+That discussion-completion confirmation covers both implementation documents and Code AI profiles. Do not ask the user to approve the completed documents or confirm the profile phase again. Honor an explicit documents-only scope or pause instruction.
+
+### Workbench save timing
+
+Follow the shared discussion-persistence policy in `references/socratic-questioning.md` under
+`$hl-workflow-governance`. In interactive mode, keep answers, inventory changes, mode choices
+and document/profile targets in the conversation; create or update the workbench at wrap-up.
+Do not read or rewrite it after each answer. Read an existing workbench once at entry and
+inspect additional authority pages only when the next decision needs new evidence.
+
+Save earlier for the shared policy's pause, handoff, compaction, user-requested save or governed
+scope-change boundaries. Reconcile any concurrent file edits before saving. If the final
+confirmation adds or changes a conclusion, save that delta before advancing. The discussion-completion
+confirmation, lifecycle transitions and gates still apply.
 
 ### Session boundary
 
@@ -167,6 +182,7 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
   only for actual choices and conditional recommendations only when supported by evidence.
 - Wait for confirmation before recording a conclusion.
 - Record only confirmed conclusions and still-open questions.
+- Keep answers in the conversation during questioning; consolidate this workbench at wrap-up or an earlier required save boundary.
 - Keep unresolved questions until answered or explicitly deferred.
 - Treat test cases and acceptance criteria as required topics before documents are stable.
 - Include the behavior-change, authority-consistency, and visual/interaction acceptance summaries required above; high-impact behavior loss needs individual confirmation.
@@ -219,8 +235,8 @@ If a workbench already exists, read it first and continue from its pending quest
 
 Run this loop until the feature is stable enough to document:
 
-0. Before detailed questions, list all known questions into the inventory and pending sections.
-1. Read the workbench and the relevant long-term wiki pages.
+0. Before detailed questions, list all known questions with stable IDs in the conversation; retain inventory and pending-section changes until the save boundary.
+1. Reuse the workbench and relevant authority context read at entry; inspect additional pages only when a decision needs new evidence.
 2. Pick the unresolved decision with the highest implementation impact.
 3. Ask one neutral Socratic question grounded in the user's latest answer and known evidence.
 4. Explain why this uncertainty matters.
@@ -228,9 +244,9 @@ Run this loop until the feature is stable enough to document:
    when an actual choice is ready to be made.
 6. If supported, state a conditional recommendation separately and name its tradeoff.
 7. Wait for the answer; follow up only on a remaining material uncertainty, then confirm the conclusion.
-8. Update `discussion/workbench.md` with the confirmed conclusion only.
-9. Update document targets and profile targets.
-10. Before leaving discussion, discuss required test cases and acceptance criteria explicitly.
+8. Retain the explicit conclusion and question status in the conversation; ask the next unresolved question without a routine file write.
+9. Retain document-target and profile-target changes for the same consolidated save.
+10. Before leaving discussion, discuss required test cases and acceptance criteria explicitly, then save the complete workbench once before requesting phase confirmation.
 11. At the discussion-to-documents boundary, initialize and validate the complete five-dimension `consistency_matrix` before creating documents or advancing lifecycle state.
 
 When the user asks what remains, summarize unresolved decisions and risks only.
@@ -243,8 +259,8 @@ Use this loop instead of the interactive loop when batch-review mode is selected
 2. Write independent Socratic pending-question blocks for the next reviewable batch: context, one neutral question, the premise or evidence under examination, implementation impact, and test or acceptance impact. Add alternatives or a conditional recommendation only where useful; dependent follow-ups wait.
 3. Tell the user which batch is ready and how to answer: by Q ID, explicitly accept a recommendation, defer with a reason, or ask to switch to interactive mode.
 4. Wait. Do not record any conclusion from silence or from your own recommendation.
-5. Process the answers: move explicit answers to confirmed conclusions, mark deferred items with their reason, and update inventory statuses and targets.
-6. Re-inventory newly discovered questions; either prepare the next batch or switch to interactive mode for the remaining high-risk items.
+5. Process the answers in the conversation: retain explicit conclusions, deferred items with their reasons, inventory statuses and targets; do not save each individual answer.
+6. Re-inventory newly discovered questions; either prepare the next batch, saving accumulated answers with it in one pass, or switch to interactive mode for the remaining high-risk items and save at wrap-up.
 7. Repeat until behaviour, ownership, contracts, tests and acceptance criteria are confirmed or explicitly deferred, then run the same discussion-completion summary and phase confirmation as the interactive path.
 
 ## Implementation Documents Phase
@@ -269,7 +285,9 @@ Keep each document authoritative for its own domain; do not paste the workbench 
 
 ## Code AI Profile Phase
 
-After the documents are ready and the user explicitly confirms the profile phase, follow `$hl-feature-profile-generate`. Do not maintain a second set of profile-generation rules here.
+After the documents are ready, record `implementation-docs / completed` through `$hl-feature-workspace` with `--next-skill hl-feature-profile-generate`, and run `factory gate workspace --work <WORK_ROOT>`. On PASS, immediately follow `$hl-feature-profile-generate` in this same session. Do not end with a documents-only delivery, ask for another confirmation, or require a separate user invocation. Do not maintain a second set of profile-generation rules here.
+
+If required inputs are missing, a gate fails, or an unresolved requirement changes the confirmed scope or acceptance criteria, repair or route that specific gap before generating profiles. Ask only for the unresolved decision when user input is needed; do not replace the removed phase confirmation with a generic permission question.
 
 That skill produces, under the feature root's `code-ai/`, an index plus reading, per-domain implementation, review and verification profiles. Profiles compose generic constraints from `wiki/code-ai/` by relative-path reference and carry only feature-specific business logic, implementation boundaries, test requirements and acceptance criteria.
 
@@ -277,7 +295,7 @@ Profiles must instruct the future implementer to work from the matching domain d
 
 ## Quality Bar
 
-A complete discussion first produces only the workbench. After explicit phase confirmation, the complete package produces:
+A complete discussion first produces only the workbench. After discussion-completion confirmation, the complete package produces:
 
 - A registered feature workspace under `wiki/feature-workspace/`.
 - A concise `discussion/workbench.md` with domain classification, confirmed decisions, pending questions and targets.
@@ -335,7 +353,7 @@ Discussion and code implementation never share a session. This skill ends at `co
 
 Before ending:
 
-1. Finish the profiles phase, then record the boundary through the state machine: `--phase code-ai-profiles --state completed --next-skill hl-feature-orchestrator` with an instruction naming the feature root and the objective. Re-run `factory gate workspace --work <WORK_ROOT>`. If the profile phase runs under `$hl-feature-profile-generate` in this same session, emit the prompt after that skill finishes and the manifest reads `code-ai-profiles / completed`.
+1. Automatically finish the profiles phase through `$hl-feature-profile-generate` in this same session, then record the boundary through the state machine: `--phase code-ai-profiles --state completed --next-skill hl-feature-orchestrator` with an instruction naming the feature root and the objective. Re-run `factory gate workspace --work <WORK_ROOT>`. Emit the prompt after that skill finishes and the manifest reads `code-ai-profiles / completed`.
 2. Emit exactly one fenced, copyable prompt in the user's language. Put it in the response only; never persist prompt files.
 3. Say in one line that the prompt must be pasted into a new session, and do not start implementation in this one.
 

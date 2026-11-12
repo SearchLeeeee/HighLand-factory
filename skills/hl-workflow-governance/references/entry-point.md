@@ -27,7 +27,9 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
 
 - All workflow questions follow [Socratic questioning](socratic-questioning.md): grounded,
   neutral inquiry into concepts, assumptions, evidence, alternatives and consequences, with
-  direct explicit authorization at existing permission gates.
+  direct explicit authorization at existing permission gates. The same reference owns discussion
+  save timing: accumulate answers in the conversation, then consolidate at wrap-up or before a
+  required boundary, without routine per-answer file reads and writes.
 
 - Use minimum sufficient verification: one identifiable source target, applicable evidence reuse,
   affected checks and risk-based sampling. Do not default to layered hashes, repeated freezes, fresh
@@ -35,6 +37,10 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
   independent judgement, machine gates and authorization. No new mode or approval is required.
 
 - Complete Initiative inventory, dependency/wave registration and Scope Gate before Leaf discussion.
+- After discussion approval, completed implementation documents lead automatically to Code AI
+  profile generation in the same session, with no further phase confirmation. Preserve the
+  state-machine boundaries, required inputs and workspace gate; honor explicit scope or pause
+  instructions. Application-code implementation still starts in a new session after profiles.
 - Dependencies count as satisfied only after acceptance and closure are complete.
 - An Initiative merge requires every active Leaf ready, new Initiative integration evidence, a
   passing merge-ready gate, and the required authorization.

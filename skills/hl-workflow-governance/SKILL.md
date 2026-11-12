@@ -101,6 +101,10 @@ open exploration in free text rather than forcing it into premature alternatives
 - A choice panel never weakens an authorization, lifecycle, validation, merge, deletion, commit
   or push gate.
 
+Discussion records follow the save timing in `references/socratic-questioning.md`: retain answers
+in the conversation and consolidate at wrap-up or an earlier required boundary. Question delivery
+and file persistence are separate; required lifecycle and authorization gates still apply.
+
 ## Tiered Delegation
 
 The main session owns intent, scope, authority, lifecycle decisions, cross-agent synthesis and
@@ -142,6 +146,18 @@ isolation only and never merges back to `repo.default_branch` before that state.
 The validator and transition commands fail closed when decomposition is incomplete, the candidate
 is not a Leaf, or the candidate is not discussion-admissible. Mandatory splitting is a workflow
 action performed now, not a question deferred into business discussion.
+
+## Required Documents-To-Profiles Continuation
+
+After discussion completion is confirmed, `$hl-feature-discuss` writes the domain implementation
+documents, records `implementation-docs / completed` through `$hl-feature-workspace`, and runs the
+workspace gate. On PASS it invokes `$hl-feature-profile-generate` automatically in the same session,
+without asking for document approval, another phase confirmation or a separate user invocation.
+Honor an explicit documents-only scope or pause instruction. Missing inputs, failed gates and new
+unresolved requirements block the affected continuation until repaired or resolved; they never
+justify bypassing a gate. Preserve the existing phases and state-machine transitions without adding
+an approval field or configuration switch. Code implementation still starts in a new session after
+`code-ai-profiles / completed`.
 
 ## Required Initiative Preflight
 

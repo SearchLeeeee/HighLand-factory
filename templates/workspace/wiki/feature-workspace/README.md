@@ -113,6 +113,11 @@ Initiative 的 `initial_decomposition.status` 必须是 `completed`，否则先�
 
 只写「未来支持某能力」或留 TODO 不算完成拆分。
 
+交互讨论默认一次一题，回答先保留在当前会话，收尾时集中写入 `discussion/workbench.md`，
+不逐题读写工作台。暂停、交接、上下文压缩、阶段切换或用户要求保存时提前集中落盘；批量
+审阅仍先写待审问题，并把已答结论与下一批问题合并保存。必需的范围登记和状态门禁照常执行。
+保存失败时不宣称已落盘，也不推进依赖该记录的阶段。
+
 讨论结论要清楚列出行为新增、保留、移除或降级。高影响的用户可见移除/降级需逐项
 确认。行为、契约或兼容性变化须按 `wiki/02-file-authority-map.md` 找到相关现行权威并
 核对语义冲突；视觉或交互变化须确认是否需要绑定版本、状态和 viewport 的证据。细节由
@@ -123,6 +128,12 @@ Initiative 的 `initial_decomposition.status` 必须是 `completed`，否则先�
 讨论结论、测试场景和验收标准确认后，才生成领域实现文档和 Code AI profiles。生成
 前再次确认：仍是 Leaf、Scope Gate 仍通过、没有未处理的阻塞子项、验收可观察可判定。
 只有在 Feature 涉及行为、契约或兼容性变化时才核对相关权威文档，不要求无差别扫描整份 Wiki。
+
+讨论完成的确认同时覆盖领域实现文档和 Code AI profiles。实现文档就绪后，通过状态机
+记录 `implementation-docs / completed` 并运行 `gate workspace`；通过后在同一会话自动
+调用 `$hl-feature-profile-generate`，无需用户再次确认文档、批准 profiles 阶段或另行调用。
+缺失输入、门禁失败或新发现的未决需求须先修复或解决，不得跳过；只对具体未决事项提问。
+用户明确限定只写文档或要求暂停时，遵守该指令。阶段仍分别记录，代码实现仍在新会话启动。
 
 讨论和代码实现不在同一个会话：讨论会话只写 workbench、领域实现文档和 profiles，
 不写业务代码、不派发实现子 agent、不做 review 与验收。profiles 完成后，讨论会话交

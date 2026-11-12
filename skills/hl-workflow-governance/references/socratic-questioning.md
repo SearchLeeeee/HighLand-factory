@@ -43,6 +43,26 @@ scope and material consequences. Do not substitute exploratory dialogue for perm
 permission from a user's answer about goals. Missing required input or approval keeps the
 dependent action blocked under its existing gate; this policy adds no new lifecycle gate.
 
+## Discussion persistence
+
+Keep the question flow independent of file writes. By default, retain explicit answers, stable
+question IDs, pending items and planned targets in the current conversation, then consolidate
+the discussion record at wrap-up. Do not reread unchanged files or persist each answer merely
+because another question is next. Inspect additional sources when a real uncertainty needs them.
+
+Save accumulated conclusions before a phase transition, implementation, a known pause, session
+handoff or context compaction, and when the user requests a save. A required block, split or
+scope-registration action still runs at its existing boundary. Batch review writes the questions
+the user needs to review; combine preceding answers with the next batch preparation. No fixed
+question-count checkpoint or new persistence mode is required.
+
+At a save boundary, read an existing target if it may have changed and consolidate all pending
+edits in one write per affected file. Preserve unrelated content and distinguish confirmed,
+proposed, deferred and unresolved items. Never claim an unsaved answer is already in a file.
+If saving fails, report what remains unsaved and do not advance an action that needs that record.
+On resume, reconcile the saved record with available explicit chat answers; if an answer cannot
+be recovered, ask about that gap rather than inventing it. Read-only workflows remain read-only.
+
 ## Examples
 
 - Clarification: "When you say 'fast enough', which user action and observable delay define success?"

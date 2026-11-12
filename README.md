@@ -4,6 +4,8 @@
 
 全流程的用户提问统一采用[苏格拉底式提问法](skills/hl-workflow-governance/references/socratic-questioning.md)：从具体回答出发，澄清概念、检验假设与证据、探究替代方案和后果，避免诱导；授权仍须明确确认。
 
+默认先完成问答，再集中写入讨论记录；一次一题不再意味着每答一题都读写文件。暂停、交接、上下文压缩或阶段切换前会先保存，用户也可随时要求保存。批量审阅仍先写待审问题，范围登记及状态门禁按原边界执行。
+
 它只做流程，不装项目事实。流程仓库和你的工作仓库分离：
 
 ```text
@@ -274,8 +276,8 @@ $hl-feature-discuss I001-F01
 - 若此刻还有可并行开发的其他 Leaf Feature，再问一次开发方式：共用工作区顺序推进，还是为当前 Feature 开一个独立 **git worktree**（worktree 模式直到该 Feature 推进到 `ready-to-merge / ready` 才会问是否合回 `main`）；
 - 只写 `discussion/workbench.md`：问题清单、已确认结论、未决问题、领域划分、文档目标、profile 目标；
 - 你明确确认讨论完成后，才创建领域实现文档（含测试用例与验收标准）；
-- 最后交接给 profiles 阶段；
-- 讨论会话在 profiles 阶段结束后（若 profiles 在同一会话生成）产出**一份可复制的启动 prompt**（含 `$hl-feature-orchestrator <Feature ID>`、`FACTORY_ROOT`/`WORK_ROOT`、必读路径、已确认结论、worktree 选择、目标状态），用于在**新会话**里启动实现。
+- 实现文档完成且门禁通过后，在同一会话自动调用 `$hl-feature-profile-generate`，无需再次确认或手动启动 profiles 阶段；
+- 讨论会话在 profiles 阶段结束后产出**一份可复制的启动 prompt**（含 `$hl-feature-orchestrator <Feature ID>`、`FACTORY_ROOT`/`WORK_ROOT`、必读路径、已确认结论、worktree 选择、目标状态），用于在**新会话**里启动实现。
 
 讨论和代码实现**不在同一个会话**：讨论会话只产出 workbench、领域实现文档和 profiles，不写业务代码、不派发实现子 agent、不做 review 与验收；实现会话由那份 prompt 新开，并从 `code-ai-profiles / completed` 接管。
 
@@ -292,6 +294,8 @@ wiki/feature-workspace/initiatives/initiative-i001-csv-export/
 ```
 
 #### 第 3 步：生成可执行 profiles（`$hl-feature-profile-generate`）
+
+这一步由上一阶段自动衔接，无需用户再次确认。已有文档需要恢复生成时，也可直接调用：
 
 ```text
 $hl-feature-profile-generate

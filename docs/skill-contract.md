@@ -101,6 +101,11 @@ selected batch review applies the same method to independent workbench questions
 are conditional proposals, never confirmed answers. Explicit permission and existing gates remain
 binding; the questioning style adds no new approval or lifecycle state.
 
+The same reference owns discussion persistence. Accumulate explicit answers in the conversation
+and consolidate the discussion record at wrap-up, with earlier saves at required boundaries.
+Asking one question at a time does not require per-answer file reads or writes. Existing lifecycle,
+scope-registration, authorization and read-only boundaries remain binding.
+
 ## 5. Skill naming
 
 All skill directories and their `name:` fields carry an `hl-` prefix. The agent skill spec

@@ -1,6 +1,6 @@
 ---
 name: hl-feature-profile-generate
-description: Use when a Leaf Feature's conclusions and domain implementation documents are confirmed and directly executable Code AI subagent profiles are needed under the feature workspace. Composes generic constraints from the code-ai profile library by relative-path reference, adds feature-specific boundaries, tests and acceptance criteria, and emits an index plus reading, implementation, review and verification profiles.
+description: Use when a Leaf Feature has confirmed conclusions and completed domain implementation documents and needs executable Code AI subagent profiles. Runs automatically after document completion in `$hl-feature-discuss` without another user confirmation, or directly to resume generation. Composes generic constraints by relative-path reference and emits an index plus reading, implementation, review and verification profiles.
 ---
 
 # Feature Profile Generate
@@ -49,7 +49,7 @@ These must already exist, normally produced by `$hl-feature-discuss`:
 - `wiki/feature-workspace/initiatives/<initiative>/features/<feature>/discussion/workbench.md` — confirmed conclusions, domain classification, test cases, acceptance criteria
 - `wiki/feature-workspace/initiatives/<initiative>/features/<feature>/<domain>/*.md` — domain implementation documents
 
-Before generating anything, confirm:
+Before generating anything, verify:
 
 - the owning `feature.yaml` carries a complete five-dimension `consistency_matrix`;
 - every dimension has a legal status, a real owner, relative `source_refs` that exist, and long-term wiki `promotion_targets`;
@@ -169,7 +169,7 @@ Profiles describe owner scope only. The implementation plan, preflight, goal, li
 
 ## Relationship to Other Skills
 
-`$hl-feature-discuss` owns the discussion phase and the domain implementation documents. Once the user confirms the profile phase, generation follows this skill. Do not maintain two sets of profile-generation rules across skills.
+`$hl-feature-discuss` owns the discussion phase and the domain implementation documents. When documents are complete and the workspace gate passes, it invokes this skill automatically in the same session. The discussion-completion confirmation already covers profile generation; do not request document approval, another phase confirmation or a separate user invocation. A direct invocation may resume generation from existing valid inputs. Honor an explicit documents-only scope or pause instruction. Do not maintain two sets of profile-generation rules across skills.
 
 ## Session Boundary
 
