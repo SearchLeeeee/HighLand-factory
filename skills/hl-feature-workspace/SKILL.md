@@ -44,6 +44,11 @@ resolve those references recursively.
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy stops
 the skill with one concrete repair instruction.
 
+Within the same session, reuse already loaded context and successful doctor/gate results only
+while the relevant configuration, manifests and checked sources are unchanged. Nested skill entry
+alone does not require another run. A lifecycle or material change still requires its owning gate;
+reusing preparation never replaces independent review or separated verification.
+
 ## Commands
 
 ```bash
@@ -57,6 +62,19 @@ the skill with one concrete repair instruction.
 Transition and integration commands take the same registry/feature/initiative arguments, plus
 `--output` for the handoff and `--evidence` for the integration result. Run `validate` after every
 manifest change; its exit status is the gate.
+
+Transitions validate the candidate before persistence. With `--registry`, validate the complete
+registry with that candidate substituted before atomically replacing the manifest. Validation or
+write failure leaves the original file unchanged; dry runs apply the same checks without writing.
+`merge-ready --feature` checks the individual Leaf only and cannot replace workspace validation,
+dependency checks, Initiative readiness or merge authorization.
+
+Acceptance lives at top-level `acceptance`, not inside `closure`: `passed` must be boolean and
+only `true` means passed. A passed acceptance requires a non-empty `evidence` list of existing
+files. Closure requires `canonical_docs`, `validation_evidence` and `tombstone_target`; validation
+evidence must be a non-empty list of existing files. Evidence paths are relative to the owning
+manifest. Canonical promotion targets need not exist before merge. Do not reinterpret a string,
+number, missing file or directory as proof of acceptance.
 
 ## Formal Context References
 

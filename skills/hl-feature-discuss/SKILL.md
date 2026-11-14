@@ -1,6 +1,6 @@
 ---
 name: hl-feature-discuss
-description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and executable Code AI profiles inside the feature workspace. At startup asks for discussion and parallel development modes; automatically continues from completed documents to profile generation without another user confirmation, advances lifecycle state only at skill boundaries and ends with one copyable prompt for `$hl-feature-orchestrator` in a new session, because discussion and code implementation never share a session.
+description: Use when exactly one dependency-ready Leaf Feature is ready to be refined into confirmed conclusions, domain implementation documents and executable Code AI profiles inside the feature workspace. Reuses explicitly chosen, applicable discussion and development preferences; automatically continues from completed documents to profile generation without another user confirmation, advances lifecycle state only at skill boundaries and hands off to `$hl-feature-orchestrator` in a new session, because discussion and code implementation never share a session.
 ---
 
 # Feature Discuss
@@ -36,22 +36,31 @@ Run this before anything else, including reading the feature request.
    ```
    A failing gate blocks this skill. Do not weaken a gate to keep discussing; lifecycle repairs go through `$hl-feature-workspace`.
 
+For nested skills in the same session, reuse loaded context and successful doctor/gate results
+only while their relevant inputs remain unchanged. A new skill name alone is not a reason to
+repeat preparation. Required gates after configuration, source or lifecycle changes still run.
+
 ## Purpose
 
 Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then executable Code AI profiles.
 
-The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, list every known question before detailed questioning, choose the discussion mode and the parallel development mode with the user, confirm conclusions, consolidate the workbench at discussion wrap-up, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, automatically finish the profile phase through `$hl-feature-profile-generate` without another user confirmation, and end the session with one copyable prompt that starts `$hl-feature-orchestrator` in a new session.
+The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, list every known question before detailed questioning, resolve applicable discussion and parallel development preferences, confirm conclusions, consolidate the workbench at discussion wrap-up, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, automatically finish the profile phase through `$hl-feature-profile-generate` without another user confirmation, and hand off to `$hl-feature-orchestrator` in a new session.
 
 Discussion and code implementation never share a session. This session owns the workbench, the domain implementation documents and the Code AI profiles; it never writes application code, never dispatches owner implementation subagents, and never runs review or acceptance.
 
-## Discussion Mode (ask before any question)
+## Discussion Mode (resolve before detailed questions)
 
-After Step 0 and after confirming the single Leaf target, ask the user one startup question before writing detailed questions or conclusions:
+After Step 0 and after confirming the single Leaf target, resolve the discussion mode before
+writing detailed questions or conclusions. Prefer the current workbench's recorded choice. If
+absent, inherit a mode the user explicitly chose for the same Initiative when that choice is
+available in a formally referenced workbench or authorized handoff. State its source and continue;
+do not re-ask merely because this is another Leaf. Without an explicit recorded choice, ask one
+startup question:
 
 - **Interactive (default)** — one decision at a time, highest implementation impact first. Best for ambiguous, security-sensitive or contract-changing features.
 - **Batch review** — write the complete initial question inventory and detailed question blocks into `discussion/workbench.md` in one pass, let the user answer, accept or defer them in bulk, then process the batch and continue with another batch or switch to interactive for the remaining high-risk items.
 
-Use the structured choice panel when the platform provides one; otherwise ask one concise question with these two options and allow a custom answer. Retain the choice in the conversation and include it under `## Discussion mode` at the next workbench save. If a workbench already exists with a recorded mode, continue that mode unless the user asks to change it.
+When a choice is needed, use the structured choice panel when the platform provides one; otherwise ask one concise question with these two options and allow a custom answer. Retain the selected or inherited choice and its source in the conversation and include it under `## Discussion mode` at the next workbench save. The user may change it at any time. A mode preference never supplies product decisions or authorization.
 
 Both modes are equal in rigor: the same inventory, the same confirmation rule, the same phase gates and the same lifecycle transitions. Batch mode changes the interaction order, not the evidence standard.
 
@@ -65,12 +74,16 @@ Both modes are equal in rigor: the same inventory, the same confirmation rule, t
 - The user may answer by Q ID, explicitly accept a recommendation, defer a question with a reason, or ask to switch to interactive mode.
 - Agent recommendations and silence are not confirmation. Only an explicit answer, or an explicit "accept recommendation for Q-xxx", becomes a confirmed conclusion.
 - Security, irreversible-operation, contract-changing, permission and cross-owner boundary questions require an explicit per-question answer; they cannot be covered by a blanket "accept all".
-- After processing a batch: retain confirmed conclusions and statuses in the conversation, re-inventory newly discovered questions, then ask whether to continue with another batch or switch to interactive. Save the answers together with the next batch or at discussion wrap-up.
+- After processing a batch: retain confirmed conclusions and statuses in the conversation, re-inventory newly discovered questions, and continue in the selected mode unless the user requests a change or the next decision needs clarification. Save the answers together with the next batch or at discussion wrap-up.
 - Batch mode never skips required topics (behaviour, ownership, contracts, tests, acceptance criteria) and never writes implementation documents before the phase confirmation.
 
-## Parallel Development Mode (ask at startup)
+## Parallel Development Mode (check applicability at startup)
 
-This skill still discusses exactly one Leaf Feature. Before the first detailed question, and right after the discussion mode question, check whether other Leaf Features of the same Initiative can be developed at that moment, because the user may want to implement this one in an isolated git worktree while those proceed in other sessions.
+This skill still discusses exactly one Leaf Feature. Before the first detailed question, after
+resolving the discussion mode, check whether other Leaf Features of the same Initiative can be
+developed at that moment. A prior development choice is reusable only when its explicit
+authorization covers this Feature and current owner, file, contract and isolation conditions
+still apply; do not infer worktree authorization from a discussion-mode preference.
 
 1. Read the workspace `README.md` section on ordering and parallelism and the schema section on dependencies and wave.
 2. Enumerate the sibling Leaf Features from the registry and the Initiative manifest. A sibling counts as parallelizable at this moment only when all of these hold:
@@ -80,9 +93,9 @@ This skill still discusses exactly one Leaf Feature. Before the first detailed q
    - its owner and file scope do not overlap this Feature's, and it does not change the same contract.
    There is no numeric concurrency cap: the disjointness test above plus worktree code isolation is what makes concurrent work safe.
 3. Run `feature_workspace.py report` and use its ready and next-action lines as evidence. Never infer parallelism from numbering or from `wave` alone; `wave` is only a scheduling hint.
-4. If at least one sibling qualifies, ask one startup question before writing detailed questions: develop in the shared checkout sequentially, or open a dedicated git worktree for this Feature so the other Features can be developed in parallel. Use the structured choice panel when the platform provides one, put the worktree option first with its tradeoff (isolation buys parallel throughput, at the cost of a later merge-back), and accept a custom answer. If no sibling qualifies, state that in one line and continue without asking.
+4. If at least one sibling qualifies and no applicable authorized choice exists, ask one startup question before writing detailed questions: develop in the shared checkout sequentially, or open a dedicated git worktree for this Feature so the other Features can be developed in parallel. Use the structured choice panel when the platform provides one, put the worktree option first with its tradeoff (isolation buys parallel throughput, at the cost of a later merge-back), and accept a custom answer. When reusing a choice, state its source and applicability. If no sibling qualifies, state that in one line and continue without asking.
 5. Retain the answer in the conversation and include it under `## Parallel development` at the next workbench save.
-6. If a workbench already records a parallel development choice, continue it unless the user asks to change it.
+6. Recheck a recorded parallel development choice against current dependencies and scope; continue it when still applicable and authorized. Resolve a concrete conflict before proceeding rather than repeating the whole startup interview.
 
 Recorded worktree mode is an implementation decision carried to the implementation session; it is not a lifecycle value. The worktree is created and used by `$hl-feature-orchestrator`, which works in it and does not propose merging it back to `repo.default_branch` before the Feature reaches `ready-to-merge / ready`.
 
@@ -355,7 +368,12 @@ Before ending:
 
 1. Automatically finish the profiles phase through `$hl-feature-profile-generate` in this same session, then record the boundary through the state machine: `--phase code-ai-profiles --state completed --next-skill hl-feature-orchestrator` with an instruction naming the feature root and the objective. Re-run `factory gate workspace --work <WORK_ROOT>`. Emit the prompt after that skill finishes and the manifest reads `code-ai-profiles / completed`.
 2. Emit exactly one fenced, copyable prompt in the user's language. Put it in the response only; never persist prompt files.
-3. Say in one line that the prompt must be pasted into a new session, and do not start implementation in this one.
+3. If the user has explicitly authorized creating and starting the next implementation session,
+   dispatch this prompt only after the profiles-completed boundary and workspace gate pass. Carry
+   any applicable, explicitly chosen model and reasoning preference from the current workbench or
+   authorized handoff, and report the actual session created. Otherwise say that the prompt must
+   be pasted into a new session. Never create a session from a model preference alone, never hand
+   off unfinished documents/profiles, and do not start implementation in this session.
 
 The prompt must be self-contained so the new session needs no chat history. It contains, in this order:
 

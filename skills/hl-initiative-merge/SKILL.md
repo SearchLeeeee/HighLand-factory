@@ -45,6 +45,10 @@ The lifecycle state machine is the only authority for lifecycle changes. Use
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy
 stops the skill with one concrete repair instruction.
 
+For nested skills within the same session, reuse already loaded context and applicable successful
+doctor/gate results. Re-run after relevant configuration, source or lifecycle changes; skill entry
+alone does not invalidate them. This does not replace independent judgement or any required gate.
+
 ## Fixed Boundary
 
 Keep these states separate and never report one as another:
@@ -89,6 +93,11 @@ approval process is needed.
 - Define the acceptance matrix before executing anything. Each row names the user trigger, the
   path actually exercised, the expected durable result, the evidence artefact, and whether it
   blocks PASS.
+- Derive rows from the confirmed acceptance contract, preserving any same-object, same-artifact,
+  same-session or continuous-sequence condition across rows. Check those links before permitting
+  historical evidence reuse. Separate successful capability runs cannot replace an explicitly
+  required connected execution; keep the unsatisfied link unverified or blocked unless an
+  authorized re-scope changes the original contract.
 - Classify every criterion as required for PASS, optional diagnostic, or unavailable external
   observation. Do not silently change a required criterion after a failure.
 - A material re-scope of one criterion is a formal decision: the owner authorizes it, the
@@ -216,6 +225,13 @@ Concrete recipes live in `references/preflight-and-verification.md`: dependency 
 failure is pre-existing, verifying a fix outside the frozen clone, mode-only version-control fixes,
 harness availability before promising regeneration, line-ending churn from delegated edits,
 read-only release trees, and cross-platform path casing.
+
+When acceptance needs a real external client, check an existing compatible native client and its
+required tools early; use the smallest permitted read-only discovery check. No particular GUI,
+application or client brand is mandatory. Reuse maintained, sanitized synthetic harness entry
+points from the project rather than rewriting one-off setup for each role. Keep reusable harness
+code separate from sensitive configuration, runtime data and raw logs; preserve state isolation
+and the original acceptance surface.
 
 ## Workflow Anti-Patterns
 

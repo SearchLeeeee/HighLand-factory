@@ -36,6 +36,11 @@ Run this before anything else, including reading the feature documents.
    ```
    A failing gate blocks profile generation. Never write profiles against a failing workspace.
 
+When invoked by the discussion skill in the same session, reuse its loaded context and applicable
+successful doctor/gate results. Re-run only checks whose configuration, manifests or checked
+sources changed, including the required gate at the profiles-completed boundary. Nested entry
+does not require a fresh environment or another approval.
+
 ## Purpose
 
 Turn confirmed feature requirements into a set of Code AI profiles that can be handed straight to subagents.
@@ -176,5 +181,5 @@ Profiles describe owner scope only. The implementation plan, preflight, goal, li
 Discussion and code implementation never share a session, so this skill ends the discussion session.
 
 - When generation finishes, the owning Feature must record `code-ai-profiles / completed` through `$hl-feature-workspace`, and `factory gate workspace --work <WORK_ROOT>` must pass.
-- Then emit exactly one copyable startup prompt that starts `$hl-feature-orchestrator` in a new session, following the content rules in `$hl-feature-discuss` `## Handoff Prompt`. Do not duplicate or invent a second prompt format.
+- Then emit exactly one copyable startup prompt that starts `$hl-feature-orchestrator` in a new session, following the content and authorized-dispatch rules in `$hl-feature-discuss` `## Handoff Prompt`. Do not duplicate or invent a second prompt format. Explicit permission to create and start that session may be carried forward with the user's applicable model/reasoning preference; a preference alone is not permission. Never dispatch before profiles are completed and the workspace gate passes.
 - Do not start implementation, dispatch an implementation subagent, run review or run acceptance here, even when the profiles are complete and the code change looks small.

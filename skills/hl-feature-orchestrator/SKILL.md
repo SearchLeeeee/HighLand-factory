@@ -39,6 +39,11 @@ Run this before anything else, including reading the request.
    ```
    A failing gate blocks dispatch. Do not weaken a gate to make progress; configuration disputes route to `$hl-workflow-governance`.
 
+Nested skills in this session may reuse loaded context and successful doctor/gate results while
+their relevant inputs remain unchanged. A new lifecycle or material source/configuration change
+still requires its owning gate. New sessions read the supplied formal handoff and current
+authorities; they do not assume a previous session's environment is still suitable.
+
 ## Scope
 
 Use this skill only when the user explicitly invokes `$hl-feature-orchestrator` and names a registered Leaf Feature — a feature ID, or the `code-ai/` profile directory of that feature.
@@ -119,6 +124,15 @@ Before dispatching:
 - Treat `wave` as a scheduling hint only; real parallelism requires satisfied dependencies and non-overlapping owner, file and contract scope, and it is not capped by a configured number.
 - Read the authority pages that exist before dispatch: `wiki/00-spec.md`, `wiki/02-file-authority-map.md`, `wiki/03-current-decisions.md`, plus any page covering the touched contract or risk.
 - If one of those pages is absent, continue with what exists and mention the gap only when it affects routing, contract safety or validation.
+- Check required external-client access early enough to resolve preparation before its acceptance
+  step. Prefer an existing compatible native client and synthetic endpoint; verify tool discovery
+  or the smallest permitted read-only operation. Do not require a particular desktop application,
+  GUI setup or client brand, and do not present an HTTP replay as native-client acceptance.
+- Reuse the project's existing toolchain, caches, maintained synthetic test entry points and a
+  healthy runtime whose ownership and configuration are known. Prepare missing prerequisites
+  once; keep required data/state/process isolation and independent review/verification roles.
+  Stable reusable harness code belongs in the project's maintained tests or operator tools;
+  sensitive configuration, data and raw logs remain within the configured security boundary.
 
 ## Main Agent Responsibilities
 
