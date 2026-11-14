@@ -36,6 +36,19 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
   clones or full reruns. Repair evidence gaps locally, retain failure facts, and keep safety,
   independent judgement, machine gates and authorization. No new mode or approval is required.
 
+- Reuse unchanged context and successful checks across nested skills in one session; reload and
+  recheck affected inputs after changes. Reuse supported toolchains and suitable healthy test
+  environments while preserving required state/session isolation. Check required external clients
+  early, without mandating a product or GUI.
+- Inherit explicit same-Initiative discussion/handoff preferences from a current workbench, formal
+  reference or handoff. Do not repeat a settled choice merely for a new Leaf; preference is not
+  authorization. Profiles and their gate must complete before implementation handoff.
+- Acceptance requires boolean `true` and actual evidence files; ready closure also requires actual
+  validation evidence. Registry-backed transitions validate the full candidate before atomic
+  replacement, leaving the original unchanged on rejection. Planned canonical targets may be absent.
+- Integration matrices preserve confirmed same-object/artifact/session/sequence requirements;
+  historical capability evidence cannot relax those conditions.
+
 - Complete Initiative inventory, dependency/wave registration and Scope Gate before Leaf discussion.
 - After discussion approval, completed implementation documents lead automatically to Code AI
   profile generation in the same session, with no further phase confirmation. Preserve the

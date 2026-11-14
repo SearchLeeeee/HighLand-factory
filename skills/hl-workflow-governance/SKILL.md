@@ -66,6 +66,22 @@ noted without recreating a run. Keep raw logs separate from output directories t
 Do not hash every log or add multiple summaries to prove the same fact. Stop once the stated
 acceptance and delivery boundary is satisfied. Safety and authorization boundaries still apply.
 
+Within one session, nested skills reuse the already resolved context and successful doctor/gate
+results while their inputs remain unchanged. Reload changed configuration and rerun the affected
+checks; lifecycle mutations still require their boundary validation. A new independent role reads
+the necessary current inputs and judges evidence independently, without automatically reprovisioning
+an equivalent healthy environment. Use existing project toolchains, caches and maintained synthetic
+test entry points. Check required external-client availability early through an already supported
+client, without prescribing a particular product or GUI. Preserve data, process and session isolation
+where the acceptance contract requires it; keep credentials and raw sensitive logs out of scripts.
+
+Carry explicit discussion and handoff preferences within the same Initiative when a current
+workbench, formal context reference or handoff records their source and scope. A new Leaf does not
+by itself require the user to choose the same mode again. Missing or conflicting preferences need
+clarification only for the affected choice. Preferences never grant authorization: discussion
+completion, new-session creation, merge and push keep their existing explicit boundaries. Handoff
+to implementation still waits for completed profiles and a passing workspace gate.
+
 ## Route The Request
 
 | Request | Owning skill |
@@ -171,6 +187,18 @@ Initiative evidence.
 
 A `ready-to-merge / ready` dependency counts as satisfied only when its acceptance passed and its
 closure is complete. Any partial ready state stays fail-closed.
+
+Acceptance uses a boolean `passed`; only `true` qualifies. Passing acceptance and ready closure
+require non-empty relative evidence-file lists resolved from their owning manifest. The machine
+gate checks that those files exist; independent reviewers and verifiers judge their content.
+Canonical promotion targets may still be planned. Registry-backed transitions validate the complete
+candidate registry before atomically replacing the target manifest; rejection leaves the original
+bytes unchanged. Standalone Leaf checks do not replace dependency or Initiative preflight.
+
+Integration criteria inherit the confirmed acceptance contract, including any same-object,
+same-artifact, same-session or continuous-sequence conditions. Reuse applies only when it satisfies
+those conditions together; separate capability demonstrations cannot silently replace a required
+continuous path. Repair only the missing path and retain applicable unaffected evidence.
 
 ## Required Merge And Authority Gate
 

@@ -17,6 +17,12 @@ authority stays with the feature-workspace tools and documentation named by
 - Leaf Feature lifecycle changes and Initiative decomposition finalization use the shared
   state-machine command, never ad hoc YAML edits.
 - A ready dependency is usable only when its acceptance and closure are complete.
+- Acceptance `passed` is boolean and only `true` passes. Acceptance and ready closure evidence
+  are non-empty relative file lists resolved from their owning manifest and checked for existence.
+  This checks records, not their substantive quality; independent review and verification remain.
+  Canonical promotion targets need not exist before promotion. A registry-backed transition checks
+  the complete candidate registry before atomic replacement; rejected or failed writes retain the
+  original manifest. Standalone Leaf readiness cannot replace Initiative preflight.
 - An Initiative is not mergeable until all active Leaf Features are ready and new Initiative-level
   integration evidence has passed.
 - Integration evidence is local, bound to one immutable run, and distinct from per-Feature sealed
@@ -120,6 +126,20 @@ authority stays with the feature-workspace tools and documentation named by
   non-semantic corrections, and stop at the agreed delivery boundary. Extra work needs a concrete
   risk reason in the normal handoff, not a new configuration or approval process. Safety, required
   machine gates and explicit authorization remain binding.
+- Nested skills in one session reuse unchanged context and successful doctor/gate results. Changed
+  inputs invalidate affected results, and lifecycle boundaries still validate their mutations.
+  Independent roles judge current inputs and evidence without automatically rebuilding equivalent
+  environments. Use existing supported toolchains, caches and maintained synthetic test entry
+  points; check required external-client availability early. Preserve isolation required by the
+  contract and never embed credentials or sensitive runtime data in reusable scripts.
+- Same-Initiative discussion and handoff preferences may be inherited from an explicitly sourced
+  current workbench, formal reference or handoff. Re-ask only unresolved or conflicting choices;
+  mode/model preferences do not authorize creating a session or performing a merge/push. The
+  discussion-completion confirmation and profiles-completed boundary still govern implementation.
+- Integration matrices inherit all confirmed same-object, artifact, session and continuous-sequence
+  requirements. Reused evidence must satisfy the linked conditions together. Separate capability
+  runs cannot silently weaken a required continuous path; preserve valid results and execute only
+  the missing affected path.
 - Main-session responsibility cannot be delegated: a lower-cost model tier may prepare bounded
   work, but the main session owns authority, lifecycle decisions, gates and final verification.
 
