@@ -22,7 +22,7 @@
 | intake | 任务陈述、干系人、期望 | 任务可被一句话说清 |
 | preflight | 权威来源、范围、风险、缺口 | 无阻塞性缺口，或缺口已被显式记录 |
 | goal | 目标、验收标准、非目标 | 验收标准可被验证 |
-| source survey / plan proposals | 阅读交接与各 owner 的只读 plan proposal；列出代码事实、候选文件、依赖和验证 | 资料足以形成整 Feature 计划，或缺口已明确升级 |
+| source survey / plan proposals | 当前适用的代码调研与必要 owner 的只读 plan proposal；列出代码事实、候选文件、依赖和验证 | 资料足以形成整 Feature 计划，或缺口已明确升级 |
 | integrated plan | 唯一 Feature 计划 `<feature-root>/code-ai/implementation-plan.md`，按 [implementation-plan-template.md](implementation-plan-template.md) 记录 owner/file map、顺序、依赖、验收、条件风险和有意义的集成检查点 | 主编排者批准；用户需要决定的事项已解决；所有 worker scope 来自获批计划 |
 | implementation | 按已分配的 plan item 实现并在原位验证，超出计划时停止受影响部分 | 计划项完成并交付证据；必要的里程碑或集成检查通过 |
 | review | 评审报告与发现级别 | 无 Blocker/High，或已获明确处置 |
@@ -32,9 +32,17 @@
 
 任一阶段发现需要改变目标、验收标准、契约或写入范围时，回到对应阶段，不得在实现中偷偷改目标。
 
-计划格式的唯一来源是 [implementation-plan-template.md](implementation-plan-template.md)。阅读角色可在计划创建前调查代码并提出计划建议，但不得修改业务逻辑。主编排者结合实际代码调研和各 owner 的 plan-only proposal，维护一份整 Feature 计划；不得为每个 worker 复制一份主计划。计划须在第一个实现文件改动前获批。计划深度按风险选择：有界单 owner 工作可以短一些；跨 owner、共享契约、schema/state、数据迁移、安全或高风险行为需要按模板填写条件章节。
+计划格式的唯一来源是 [implementation-plan-template.md](implementation-plan-template.md)。阅读角色可在计划创建前调查代码并提出计划建议，但不得修改业务逻辑。主编排者核对调研与 proposal 的来源、owner、范围及当前适用性；已有同 owner、同范围且仍适用的结果可复用，只有缺少 owner 输入或范围变化时才补针对性 plan-only proposal。主编排者维护一份整 Feature 计划，不得为每个 worker 复制一份主计划。计划须在第一个实现文件改动前获批。每个 worker 实施前仍须阅读当前获批计划并确认分配范围，但不为已明确的分配另起一轮确认交接。计划深度按风险选择：有界单 owner 工作可以短一些；跨 owner、共享契约、schema/state、数据迁移、安全或高风险行为需要按模板填写条件章节。
 
 并行 item 必须依赖已满足，且文件范围和契约范围都不重叠。计划安排必要的集成验证点，最终集成由主编排者负责。每个实现步骤仍在原位验证；相同模型/会话不必为每个微步骤写重复 handoff。仅在有意义的里程碑、多 agent 汇合、高风险变化或重大偏差时做简短检查点。重大范围、契约、安全或产品决策停下升级；获批的实现调整更新同一份计划并批准受影响部分后继续。
+
+### 准备与阶段交接
+
+环境准备由主编排指定一个负责角色，统一负责设置和清理；其他角色接收现有计划或交接中的准备结果，检查其适用条件后复用，不因角色切换再次安装、构建或建样。详细协议通过 `.factory/local.yaml` 的 `factory_root` 解析到 `skills/hl-workflow-governance/references/execution-preparation.md`。无需另建环境登记表、准备报告或生命周期状态。
+
+代码调研及依赖不变契约的环境准备可以与实现并行。评审角色可提前阅读规则和准备检查，正式评审仍等待来源稳定；最终验收仍在评审通过后执行。准备就绪不能计为业务验收通过。共享环境的配置、启停和基线重置由指定角色管理；消费者按计划执行已获准的测试或业务调用，不为正常使用另作 owner 交接。消费者可能互相干扰时串行使用或隔离状态，保持验收要求的同对象、制品、会话和连续操作条件。
+
+阶段交接传递当前对象、获批计划及变化、适用证据、可用资源的归属与清理责任、剩余必需检查。已读且未变的权威来源引用即可，接手者定向核查变化和疑问，不重做整轮调研。监控优先使用完成通知或可提前唤醒的等待；只能轮询时单次有界、按实际进展检查，不重复启动同一长任务。停滞时先查进程、执行阶段、输出和环境原因，不能把名义 sleep 时长当作可节省的空闲时间。
 
 ## 3. 阅读交接（固定标题）
 
