@@ -63,8 +63,9 @@ owner 责任路径决定「谁有权改哪里」。路径重叠或职责空白�
 {{generated:verification_table}}
 
 - 变更前先留存基线证据，变更后再留存对照证据；只写结论不留证据视为未验证。
-- 每条验证记录必须可判定（通过/失败/不适用），并能从 `wiki/validation/README.md`
-  索引到。
+- 每条验证记录必须可判定（通过/失败/不适用），逐次证据按配置的 `verification.evidence_root` 保存。
+- `wiki/validation/` 维护当前有效验证范围、基线与限制，提供必要定位说明；不复制执行流水，
+  不要求在 `wiki/validation/README.md` 建立逐条历史索引。
 - 需要隔离环境执行时，不得复用带开发状态的会话或端口。
 - 验证必须在与实现分离的 session 中执行，实现者不自我验收。
 

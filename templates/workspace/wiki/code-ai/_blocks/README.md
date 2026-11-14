@@ -47,7 +47,7 @@
 | [agent-notes-rule.md](agent-notes-rule.md) | 五字段记录头与 agent 记录的维护时机 |
 | [commit-granularity.md](commit-granularity.md) | 按仓库模式划分的提交粒度与顺序 |
 | [logging-and-diagnostics.md](logging-and-diagnostics.md) | 日志分级、结构化、脱敏与可诊断性 |
-| [handoff-output.md](handoff-output.md) | 交接文档的固定结构与必备字段 |
+| [handoff-output.md](handoff-output.md) | 交接必需信息与角色模板选择 |
 | [common-definition-of-done.md](common-definition-of-done.md) | 通用完成定义与交付前自检 |
 | [review-gate.md](review-gate.md) | 强制评审条件、独立性与阻断规则 |
 | [review-agent-contract.md](review-agent-contract.md) | 评审报告的固定章节与结论约定 |
