@@ -132,6 +132,12 @@ authority stays with the feature-workspace tools and documentation named by
   environments. Use existing supported toolchains, caches and maintained synthetic test entry
   points; check required external-client availability early. Preserve isolation required by the
   contract and never embed credentials or sensitive runtime data in reusable scripts.
+- Execution preparation and handoff follow `references/execution-preparation.md`: one preparation
+  owner, minimal prerequisite checks before expensive work, reuse at the tool/build/runtime/state
+  level actually justified, and concise updates in the existing plan/handoff. Safe preparation may
+  overlap; final review and separated acceptance retain their judgement order. Reuse current
+  source surveys/owner proposals, supplement missing input, and diagnose stalls before retrying.
+  This adds no preparation report, registry, configuration switch or lifecycle gate.
 - Same-Initiative discussion and handoff preferences may be inherited from an explicitly sourced
   current workbench, formal reference or handoff. Re-ask only unresolved or conflicting choices;
   mode/model preferences do not authorize creating a session or performing a merge/push. The

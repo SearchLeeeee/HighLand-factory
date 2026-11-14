@@ -75,6 +75,12 @@ test entry points. Check required external-client availability early through an 
 client, without prescribing a particular product or GUI. Preserve data, process and session isolation
 where the acceptance contract requires it; keep credentials and raw sensitive logs out of scripts.
 
+For execution work, apply [Execution Preparation And Handoff](references/execution-preparation.md)
+to make that reuse operational: assign one preparation owner, check cheap prerequisites before
+expensive work, carry resources/results in the existing plan and handoff, overlap safe preparation,
+and diagnose stalled tasks before retrying. Keep only applicable details; this adds no mandatory
+report, configuration, lifecycle state or approval.
+
 Carry explicit discussion and handoff preferences within the same Initiative when a current
 workbench, formal context reference or handoff records their source and scope. A new Leaf does not
 by itself require the user to choose the same mode again. Missing or conflicting preferences need

@@ -40,6 +40,8 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
   recheck affected inputs after changes. Reuse supported toolchains and suitable healthy test
   environments while preserving required state/session isolation. Check required external clients
   early, without mandating a product or GUI.
+  Use [Execution Preparation And Handoff](execution-preparation.md) for preparation ownership,
+  suitability checks, safe overlap and concise role handoffs; no separate environment report.
 - Inherit explicit same-Initiative discussion/handoff preferences from a current workbench, formal
   reference or handoff. Do not repeat a settled choice merely for a new Leaf; preference is not
   authorization. Profiles and their gate must complete before implementation handoff.
