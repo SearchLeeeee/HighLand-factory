@@ -83,6 +83,10 @@ next_action:
 状态只在技能边界更新，不记录单个问题的问答进度。正常情况每次只前进一个边界；
 回退必须另行记录治理原因。
 
+状态转换先验证内存中的候选结果，再原子替换 manifest。传入 `--registry` 时，须将候选
+结果代入完整 registry 验证后才落盘；校验或写入失败不得改变原文件。`--dry-run` 使用
+同一校验规则但不写入，不可把预览当作已转换。
+
 ### 3.1 Initiative 初始分解
 
 Initiative 创建后、任何 Leaf 进入 `discussion` 前，必须先建立并封存初始 Feature
@@ -203,15 +207,30 @@ ID。禁止建立多层嵌套编号。
 
 闭环信息写在 `feature.yaml` 的 `closure:` 块里；不存在独立的闭环清单文件。
 
-`closure:` 至少包含：
+验收通过记录在顶层 `acceptance:`，闭环记录在 `closure:`，两者不可互换：
 
 ```yaml
+acceptance:
+  passed: true
+  evidence:
+    - evidence/acceptance.md
 closure:
-  acceptance_status: passed
-  evidence: []
-  canonical_docs: []
-  retained_source: {}
+  canonical_docs:
+    - implementation/example.md
+  validation_evidence:
+    - evidence/workspace-validation.md
+  tombstone_target: ../../initiative.yaml
 ```
+
+`acceptance.passed` 必须是布尔值；只有 `true` 表示通过，字符串或数字不能代替。
+验收通过时 `acceptance.evidence`、就绪时 `closure.validation_evidence` 必须是非空相对
+路径列表，指向相对于所属 manifest 存在的实际文件；缺失文件、空列表或目录不能作为
+通过证据。`canonical_docs` 是长期 Wiki 提升目标列表，在合并前可尚未创建，不对目标
+提前作存在性要求；`tombstone_target` 是非空的外部路由目标。示例中的证据文件须由实际
+验收产生，字段齐全不代表业务验收已经通过。
+
+`merge-ready --feature` 只检查该叶自身条件，不替代完整工作区验证、依赖与 Initiative
+合并屏障，也不代替独立评审、分离验收或合并授权。
 
 Feature 进入合并前必须满足：
 
