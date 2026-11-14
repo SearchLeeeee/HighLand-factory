@@ -189,6 +189,13 @@ successful check. Reuse suitable runtime/dependency environments and caches. Pre
 prerequisites once in the role best placed to do it, rather than rebuilding the environment for
 every worker.
 
+Apply `<FACTORY_ROOT>/skills/hl-workflow-governance/references/execution-preparation.md`: assign
+preparation/cleanup ownership, check cheap prerequisites before expensive execution and carry
+known working entry points with their reuse conditions in the existing handoff. Reuse applicable
+survey and preparation results; do not make each collector rediscover them. Safe independent
+preparation may overlap, but no shared-state mutation may break the matrix's baseline or required
+continuous sequence. A prepared runtime is not an integration PASS.
+
 Disjoint file scopes are not enough when children share one host: they collide on runtime resources.
 Partition ports, state-store paths, service names and log directories explicitly in each brief —
 otherwise one child's cleanup tears down a sibling's service, and two children initialising the same

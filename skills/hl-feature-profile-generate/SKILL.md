@@ -124,6 +124,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 - Acceptance criteria as observable pass/fail
 - Visual/interaction impact and evidence requirements; if not applicable, the recorded reason
 - Verification commands taken from the profile commands table — never invented
+- Reference the existing plan/handoff's prepared entry points, conditions and remaining checks; do not copy local configuration or create a second environment inventory.
 
 ## Handoff
 - Reading and verification agents use the fixed handoff structure in wiki/code-ai/subagent-flow.md
@@ -154,7 +155,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 
 The output follows the format in `wiki/code-ai/review-agent.md`, including the doc-sync review. Findings must be actionable: file or area, why, required fix.
 
-**Verification agent profile** — judges independently, separate from the implementer: use the same current plan and cover every criterion with sufficient applicable evidence. Execute missing or affected configured checks and independently assess the source/conditions of any reused results; do not accept the implementer's self-assessment as proof. Reuse suitable environments and caches, isolate state/data/processes as required, and do not default to fresh clones, all-command reruns or layered hashes. Record actual results, limits, provenance and documentation sync in the existing handoff. Repair gaps locally, preserve failure facts and stop at the delivery boundary; no extra configuration or approval process.
+**Verification agent profile** — judges independently, separate from the implementer: use the same current plan and cover every criterion with sufficient applicable evidence. Execute missing or affected configured checks and independently assess the source/conditions of any reused results; do not accept the implementer's self-assessment as proof. Reuse suitable environments and caches, isolate state/data/processes as required, and do not default to fresh clones, all-command reruns or layered hashes. Apply `<FACTORY_ROOT>/skills/hl-workflow-governance/references/execution-preparation.md`: safe preparation may start early, final acceptance waits for required review to pass, and prepared resources are not acceptance evidence. Record actual results, limits, provenance and documentation sync in the existing handoff. Repair gaps locally, preserve failure facts and stop at the delivery boundary; no extra configuration or approval process.
 
 ## Quality Gate
 

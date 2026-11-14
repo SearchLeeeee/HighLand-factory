@@ -34,6 +34,11 @@ record and the routing decision. It never creates or modifies a second lifecycle
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy stops
 the skill with one concrete repair instruction.
 
+For execution prerequisites, use `<FACTORY_ROOT>/skills/hl-workflow-governance/references/execution-preparation.md`.
+Keep preparation and reusable results in this request's existing record/handoff; use only applicable
+checks and pass them forward on escalation. A nested skill or new role does not by itself require
+another setup, report or complete survey. Review, separated verification and required gates remain.
+
 ## Required Reading
 
 At the start of a new request, read:

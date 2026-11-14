@@ -134,6 +134,13 @@ Before dispatching:
   Stable reusable harness code belongs in the project's maintained tests or operator tools;
   sensitive configuration, data and raw logs remain within the configured security boundary.
 
+Use `<FACTORY_ROOT>/skills/hl-workflow-governance/references/execution-preparation.md` for this
+preparation and each role handoff. Assign one preparer and cleanup owner in the existing plan;
+check the required tool, temporary path and client before expensive work, only when relevant.
+Carry already working entry points and their reuse conditions forward instead of rediscovering
+them per worker. Safe verification preparation may overlap implementation/review; formal review
+waits for stable sources and final acceptance waits for the required review to pass.
+
 ## Main Agent Responsibilities
 
 Own coordination and quality gates:
@@ -144,7 +151,7 @@ Own coordination and quality gates:
 - Keep documentation decisions ahead of code or contract changes.
 - Select the right owner from the owners table.
 - Create subagents with narrow scope, explicit allowed files, forbidden files, acceptance criteria, validation expectations and an assigned item from the canonical implementation plan.
-- Require each implementation worker to return a plan-only proposal first. Integrate those proposals into one Feature-level plan and approve that plan before any implementation file changes.
+- Obtain the source survey and owner input needed for one Feature-level plan, reusing current proposals for the same scope. Request a plan-only proposal for missing or changed input rather than repeating a completed survey per role. Approve the canonical plan before implementation edits; every worker checks that plan and its assigned scope before editing.
 - Prevent two agents from touching the same files or redefining the same contract unless explicitly sequenced.
 - Maintain or update documents before contract, schema, API, state, security, workflow or ownership changes.
 - Integrate outputs in the main thread and resolve cross-owner boundaries through documented contracts, not ad hoc edits.
@@ -204,7 +211,10 @@ If a task crosses owner boundaries, document or confirm the shared contract firs
 
 ## Planning Dispatch Protocol
 
-Apply the preflight gate, then send a compact planning packet to each selected owner. The first response is a proposal for the canonical plan, not permission to edit:
+Apply the preflight gate and check current reading notes, surveys and owner proposals. Send the
+following compact planning packet only for missing or changed owner input. A planning response
+is a proposal for the canonical plan, not permission to edit; do not request another identical
+proposal from an owner whose applicable input is already available:
 
 ```text
 You are <Owner Agent Name>.
@@ -240,13 +250,23 @@ Check progress at declared checkpoints, after validation commands, when dependen
 
 Check first by reading available artifacts, messages, diffs or declared outputs. Do not interrupt an agent that shows visible progress.
 
+Prefer completion notifications or a bounded result-aware wait over repeated fixed sleeps. If
+polling is necessary, follow the existing task and its last known phase; do not start duplicate
+builds, installs or environments. Apply the shared preparation reference's stall diagnosis before
+retrying a failed command. A resource blocker alone is not a reason to replace a capable worker.
+
 If no progress is visible, ask for a short status:
 
 ```text
 Status check: I see no recent artifact or handoff. Are you working, blocked, waiting for approval, or uncertain about scope? Reply with current state, last completed step, blocker if any, and next intended action.
 ```
 
-If the reply shows the subagent is blocked, confused about boundaries, inactive, repeatedly off-scope, or unable to produce a plan or artifact, stop it, summarize the failure mode, preserve useful artifacts, and hand off to a fresh subagent built from the same or a corrected profile. The fresh subagent receives the original task, approved scope, known blockers and usable partial output, and re-plans before editing.
+For an environment or approval blocker, keep the capable worker and usable output while the
+designated preparer resolves the missing prerequisite. Replace a worker only when it is inactive,
+repeatedly off-scope or unable to proceed after targeted clarification or repair. Stop its active
+work first, summarize the failure mode and pass the approved scope, blockers and usable partial
+output to the replacement. Re-plan only the affected work before editing, rather than repeating
+the entire survey and preparation.
 
 Never let two agents edit overlapping files at once. On handoff, state clearly that the previous subagent is no longer the active owner.
 
