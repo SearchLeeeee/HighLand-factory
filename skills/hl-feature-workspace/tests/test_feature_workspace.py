@@ -150,11 +150,11 @@ class FeatureWorkspaceTests(unittest.TestCase):
     def test_ready_dependency_requires_qualified_merge_ready_closure(self):
         qualified = {
             "id": "I007-F01", "leaf": True, "phase": "ready-to-merge", "state": "ready",
-            "wave": 1, "depends_on": [], "acceptance": {"passed": True},
+            "wave": 1, "depends_on": [], "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]},
             "consistency_matrix": aligned_consistency_matrix(),
-            "closure": {"canonical_docs": ["implementation/example.md"], "validation_evidence": ["pytest -q"], "tombstone_target": "registry.yaml"},
+            "closure": {"canonical_docs": ["implementation/example.md"], "validation_evidence": ["evidence/validation.md"], "tombstone_target": "registry.yaml"},
         }
-        dependent = {"id": "I007-F02", "leaf": True, "phase": "ready-to-merge", "state": "ready", "wave": 2, "depends_on": ["I007-F01"], "acceptance": {"passed": True}, "consistency_matrix": aligned_consistency_matrix(), "closure": qualified["closure"]}
+        dependent = {"id": "I007-F02", "leaf": True, "phase": "ready-to-merge", "state": "ready", "wave": 2, "depends_on": ["I007-F01"], "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]}, "consistency_matrix": aligned_consistency_matrix(), "closure": qualified["closure"]}
         initiative = {"features": [qualified, dependent]}
         self.assertEqual(self.fw.ready_features(initiative), ["I007-F01"])
         self.assertEqual(self.fw.merge_readiness_errors(dependent, initiative), [])
@@ -164,7 +164,7 @@ class FeatureWorkspaceTests(unittest.TestCase):
         self.assertTrue(any("dependency I007-F01" in error for error in self.fw.merge_readiness_errors(dependent, initiative)))
 
     def test_initiative_merge_preflight_requires_passed_integration_testing(self):
-        feature = {"id": "I007-F01", "leaf": True, "phase": "ready-to-merge", "state": "ready", "depends_on": [], "acceptance": {"passed": True}, "consistency_matrix": aligned_consistency_matrix(), "closure": {"canonical_docs": ["a"], "validation_evidence": ["b"], "tombstone_target": "c"}}
+        feature = {"id": "I007-F01", "leaf": True, "phase": "ready-to-merge", "state": "ready", "depends_on": [], "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]}, "consistency_matrix": aligned_consistency_matrix(), "closure": {"canonical_docs": ["a"], "validation_evidence": ["b"], "tombstone_target": "c"}}
         initiative = {"id": "I007", "features": [feature]}
         self.assertIn("initiative integration testing handoff is missing", self.fw.initiative_merge_readiness_errors(initiative))
         initiative["integration_testing"] = {"handoff": "integration-testing/handoff.md", "passed": False, "evidence": []}
@@ -176,11 +176,11 @@ class FeatureWorkspaceTests(unittest.TestCase):
     def test_initiative_merge_preflight_requires_every_active_leaf_ready(self):
         ready = {
             "id": "I007-F01", "leaf": True, "phase": "ready-to-merge", "state": "ready",
-            "wave": 1, "depends_on": [], "acceptance": {"passed": True},
+            "wave": 1, "depends_on": [], "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]},
             "consistency_matrix": aligned_consistency_matrix(),
-            "closure": {"canonical_docs": ["implementation/example.md"], "validation_evidence": ["pytest -q"], "tombstone_target": "registry.yaml"},
+            "closure": {"canonical_docs": ["implementation/example.md"], "validation_evidence": ["evidence/validation.md"], "tombstone_target": "registry.yaml"},
         }
-        not_ready = {"id": "I007-F02", "leaf": True, "phase": "acceptance", "state": "completed", "wave": 2, "depends_on": ["I007-F01"], "acceptance": {"passed": True}, "consistency_matrix": aligned_consistency_matrix(), "closure": ready["closure"]}
+        not_ready = {"id": "I007-F02", "leaf": True, "phase": "acceptance", "state": "completed", "wave": 2, "depends_on": ["I007-F01"], "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]}, "consistency_matrix": aligned_consistency_matrix(), "closure": ready["closure"]}
         initiative = {"features": [ready, not_ready, {"id": "I007-F03", "leaf": False, "state": "superseded"}]}
         errors = self.fw.initiative_merge_readiness_errors(initiative)
         self.assertTrue(any(error.startswith("I007-F02:") for error in errors))
@@ -197,11 +197,11 @@ class FeatureWorkspaceTests(unittest.TestCase):
             "leaf": True,
             "depends_on": [],
             "blocking_children": [],
-            "acceptance": {"passed": True},
+            "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]},
             "consistency_matrix": aligned_consistency_matrix(),
             "closure": {
                 "canonical_docs": ["implementation/example.md"],
-                "validation_evidence": ["pytest -q"],
+                "validation_evidence": ["evidence/validation.md"],
                 "tombstone_target": "registry.yaml",
             },
         }
@@ -481,10 +481,10 @@ class FeatureWorkspaceTests(unittest.TestCase):
             "state": "ready",
             "depends_on": ["I007-F01"],
             "blocking_children": ["I007-F03"],
-            "acceptance": {"passed": True},
+            "acceptance": {"passed": True, "evidence": ["evidence/acceptance.md"]},
             "closure": {
                 "canonical_docs": ["implementation/example.md"],
-                "validation_evidence": ["pytest -q"],
+                "validation_evidence": ["evidence/validation.md"],
                 "tombstone_target": "registry.yaml",
             },
         }

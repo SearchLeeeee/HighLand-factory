@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import argparse
 import copy
+import os
 import re
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -293,6 +295,62 @@ def validate_dependency_graph(initiative: dict[str, Any]) -> list[str]:
     return sorted(set(errors))
 
 
+def evidence_errors(
+    value: Any,
+    label: str,
+    *,
+    document_path: Path | None = None,
+    workspace_root: Path | None = None,
+) -> list[str]:
+    """Check evidence references; planned canonical targets are not evidence."""
+    if not isinstance(value, list) or not value or not all(
+        isinstance(item, str) and item.strip() for item in value
+    ):
+        return [f"{label} must be a non-empty list of file paths"]
+    errors: list[str] = []
+    for raw_path in value:
+        if Path(raw_path).is_absolute() or raw_path.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:[\\/]", raw_path):
+            errors.append(f"{label} path must be relative: {raw_path}")
+            continue
+        if document_path is None:
+            continue
+        resolved = (document_path.parent / raw_path).resolve()
+        if workspace_root is not None:
+            try:
+                resolved.relative_to(workspace_root.resolve())
+            except ValueError:
+                errors.append(f"{label} path points outside workspace: {raw_path}")
+                continue
+        if not resolved.is_file():
+            errors.append(f"{label} file is missing: {raw_path}")
+    return errors
+
+
+def acceptance_errors(feature: dict[str, Any], *, require_passed: bool = False) -> list[str]:
+    acceptance = feature.get("acceptance")
+    if "acceptance" not in feature and not require_passed:
+        return []
+    if not isinstance(acceptance, dict):
+        return ["acceptance must be a mapping"]
+    errors: list[str] = []
+    if not isinstance(acceptance.get("passed"), bool):
+        errors.append("acceptance passed must be boolean")
+    if require_passed and acceptance.get("passed") is not True:
+        errors.append("acceptance has not passed")
+    if acceptance.get("passed") is True or require_passed:
+        errors.extend(evidence_errors(
+            acceptance.get("evidence"), "acceptance evidence",
+            document_path=evidence_manifest_path(feature),
+            workspace_root=Path(feature["_workspace_root"]) if feature.get("_workspace_root") else None,
+        ))
+    return errors
+
+
+def evidence_manifest_path(feature: dict[str, Any]) -> Path | None:
+    raw_path = feature.get("_source_manifest_path") or feature.get("_container_manifest_path")
+    return Path(raw_path) if raw_path else None
+
+
 def merge_readiness_errors(
     feature: dict[str, Any],
     initiative: dict[str, Any] | None = None,
@@ -307,14 +365,20 @@ def merge_readiness_errors(
         errors.append("feature state is not ready")
     if feature.get("blocking_children"):
         errors.append("feature has a blocking child")
-    if not feature.get("acceptance", {}).get("passed"):
-        errors.append("acceptance has not passed")
-    closure = feature.get("closure", {})
-    if not closure.get("canonical_docs"):
+    errors.extend(acceptance_errors(feature, require_passed=True))
+    closure = feature.get("closure")
+    if not isinstance(closure, dict):
+        closure = {}
+        errors.append("closure must be a mapping")
+    canonical = closure.get("canonical_docs")
+    if not isinstance(canonical, list) or not canonical or not all(isinstance(item, str) and item.strip() for item in canonical):
         errors.append("closure has no canonical docs")
-    if not closure.get("validation_evidence"):
-        errors.append("closure has no validation evidence")
-    if not closure.get("tombstone_target"):
+    errors.extend(evidence_errors(
+        closure.get("validation_evidence"), "closure validation evidence",
+        document_path=evidence_manifest_path(feature),
+        workspace_root=Path(feature["_workspace_root"]) if feature.get("_workspace_root") else None,
+    ))
+    if not isinstance(closure.get("tombstone_target"), str) or not closure["tombstone_target"].strip():
         errors.append("closure has no external tombstone target")
     if initiative is not None:
         by_id = {item.get("id"): item for item in initiative.get("features", [])}
@@ -448,9 +512,22 @@ def load_yaml(path: Path) -> dict[str, Any]:
 
 
 def write_yaml(path: Path, value: dict[str, Any]) -> None:
-    """Persist a workspace manifest as UTF-8 YAML, preserving key order + non-ASCII."""
+    """Replace a UTF-8 manifest atomically; failed writes leave the original intact."""
     text = yaml.safe_dump(value, sort_keys=False, allow_unicode=True, default_flow_style=False)
-    path.write_text(text, encoding="utf-8")
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=path.parent,
+            prefix=f".{path.name}.", suffix=".tmp", delete=False,
+        ) as stream:
+            temporary = Path(stream.name)
+            stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def write_feature(path: Path, feature: dict[str, Any]) -> None:
@@ -465,13 +542,13 @@ def apply_transition(
     next_action: dict[str, str] | None = None,
     blocked_by: list[str] | None = None,
     initial_decomposition_complete: bool | None = None,
+    registry_path: Path | None = None,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     """Apply a governance-checked lifecycle transition and persist it to disk.
 
-    Loads the feature manifest, validates + applies the transition via
-    ``transition_feature`` (which enforces no phase regression, one-phase-at-a-time,
-    and next_action on nonterminal states), and writes the result back.  Any
-    governance violation raises before the file is touched.
+    Validate the candidate, including the full registry when supplied, before
+    replacing the original. Dry runs make the same decision without writing.
     """
     feature = load_yaml(feature_path)
     updated = transition_feature(
@@ -482,7 +559,29 @@ def apply_transition(
         blocked_by=blocked_by,
         initial_decomposition_complete=initial_decomposition_complete,
     )
-    write_feature(feature_path, updated)
+    if registry_path is not None:
+        registry = load_registry(registry_path, overrides={feature_path.resolve(): updated})
+        registered = any(
+            Path(initiative.get("_manifest_path", registry_path)).resolve() == feature_path.resolve()
+            or any(
+                item.get("_source_manifest_path")
+                and Path(item["_source_manifest_path"]).resolve() == feature_path.resolve()
+                for item in initiative.get("features", [])
+            )
+            for initiative in registry.get("initiatives", [])
+        )
+        if not registered:
+            raise ValueError("transition target is not registered in the supplied registry")
+        errors = validate_registry(registry)
+    else:
+        candidate = {**updated, "_source_manifest_path": str(feature_path)}
+        errors = acceptance_errors(candidate)
+        if updated.get("phase") == "ready-to-merge":
+            errors.extend(merge_readiness_errors(candidate))
+    if errors:
+        raise ValueError("; ".join(sorted(set(errors))))
+    if not dry_run:
+        write_feature(feature_path, updated)
     return updated
 
 
@@ -564,51 +663,48 @@ def validate_context_refs(
     return sorted(set(errors))
 
 
-def load_registry(path: Path) -> dict[str, Any]:
-    registry = load_yaml(path)
+def load_registry(
+    path: Path, *, overrides: dict[Path, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    def read_document(document_path: Path) -> dict[str, Any]:
+        candidate = (overrides or {}).get(document_path.resolve())
+        return copy.deepcopy(candidate) if candidate is not None else load_yaml(document_path)
+
+    registry = read_document(path)
     root = path.parent
     resolved_initiatives: list[dict[str, Any]] = []
     for entry in registry.get("initiatives", []):
-        if entry.get("manifest"):
-            initiative_path = root / entry["manifest"]
-            initiative = load_yaml(initiative_path)
-            initiative["_manifest_path"] = str(initiative_path)
-            initiative_context_errors = validate_context_refs(
-                initiative,
-                document_path=initiative_path,
-                workspace_root=root,
+        initiative_path = root / entry["manifest"] if entry.get("manifest") else path
+        initiative = read_document(initiative_path) if entry.get("manifest") else copy.deepcopy(entry)
+        initiative["_manifest_path"] = str(initiative_path)
+        initiative_context_errors = validate_context_refs(
+            initiative, document_path=initiative_path, workspace_root=root,
+        )
+        if initiative_context_errors:
+            initiative["_context_ref_errors"] = initiative_context_errors
+        if initiative.get("id") != entry.get("id"):
+            initiative["_reference_error"] = "initiative id does not match registry entry"
+        resolved_features: list[dict[str, Any]] = []
+        for feature_entry in initiative.get("features", []):
+            if feature_entry.get("manifest"):
+                feature_path = initiative_path.parent / feature_entry["manifest"]
+                feature = read_document(feature_path)
+                feature["_source_manifest_path"] = str(feature_path)
+                if feature.get("id") != feature_entry.get("id"):
+                    feature["_reference_error"] = "feature id does not match initiative entry"
+            else:
+                feature_path = initiative_path
+                feature = copy.deepcopy(feature_entry)
+                feature["_container_manifest_path"] = str(initiative_path)
+            feature["_workspace_root"] = str(root)
+            feature_context_errors = validate_context_refs(
+                feature, document_path=feature_path, workspace_root=root,
             )
-            if initiative_context_errors:
-                initiative["_context_ref_errors"] = initiative_context_errors
-            if initiative.get("id") != entry.get("id"):
-                initiative["_reference_error"] = "initiative id does not match registry entry"
-            initiative_root = initiative_path.parent
-            resolved_features: list[dict[str, Any]] = []
-            for feature_entry in initiative.get("features", []):
-                if feature_entry.get("manifest"):
-                    feature = load_yaml(initiative_root / feature_entry["manifest"])
-                    feature_path = initiative_root / feature_entry["manifest"]
-                    feature["_source_manifest_path"] = str(feature_path)
-                    feature["_workspace_root"] = str(root)
-                    feature_context_errors = validate_context_refs(
-                        feature,
-                        document_path=feature_path,
-                        workspace_root=root,
-                    )
-                    if feature_context_errors:
-                        feature["_context_ref_errors"] = feature_context_errors
-                    if feature.get("id") != feature_entry.get("id"):
-                        feature["_reference_error"] = "feature id does not match initiative entry"
-                    resolved_features.append(feature)
-                else:
-                    inline_feature = copy.deepcopy(feature_entry)
-                    inline_feature["_container_manifest_path"] = str(initiative_path)
-                    inline_feature["_workspace_root"] = str(root)
-                    resolved_features.append(inline_feature)
-            initiative["features"] = resolved_features
-            resolved_initiatives.append(initiative)
-        else:
-            resolved_initiatives.append(entry)
+            if feature_context_errors:
+                feature["_context_ref_errors"] = feature_context_errors
+            resolved_features.append(feature)
+        initiative["features"] = resolved_features
+        resolved_initiatives.append(initiative)
     registry["initiatives"] = resolved_initiatives
     return registry
 
@@ -721,7 +817,7 @@ def validate_registry(registry: dict[str, Any]) -> list[str]:
                     for error in discussion_entry_errors(feature)
                 )
             if phase in CONSISTENCY_ENFORCED_PHASES and not terminal:
-                manifest_path = Path(feature["_source_manifest_path"]) if feature.get("_source_manifest_path") else None
+                manifest_path = evidence_manifest_path(feature)
                 workspace_path = Path(feature["_workspace_root"]) if feature.get("_workspace_root") else None
                 errors.extend(
                     f"{feature_id}: {error}"
@@ -733,6 +829,8 @@ def validate_registry(registry: dict[str, Any]) -> list[str]:
                 )
             if phase == "ready-to-merge":
                 errors.extend(f"{feature_id}: {error}" for error in merge_readiness_errors(feature, initiative))
+            elif phase != "merged":
+                errors.extend(f"{feature_id}: {error}" for error in acceptance_errors(feature))
             if phase == "merged":
                 errors.extend(f"{feature_id}: {error}" for error in merged_routing_errors(feature))
     return sorted(set(errors))
@@ -823,6 +921,16 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
         integration.update({"passed": True, "evidence": evidence})
         initiative["integration_testing"] = integration
+        candidate_registry = load_registry(args.registry, overrides={manifest_path.resolve(): initiative})
+        candidate_initiative = next(
+            item for item in candidate_registry.get("initiatives", []) if item.get("id") == args.initiative
+        )
+        errors = validate_registry(candidate_registry)
+        errors.extend(initiative_merge_readiness_errors(candidate_initiative))
+        if errors:
+            for error in sorted(set(errors)):
+                print(f"ERROR: {error}", file=sys.stderr)
+            return 1
         write_yaml(manifest_path, initiative)
         print(f"recorded integration testing PASS for {args.initiative}")
         return 0
@@ -884,7 +992,7 @@ def main(argv: list[str] | None = None) -> int:
         if initiative is None:
             print(f"ERROR: unknown initiative {args.initiative}", file=sys.stderr)
             return 1
-        errors = initiative_merge_readiness_errors(initiative)
+        errors = validate_registry(registry) + initiative_merge_readiness_errors(initiative)
         if errors:
             for error in errors:
                 print(f"ERROR: {error}", file=sys.stderr)
@@ -955,48 +1063,36 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
             initial_decomposition_complete = True
         try:
+            updated = apply_transition(
+                args.feature,
+                state=args.state,
+                phase=args.phase,
+                next_action=next_action,
+                blocked_by=args.blocked_by,
+                initial_decomposition_complete=initial_decomposition_complete,
+                registry_path=args.registry,
+                dry_run=args.dry_run,
+            )
             if args.dry_run:
-                updated = transition_feature(
-                    feature,
-                    phase=args.phase,
-                    state=args.state,
-                    next_action=next_action,
-                    blocked_by=args.blocked_by,
-                    initial_decomposition_complete=initial_decomposition_complete,
-                )
                 print(
                     yaml.safe_dump(
                         updated, sort_keys=False, allow_unicode=True, default_flow_style=False
                     ),
                     end="",
                 )
-            else:
-                updated = apply_transition(
-                    args.feature,
-                    state=args.state,
-                    phase=args.phase,
-                    next_action=next_action,
-                    blocked_by=args.blocked_by,
-                    initial_decomposition_complete=initial_decomposition_complete,
-                )
-        except ValueError as exc:
+        except (ValueError, OSError) as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             return 1
         print(
-            f"transitioned {args.feature.name}: "
+            f"{'would transition' if args.dry_run else 'transitioned'} {args.feature.name}: "
             f"phase={updated.get('phase')} state={updated.get('state')}"
         )
         if args.registry is not None:
-            registry = load_registry(args.registry)
-            errors = validate_registry(registry)
-            if errors:
-                for error in errors:
-                    print(f"ERROR: {error}", file=sys.stderr)
-                return 1
             print("feature workspace is valid")
         return 0
 
     feature = load_yaml(args.feature)
+    feature["_source_manifest_path"] = str(args.feature)
     errors = merge_readiness_errors(feature)
     if errors:
         for error in errors:
