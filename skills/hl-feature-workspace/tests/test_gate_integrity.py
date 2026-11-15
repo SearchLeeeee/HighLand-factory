@@ -4,6 +4,7 @@ import importlib.util
 import re
 from pathlib import Path
 from unittest.mock import patch
+from urllib.parse import unquote, urlsplit
 
 import pytest
 import yaml
@@ -244,3 +245,50 @@ def test_inline_records_obey_the_same_reference_gates(fw, workspace, inline_init
     else:
         fw.write_yaml(initiative_path, initiative)
     assert fw.main(["validate", "--registry", str(registry)]) == (0 if missing is None else 1)
+
+
+@pytest.mark.parametrize("evidence_name", ["acceptance.md", "acceptance #1%2F.md", "acceptance ](draft).md"])
+def test_generated_handoff_preserves_criteria_and_resolves_each_source_from_output(fw, workspace, evidence_name):
+    registry, feature_path = workspace
+    initiative_path = registry.parent / "initiative" / "initiative.yaml"
+    constraint = initiative_path.parent / "constraints.md"
+    constraint.write_text("Keep the original object and its recorded revision.", encoding="utf-8")
+    initiative = fw.load_yaml(initiative_path)
+    criterion = "Continue the original object at its exact recorded revision."
+    initiative.update(goal="Continue the existing chain", acceptance_goals=[criterion])
+    initiative["context_refs"] = [{"path": "constraints.md", "required": True}]
+    fw.write_yaml(initiative_path, initiative)
+    feature = fw.load_yaml(feature_path)
+    if evidence_name != "acceptance.md":
+        (feature_path.parent / "acceptance.md").rename(feature_path.parent / evidence_name)
+    feature["acceptance"]["evidence"] = [evidence_name]
+    feature["context_refs"] = [{"path": "source.md", "required": True}]
+    fw.write_yaml(feature_path, feature)
+    assert transition(fw, workspace) == 0
+    output = initiative_path.parent / "integration-testing" / "run" / "handoff.md"
+    assert fw.main([
+        "initiative-integration-handoff", "--registry", str(registry),
+        "--initiative", "I007", "--output", str(output),
+    ]) == 0
+    content = output.read_text(encoding="utf-8")
+    assert criterion in content
+    destinations = [urlsplit(target) for target in re.findall(r"\]\(<([^>]+)>\)", content)]
+    assert len(re.findall(r"(?<!\\)\]\(", content)) == len(destinations)
+    assert all(not target.fragment and not target.query for target in destinations)
+    linked_paths = {(output.parent / unquote(target.path)).resolve() for target in destinations}
+    assert {
+        initiative_path.resolve(), feature_path.resolve(), constraint.resolve(),
+        (feature_path.parent / "source.md").resolve(),
+        (feature_path.parent / evidence_name).resolve(),
+        (feature_path.parent / "validation.md").resolve(),
+    } <= linked_paths
+    assert all(path.is_file() for path in linked_paths)
+    integration = fw.load_yaml(initiative_path)["integration_testing"]
+    assert integration["passed"] is False
+    assert integration["evidence"] == []
+
+
+def test_rendering_handoff_does_not_invent_predecessor_evidence(fw):
+    content = fw.render_integration_handoff({"id": "I007", "features": [], "context_refs": None})
+    assert "acceptance.md" not in content
+    assert "All active Leaf Features are ready." not in content

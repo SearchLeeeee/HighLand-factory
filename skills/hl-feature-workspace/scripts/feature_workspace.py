@@ -18,6 +18,7 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 import yaml
 
@@ -449,22 +450,65 @@ def initiative_merge_readiness_errors(initiative: dict[str, Any]) -> list[str]:
     return errors
 
 
-def render_integration_handoff(initiative: dict[str, Any]) -> str:
-    lines = [f"# {initiative['id']} Integration Test Handoff", "", "## Merge Gate", "", "All active Leaf Features are ready. Integration testing must pass and record evidence before any Feature merge.", "", "## Included Features", ""]
+def render_integration_handoff(
+    initiative: dict[str, Any], *, output_path: Path | None = None,
+) -> str:
+    def reference(raw_path: str, manifest: Path | None) -> str:
+        if output_path is None or manifest is None:
+            return f"`{raw_path}`"
+        target = (manifest.parent / raw_path).resolve()
+        relative = os.path.relpath(target, output_path.parent.resolve()).replace("\\", "/")
+        label = raw_path.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+        return f"[{label}](<{quote(relative, safe='/')}>)"
+
+    def required_context(document: dict[str, Any], manifest: Path | None) -> list[str]:
+        return [
+            f"  - {reference(ref['path'], manifest)}"
+            for ref in document.get("context_refs") or []
+            if isinstance(ref, dict) and ref.get("required") is True
+            and isinstance(ref.get("path"), str)
+        ]
+
+    lines = [
+        f"# {initiative['id']} Integration Test Handoff", "", "## Merge Gate", "",
+        "Require all active Leaf Features ready. Integration testing must pass and record evidence before any Feature merge.",
+        "Generating this handoff does not verify integration or continuation of a prior run.", "",
+    ]
+    manifest = Path(initiative["_manifest_path"]) if initiative.get("_manifest_path") else None
+    if manifest is not None:
+        lines.extend([f"- Initiative source: {reference(manifest.name, manifest)}", ""])
+    if isinstance(initiative.get("goal"), str) and initiative["goal"].strip():
+        lines.extend(["## Goal", "", initiative["goal"], ""])
+    goals = initiative.get("acceptance_goals", [])
+    if isinstance(goals, list) and goals:
+        lines.extend(["## Inherited Acceptance Goals", ""])
+        lines.extend(f"- {goal}" for goal in goals if isinstance(goal, str))
+        lines.append("")
+    refs = required_context(initiative, manifest)
+    if refs:
+        lines.extend(["- Required context:", *refs, ""])
+    lines.extend(["## Included Features", ""])
     for feature in sorted(initiative.get("features", []), key=lambda item: item.get("id", "")):
         if feature.get("leaf") is not True or feature.get("state") in {"cancelled", "superseded"}:
             continue
         lines.extend([f"### `{feature['id']}` {feature.get('title', '')}", ""])
+        feature_manifest = evidence_manifest_path(feature)
+        if feature_manifest is not None:
+            lines.append(f"- Source: {reference(feature_manifest.name, feature_manifest)}")
+        lines.append(f"- Lifecycle: `{feature.get('phase', 'unknown')} / {feature.get('state', 'unknown')}`")
+        refs = required_context(feature, feature_manifest)
+        if refs:
+            lines.extend(["- Required context:", *refs])
         dependencies = feature.get("depends_on", [])
         lines.append("- Dependencies: " + (", ".join(f"`{item}`" for item in dependencies) if dependencies else "none"))
         acceptance = feature.get("acceptance", {}).get("evidence", [])
         lines.append("- Acceptance evidence:")
-        lines.extend(f"  - `{item}`" for item in acceptance) if acceptance else lines.append("  - none recorded")
+        lines.extend(f"  - {reference(item, feature_manifest)}" for item in acceptance) if acceptance else lines.append("  - none recorded")
         validation = feature.get("closure", {}).get("validation_evidence", [])
         lines.append("- Closure validation:")
-        lines.extend(f"  - `{item}`" for item in validation) if validation else lines.append("  - none recorded")
+        lines.extend(f"  - {reference(item, feature_manifest)}" for item in validation) if validation else lines.append("  - none recorded")
         lines.append("")
-    lines.extend(["## Required Evidence", "", "- End-to-end dependency-chain execution results.", "- Cross-Feature contract and boundary assertions.", "- Production-safety, redaction, and negative-path results where applicable.", "- Exact commands, environment identity, timestamps, and immutable evidence paths.", "", "## Result", "", "Record PASS only through `initiative-integration-result` after every required test passes. A failure blocks all Feature merges for this Initiative.", ""])
+    lines.extend(["## Required Evidence", "", "- End-to-end dependency-chain execution results.", "- Cross-Feature contract and boundary assertions.", "- Production-safety, redaction, and negative-path results where applicable.", "- Exact commands, environment identity, timestamps, and immutable evidence paths.", "- Preserve inherited linked object/artifact/session/sequence conditions and locate actual continuation state from the cited records. Missing entries remain unverified.", "- Record replaced evidence sources, retained/lost continuity and affected criteria in the existing plan/result mapping. A rebuilt scenario does not by itself prove continuation of the original chain.", "", "## Result", "", "Record PASS only through `initiative-integration-result` after every required test passes. A failure blocks all Feature merges for this Initiative.", ""])
     return "\n".join(lines)
 
 
@@ -895,7 +939,7 @@ def main(argv: list[str] | None = None) -> int:
                 item for item in resolved_registry.get("initiatives", []) if item.get("id") == args.initiative
             )
             output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(render_integration_handoff(resolved_initiative), encoding="utf-8")
+            output.write_text(render_integration_handoff(resolved_initiative, output_path=output), encoding="utf-8")
             initiative["integration_testing"] = {"handoff": relative_output.as_posix(), "passed": False, "evidence": []}
             handoff_ref = {"path": relative_output.as_posix(), "kind": "integration-test-handoff", "required": True}
             refs = initiative.setdefault("context_refs", [])
