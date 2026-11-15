@@ -39,4 +39,4 @@ jobs:
       - name: Engine tests (includes init smoke + both gates)
         run: python -m pytest engine/tests -q
       - name: Machine-gate script tests
-        run: python -m pytest skills/hl-feature-workspace/tests skills/hl-wiki-merge/tests skills/hl-history-trace/tests -q
+        run: python -m pytest skills -q
