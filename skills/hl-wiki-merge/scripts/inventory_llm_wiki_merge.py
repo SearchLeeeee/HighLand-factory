@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inventory staged Markdown for a semantic wiki merge gate.
+"""Inventory staged Markdown, or current-state Wiki Markdown when requested.
 
 The script deterministically classifies a staged file or directory into
 eligible Markdown, rule-skipped material (retained-history markers, code-ai and
@@ -8,6 +8,10 @@ non-Markdown files, and emits a stable source SHA-256 receipt so a merge can be
 reproduced. It is project-agnostic: the source is the only path input, no wiki,
 repository, machine, or project location is assumed, and the exit status only
 reports whether any eligible Markdown remains.
+
+``--wiki-root`` selects current-state inventory instead of a staged source.
+That mode uses the shared explicit process-workspace registry, does not read
+excluded content, and hashes only the included current-state Markdown corpus.
 """
 
 from __future__ import annotations
@@ -18,6 +22,14 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "engine"))
+from factorylib.workspaces import (  # noqa: E402
+    process_workspace_names,
+    process_workspace_roots,
+    project_config_for_wiki,
+)
 
 
 SKIP_SEGMENTS = {"code-ai", "discussion", "discussions"}
@@ -28,11 +40,17 @@ RETAINED_MARKERS = {
 }
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="List eligible and skipped files for semantic wiki merging."
     )
-    parser.add_argument("--source", required=True, help="Staged Markdown file or directory.")
+    scope = parser.add_mutually_exclusive_group(required=True)
+    scope.add_argument("--source", help="Explicit staged Markdown file or directory; preserves existing merge rules.")
+    scope.add_argument("--wiki-root", help="Inventory current-state Wiki Markdown with registered process roots excluded.")
+    parser.add_argument(
+        "--process-workspace", action="append", default=[],
+        help="Additional explicit Wiki-relative process directory; only with --wiki-root; repeatable.",
+    )
     parser.add_argument(
         "--format",
         choices=("text", "json"),
@@ -40,7 +58,10 @@ def parse_args() -> argparse.Namespace:
         dest="output_format",
         help="Output format; JSON is suitable for an inventory receipt.",
     )
-    return parser.parse_args()
+    args = parser.parse_args(argv)
+    if args.process_workspace and not args.wiki_root:
+        parser.error("--process-workspace requires --wiki-root")
+    return args
 
 
 def has_skip_segment(path: Path) -> bool:
@@ -121,6 +142,44 @@ def inventory_source(source: Path) -> dict[str, object]:
     }
 
 
+def inventory_wiki(
+    wiki_root: Path,
+    project_config: dict[str, Any] | None = None,
+    *,
+    process_workspaces: tuple[str, ...] | list[str] = (),
+) -> dict[str, object]:
+    """Inventory canonical Markdown without treating process history as truth."""
+    root = wiki_root.expanduser().resolve(strict=False)
+    if not root.is_dir():
+        raise ValueError(f"Wiki root is not a directory: {root}")
+    config = project_config if project_config is not None else project_config_for_wiki(root)
+    names = process_workspace_names(config, additional=process_workspaces)
+    roots = process_workspace_roots(root, config, additional=process_workspaces)
+    eligible: list[Path] = []
+    skipped: list[Path] = []
+    ignored: list[Path] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        if any(path.resolve(strict=False).is_relative_to(process_root) for process_root in roots):
+            skipped.append(path)
+        elif path.suffix.casefold() != ".md":
+            ignored.append(path)
+        else:
+            eligible.append(path)
+    return {
+        "source": str(root),
+        "source_kind": "canonical-wiki",
+        "source_sha256": source_sha256(eligible, root),
+        "source_is_merged_feature": False,
+        "process_workspaces": list(names),
+        "eligible": [str(path) for path in eligible],
+        "skipped": [str(path) for path in skipped],
+        "merged_history": [],
+        "ignored": [str(path) for path in ignored],
+    }
+
+
 def print_text(result: dict[str, object]) -> None:
     print(f"Source: {result['source']}")
     print(f"Source SHA-256: {result['source_sha256']}")
@@ -144,14 +203,21 @@ def print_text(result: dict[str, object]) -> None:
         print("- <none>")
 
 
-def main() -> int:
-    args = parse_args()
-    source = Path(args.source).expanduser().resolve(strict=False)
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    source = Path(args.wiki_root or args.source).expanduser().resolve(strict=False)
     if not source.exists():
         print(f"ERROR: source path does not exist: {source}", file=sys.stderr)
         return 1
 
-    result = inventory_source(source)
+    try:
+        result = (
+            inventory_wiki(source, process_workspaces=args.process_workspace)
+            if args.wiki_root else inventory_source(source)
+        )
+    except (OSError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     if args.output_format == "json":
         print(json.dumps(result, ensure_ascii=True, indent=2))
     else:

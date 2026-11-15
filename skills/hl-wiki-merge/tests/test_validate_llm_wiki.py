@@ -89,6 +89,79 @@ class ValidatorTests(unittest.TestCase):
         )
         self.assertNotIn("BROKEN_LOCAL_LINK", self.codes(result))
 
+    def test_refactor_history_is_not_scanned_or_required_to_be_reachable(self) -> None:
+        self.wiki.write("README.md", "# Current home\n")
+        self.wiki.write("refactor-workspace/run-001/report.md", "# Historical\n[Old](missing.md)\n")
+        result = validate_wiki(self.root)
+        self.assertTrue(result.ok, result.errors)
+        self.assertEqual((result.files_scanned, result.files_excluded), (1, 1))
+        self.assertIn("refactor-workspace", result.process_workspaces)
+
+    def test_refactor_link_and_normalized_traversal_are_blocked(self) -> None:
+        self.wiki.write("README.md", "# Home\n[Current](current.md)\n")
+        self.wiki.write(
+            "current.md", "# Current\n[History](refactor-workspace/run/report.md)\n"
+            "[Back](refactor-workspace/../README.md)\n",
+        )
+        self.wiki.write("refactor-workspace/run/report.md", "# History\n")
+        result = validate_wiki(self.root)
+        self.assertEqual([item.code for item in result.errors], ["FEATURE_WORKSPACE_LINK"] * 2)
+
+    def test_custom_nested_root_links_are_not_part_of_navigation(self) -> None:
+        self.wiki.write("README.md", "# Home\n[History](process/maintenance/run.md)\n")
+        self.wiki.write("process/maintenance/run.md", "# History\n[Old](missing.md)\n")
+        cfg = {"workflow": {"process_workspaces": ["process/maintenance"]}}
+        result = validate_wiki(self.root, cfg)
+        self.assertEqual((result.files_scanned, result.files_excluded), (1, 1))
+        self.assertEqual(self.codes(result), {"FEATURE_WORKSPACE_LINK", "FEATURE_WORKSPACE_DISCOVERY"})
+
+    def test_similar_names_and_nested_unregistered_roots_remain_canonical(self) -> None:
+        self.wiki.write(
+            "README.md", "# Home\n[Concept](concepts/feature-workspace/topic.md)\n"
+            "[Guide](workspace-guide.md)\n",
+        )
+        self.wiki.write("concepts/feature-workspace/topic.md", "# Concept\n")
+        self.wiki.write("workspace-guide.md", "# Guide\n[Broken](missing.md)\n")
+        self.wiki.write("product-workspace/orphan.md", "# Still canonical\n")
+        result = validate_wiki(self.root)
+        self.assertEqual((result.files_scanned, result.files_excluded), (4, 0))
+        self.assertEqual(self.codes(result), {"BROKEN_LOCAL_LINK", "ORPHAN_MARKDOWN"})
+
+    def test_cli_discovers_configured_process_roots_for_custom_wiki_path(self) -> None:
+        self.wiki.write(
+            "repo/.factory/factory.yaml",
+            "repo:\n  wiki_path: docs/current\nworkflow:\n  process_workspaces: [temporary/audit]\n",
+        )
+        self.wiki.write("repo/docs/current/README.md", "# Home\n")
+        self.wiki.write("repo/docs/current/temporary/audit/report.md", "# History\n[Bad](missing.md)\n")
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT_DIR / "validate_llm_wiki.py"), "--wiki-root",
+             str(self.root / "repo/docs/current"), "--format", "json"],
+            capture_output=True, text=True, check=False,
+        )
+        payload = json.loads(completed.stdout)
+        self.assertEqual(completed.returncode, 0, completed.stderr + completed.stdout)
+        self.assertEqual((payload["files_scanned"], payload["files_excluded"]), (1, 1))
+        self.assertIn("temporary/audit", payload["process_workspaces"])
+
+    def test_invalid_process_registration_never_silently_widens_scan(self) -> None:
+        self.wiki.write("README.md", "# Home\n")
+        result = validate_wiki(self.root, {"workflow": {"process_workspaces": ["../"]}})
+        self.assertEqual(self.codes(result), {"PROCESS_WORKSPACE_CONFIG"})
+
+    def test_explicit_cli_process_root_is_additive(self) -> None:
+        self.wiki.write("README.md", "# Home\n")
+        self.wiki.write("temporary/audit/run.md", "# History\n")
+        self.wiki.write("refactor-workspace/run/report.md", "# History\n")
+        completed = subprocess.run(
+            [sys.executable, str(SCRIPT_DIR / "validate_llm_wiki.py"), "--wiki-root", str(self.root),
+             "--process-workspace", "temporary/audit", "--format", "json"],
+            capture_output=True, text=True, check=False,
+        )
+        payload = json.loads(completed.stdout)
+        self.assertEqual(completed.returncode, 0, completed.stderr + completed.stdout)
+        self.assertEqual(payload["files_excluded"], 2)
+
     def test_orphan_and_route_deeper_than_three_fail(self) -> None:
         self.wiki.write("README.md", "# Home\n[One](one/README.md)\n")
         self.wiki.write("one/README.md", "# One\n[Two](../two/index.md)\n")

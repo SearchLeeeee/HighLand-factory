@@ -3,8 +3,8 @@
 
 The gate requires a single README.md home, rejects competing home pages, broken
 local links/anchors, Obsidian wikilinks, deleted legacy routes, orphans, and MOC
-routes deeper than three hops, and isolates the wiki from feature-workspace and
-quick-workspace paths; it recognizes only ATX headings and same-line inline
+routes deeper than three hops, and isolates explicitly registered process
+workspaces; it recognizes only ATX headings and same-line inline
 links/images (code is masked, HTML navigation and setext headings are not
 edges), existence-checks local images without making them edges, never fetches
 external URLs, and takes its root only from the required ``--wiki-root`` flag so
@@ -16,12 +16,20 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import deque
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
+from typing import Any
 from urllib.parse import unquote, urlsplit
 
-EXCLUDED_SEGMENTS = {"feature-workspace", "quick-workspace"}
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "engine"))
+from factorylib.workspaces import (  # noqa: E402
+    process_workspace_names,
+    process_workspace_roots,
+    project_config_for_wiki,
+)
+
 HOME = "README.md"
 COMPETING_HOME_NAMES = {"home.md", "index.md", "_index.md"}
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "data", "ftp", "ftps"}
@@ -32,9 +40,6 @@ WIKILINK_RE = re.compile(r"\[\[[^\]\r\n]+\]\]")
 LEGACY_RE = re.compile(
     r"(?i)(?<![\w-])(?:decisions|discussions)[\\/]"
     r"|(?<![\w-])04-open-questions\.md(?![\w-])"
-)
-FEATURE_REF_RE = re.compile(
-    r"(?i)(?<![\w-])feature-workspace[\\/]"
 )
 HTML_ANCHOR_RE = re.compile(
     r"""<a\s+[^>]*(?:id|name)\s*=\s*["']([^"']+)["'][^>]*>""", re.I
@@ -64,6 +69,7 @@ class ValidationResult:
     files_scanned: int
     files_excluded: int
     links_checked: int
+    process_workspaces: tuple[str, ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -74,7 +80,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Validate long-term wiki Markdown navigation.",
         epilog=(
-            "Every feature-workspace and quick-workspace path is excluded. External URLs are not "
+            "Built-in and explicitly registered process-workspace roots are excluded. External URLs are not "
             "fetched. Non-ASCII anchors are warning-only in this version."
         ),
     )
@@ -83,14 +89,30 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Path to the long-term wiki root (required).",
     )
     parser.add_argument(
+        "--process-workspace", action="append", default=[],
+        help="Additional explicit directory relative to the Wiki; repeatable. Project config is read automatically.",
+    )
+    parser.add_argument(
         "--format", choices=("text", "json"), default="text",
         dest="output_format", help="Output format for a machine-readable validation receipt.",
     )
     return parser.parse_args(argv)
 
 
-def _is_excluded(relative: Path) -> bool:
-    return any(part.casefold() in EXCLUDED_SEGMENTS for part in relative.parts)
+def _is_excluded(path: Path, roots: tuple[Path, ...]) -> bool:
+    target = path.resolve(strict=False)
+    return any(target.is_relative_to(root) for root in roots)
+
+
+def _process_reference_pattern(root: Path, names: tuple[str, ...]) -> re.Pattern[str]:
+    alternatives = "|".join(re.escape(name).replace("/", r"[\\/]") for name in names)
+    # Links are also checked after path resolution below. This catches bare
+    # discovery instructions without treating nested similarly named folders
+    # (e.g. concepts/feature-workspace/) as registered process roots.
+    return re.compile(
+        r"(?<![\w./\\-])(?:\.\.?[\\/])*(?:"
+        + re.escape(root.name) + r"[\\/])?(?:" + alternatives + r")[\\/]"
+    )
 
 
 def _mask_fences(text: str) -> str:
@@ -250,7 +272,7 @@ def _split(destination: str) -> tuple[str, str]:
     return unquote(parsed.path), unquote(parsed.fragment)
 
 
-def _resolve(root: Path, source: Path, destination: str) -> tuple[Path, str | None]:
+def _raw_target(root: Path, source: Path, destination: str) -> Path:
     normalized = destination.replace("\\", "/")
     if re.match(r"^[A-Za-z]:/", normalized):
         candidate = Path(normalized)
@@ -258,7 +280,11 @@ def _resolve(root: Path, source: Path, destination: str) -> tuple[Path, str | No
         candidate = root / normalized.lstrip("/")
     else:
         candidate = source.parent / normalized
-    candidate = candidate.resolve(strict=False)
+    return candidate
+
+
+def _resolve(root: Path, source: Path, destination: str) -> tuple[Path, str | None]:
+    candidate = _raw_target(root, source, destination).resolve(strict=False)
     try:
         relative = candidate.relative_to(root.resolve(strict=False)).as_posix()
     except ValueError:
@@ -291,13 +317,27 @@ def _diag(severity: str, code: str, path: str, line: int, message: str) -> Diagn
     return Diagnostic(severity, code, path, line, message)
 
 
-def validate_wiki(wiki_root: Path) -> ValidationResult:
+def validate_wiki(
+    wiki_root: Path,
+    project_config: dict[str, Any] | None = None,
+    *,
+    process_workspaces: tuple[str, ...] | list[str] = (),
+) -> ValidationResult:
     root = wiki_root.expanduser().resolve(strict=False)
     errors: list[Diagnostic] = []
     warnings: list[Diagnostic] = []
     if not root.is_dir():
         errors.append(_diag("ERROR", "WIKI_ROOT_MISSING", ".", 0, f"not a directory: {root}"))
         return ValidationResult(errors, warnings, 0, 0, 0)
+
+    try:
+        config = project_config if project_config is not None else project_config_for_wiki(root)
+        names = process_workspace_names(config, additional=process_workspaces)
+        process_roots = process_workspace_roots(root, config, additional=process_workspaces)
+    except ValueError as exc:
+        errors.append(_diag("ERROR", "PROCESS_WORKSPACE_CONFIG", ".", 0, str(exc)))
+        return ValidationResult(errors, warnings, 0, 0, 0)
+    process_ref_re = _process_reference_pattern(root, names)
 
     included: dict[str, Path] = {}
     excluded = 0
@@ -307,7 +347,7 @@ def validate_wiki(wiki_root: Path) -> ValidationResult:
     )
     for path in sorted(markdown_files, key=lambda p: p.as_posix().casefold()):
         relative_path = path.relative_to(root)
-        if _is_excluded(relative_path):
+        if _is_excluded(path, process_roots):
             excluded += 1
         else:
             included[relative_path.as_posix()] = path
@@ -353,12 +393,15 @@ def validate_wiki(wiki_root: Path) -> ValidationResult:
             PurePosixPath(relative).name.casefold() in {"readme.md", "index.md", "_index.md"}
             or relative.casefold() in {"01-reading-guide.md", "02-file-authority-map.md"}
         )
+        discovery_lines: set[int] = set()
         if discovery:
-            for match in FEATURE_REF_RE.finditer(parseable):
+            for match in process_ref_re.finditer(parseable):
+                line = _line(parseable, match.start())
+                discovery_lines.add(line)
                 errors.append(_diag(
                     "ERROR", "FEATURE_WORKSPACE_DISCOVERY", relative,
-                    _line(parseable, match.start()),
-                    "default discovery must not traverse into feature-workspace",
+                    line,
+                    "default discovery must not traverse into a registered process workspace",
                 ))
 
         for link in _links(parseable):
@@ -371,19 +414,19 @@ def validate_wiki(wiki_root: Path) -> ValidationResult:
             else:
                 target, target_relative = source, relative
 
-            raw_parts = {
-                part.casefold() for part in destination_path.replace("\\", "/").split("/")
-                if part not in {"", ".", ".."}
-            }
-            resolved_parts = (
-                {p.casefold() for p in PurePosixPath(target_relative).parts}
-                if target_relative is not None else set()
-            )
-            if any(part.casefold() in EXCLUDED_SEGMENTS for part in (*raw_parts, *resolved_parts)):
+            raw_target = _raw_target(root, source, destination_path) if destination_path else source
+            if any(_is_excluded(part, process_roots) for part in (raw_target, *raw_target.parents)):
+                # Preserve legacy diagnostic codes for gate consumers; they
+                # now apply to all roots from the shared process registry.
                 errors.append(_diag(
                     "ERROR", "FEATURE_WORKSPACE_LINK", relative, link.line,
                     f"link traverses into an excluded workspace path: {link.destination}",
                 ))
+                if discovery and link.line not in discovery_lines:
+                    errors.append(_diag(
+                        "ERROR", "FEATURE_WORKSPACE_DISCOVERY", relative, link.line,
+                        "default discovery must not traverse into a registered process workspace",
+                    ))
                 continue
             outside_wiki = target_relative is None
             if outside_wiki:
@@ -463,7 +506,7 @@ def validate_wiki(wiki_root: Path) -> ValidationResult:
 
     errors.sort()
     warnings.sort()
-    return ValidationResult(errors, warnings, len(included), excluded, checked)
+    return ValidationResult(errors, warnings, len(included), excluded, checked, names)
 
 
 def _print(root: Path, result: ValidationResult) -> None:
@@ -482,13 +525,14 @@ def _print(root: Path, result: ValidationResult) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    result = validate_wiki(args.wiki_root)
+    result = validate_wiki(args.wiki_root, process_workspaces=args.process_workspace)
     if args.output_format == "json":
         payload = {
             "wiki_root": str(args.wiki_root.expanduser().resolve(strict=False)),
             "ok": result.ok,
             "files_scanned": result.files_scanned,
             "files_excluded": result.files_excluded,
+            "process_workspaces": list(result.process_workspaces),
             "links_checked": result.links_checked,
             "error_count": len(result.errors),
             "warning_count": len(result.warnings),
