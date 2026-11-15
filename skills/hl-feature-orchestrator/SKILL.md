@@ -141,6 +141,14 @@ Carry already working entry points and their reuse conditions forward instead of
 them per worker. Safe verification preparation may overlap implementation/review; formal review
 waits for stable sources and final acceptance waits for the required review to pass.
 
+At session or role handoff, apply the same reference's continuity rules: retain the critical
+conditions in the coordinator's judgement, not just a reader's file list; pass actual evidence
+scope, continuation references and unverified work. If a selected source is replaced or recreated,
+record old/new provenance, lost/preserved continuity and affected rows in the existing plan and
+acceptance evidence. Recheck only the affected claims; never label capability in a new scenario
+as continuation of the original chain without the required evidence. No acknowledgement turn or
+additional approval is required for a source change within the existing authorized scope.
+
 ## Main Agent Responsibilities
 
 Own coordination and quality gates:

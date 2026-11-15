@@ -381,6 +381,12 @@ The prompt must be self-contained so the new session needs no chat history. It c
 - the current lifecycle position (`phase: code-ai-profiles`, `state: completed`) and the objective: advance this Feature to `ready-to-merge / ready`, keeping that one goal until it is recorded;
 - the must-read paths: `feature.yaml`, `discussion/workbench.md`, each domain implementation document, and `code-ai/README.md` with the profiles it indexes;
 - the confirmed conclusions and constraints in short form, and the deferred questions marked explicitly as deferred so they are not reopened as discussion;
+- the critical inherited conditions with their formal source sections, stated directly rather
+  than only hidden in the must-read list; include linked object/artifact/session/sequence conditions
+  when applicable, without copying all background;
+- any predecessor evidence the next step needs: its actual record, proven scope, relevant identity
+  and continuation/configuration reference, reuse limits and missing entry points. List required
+  checks still unexecuted/unverified/blocked; documentation completion is not application evidence;
 - the recorded parallel development choice from `## Parallel development`. When it is `worktree`, add: create `<WORK_ROOT>/.factory/worktrees/<feature-id-lowercase>` on branch `feature/<feature-id-lowercase>` after the `check-ignore` precondition, work inside it, keep manifests and evidence in `WORK_ROOT`, and never propose merging back to `repo.default_branch` before the Feature is `ready-to-merge / ready`;
 - the mandatory end state: recorded `ready-to-merge / ready` with passing fixed review, separated acceptance, complete closure and a passing `factory gate workspace`;
 - the authorization: invoking `$hl-feature-orchestrator` authorizes local commits scoped to this
@@ -405,6 +411,9 @@ Use $hl-feature-orchestrator <FEATURE_ID> in work repo <WORK_ROOT> to advance Le
 - read first: feature.yaml, discussion/workbench.md, <domain>/*.md, code-ai/README.md and the
   profiles it indexes
 - confirmed conclusions: <short list>
+- critical inherited constraints: <conditions + formal source sections>
+- evidence to reuse/continue, when needed: <record, scope, identity, entry and limits; missing entry is a gap>
+- required work not yet verified: <remaining checks/blockers; do not prefill PASS>
 - deferred questions (do not reopen discussion): <short list>
 - parallel development: sequential | worktree (<worktree path and branch when worktree>)
 - local commits: starting this Feature implementation authorizes scoped implementation, doc sync,

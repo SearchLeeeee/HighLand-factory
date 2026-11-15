@@ -130,6 +130,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 - Reading and verification agents use the fixed handoff structure in wiki/code-ai/subagent-flow.md
 - Implementation agents use wiki/code-ai/_blocks/handoff-output.md, including the review-gate summary
 - Code changes maintain agent notes and READMEs per wiki/code-ai/_blocks/agent-notes-rule.md and wiki/code-ai/_blocks/readme-sync-rule.md
+- Carry critical sourced constraints, evidence scope/identity/continuation entry and required unverified work through those existing handoffs. A source replacement updates the affected plan and acceptance mapping; rebuilding a scenario does not by itself prove original-chain continuation.
 
 ## Plan Gate
 - The orchestrator supplies the current canonical Feature implementation plan and assigns a plan item before implementation, review or verification.

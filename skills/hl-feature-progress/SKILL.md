@@ -84,6 +84,11 @@ When the user asks for a next-session prompt:
 - Carry confirmed conclusions and prior constraints from the referenced authority documents. Keep
   open questions clearly separate; do not promote recommendations or pending questions into settled
   facts.
+- State critical inherited conditions with their formal source sections, plus the actual scope,
+  relevant identity and continuation/configuration entry of evidence needed next. Identify missing
+  entries and required checks still unexecuted/unverified/blocked. Follow the cross-session rules in
+  `<FACTORY_ROOT>/skills/hl-workflow-governance/references/execution-preparation.md`; do not create
+  another prompt/report format or infer continuity from a rebuilt scenario or a previous PASS.
 - Tell the next workflow skill to preserve split boundaries and to maintain the owning manifest.
 - If formal references are incomplete, output a blocker prompt that requests the missing authority
   instead of pretending the handoff is complete.

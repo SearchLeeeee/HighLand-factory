@@ -98,6 +98,13 @@ approval process is needed.
   historical evidence reuse. Separate successful capability runs cannot replace an explicitly
   required connected execution; keep the unsatisfied link unverified or blocked unless an
   authorized re-scope changes the original contract.
+- At intake, reconcile the handoff's critical conditions, actual evidence scope and continuation
+  entries with the current contracts. Missing original state is a gap, not permission to silently
+  substitute a newly seeded scenario. On a source change, record the reason, old/new provenance,
+  retained/lost continuity and affected rows in the existing plan/handoff and result mapping.
+  Preserve unaffected results and judge the replacement against the original criterion. Apply
+  `execution-preparation.md` under the governance references; routine source changes within scope
+  add no user approval, while actual criterion/permission changes keep their existing boundary.
 - Classify every criterion as required for PASS, optional diagnostic, or unavailable external
   observation. Do not silently change a required criterion after a failure.
 - A material re-scope of one criterion is a formal decision: the owner authorizes it, the

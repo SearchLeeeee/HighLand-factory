@@ -63,6 +63,11 @@ Transition and integration commands take the same registry/feature/initiative ar
 `--output` for the handoff and `--evidence` for the integration result. Run `validate` after every
 manifest change; its exit status is the gate.
 
+The generated integration handoff carries declared acceptance goals and required context, with
+manifest/evidence links resolved relative to its output file. These are source navigation and
+inherited criteria, not proof that integration or prior-chain continuation passed. Select actual
+continuation identities and record source changes in the existing plan/result mapping.
+
 Transitions validate the candidate before persistence. With `--registry`, validate the complete
 registry with that candidate substituted before atomically replacing the manifest. Validation or
 write failure leaves the original file unchanged; dry runs apply the same checks without writing.
