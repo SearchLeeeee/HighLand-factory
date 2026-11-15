@@ -21,7 +21,7 @@ ENGINE_DIR = Path(__file__).resolve().parent
 if str(ENGINE_DIR) not in sys.path:
     sys.path.insert(0, str(ENGINE_DIR))
 
-from factorylib import commands, doctor, util  # noqa: E402
+from factorylib import commands, doctor, maintenance, util  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -86,13 +86,78 @@ def build_parser() -> argparse.ArgumentParser:
     gate.add_argument("--json", action="store_true")
     gate.set_defaults(func=commands.cmd_gate)
 
+    access = sub.add_parser("maintenance-check", help="check access to the project mutation lease")
+    access.add_argument("--work", required=True)
+    access.add_argument("--token", help="owned token; defaults to FACTORY_MAINTENANCE_TOKEN")
+    access.set_defaults(func=_maintenance_check)
+
+    lock = sub.add_parser("maintenance-lock", help="acquire, inspect or release a cooperative mutation lease")
+    lock.add_argument("--work", required=True)
+    lock.add_argument("--action", required=True, choices=("acquire", "release", "status"))
+    lock.add_argument("--owner", help="writer or session identifier (required for acquire)")
+    lock.add_argument("--purpose", default="workflow", help="why this writer needs the project")
+    lock.add_argument("--token", help="exact owned token (required for release)")
+    lock.set_defaults(func=_maintenance_lock)
+
     return parser
+
+
+def _maintenance_check(args: argparse.Namespace) -> int:
+    maintenance.check_access(Path(args.work), args.token)
+    util.print_json({"ok": True, "work": str(Path(args.work).expanduser().resolve())})
+    return 0
+
+
+def _maintenance_lock(args: argparse.Namespace) -> int:
+    work = Path(args.work)
+    if args.action == "acquire":
+        if not args.owner:
+            raise util.FactoryError("maintenance-lock acquire requires --owner")
+        util.print_json(maintenance.acquire(work, args.owner, args.purpose))
+    elif args.action == "release":
+        if not args.token:
+            raise util.FactoryError("maintenance-lock release requires --token")
+        maintenance.release(work, args.token)
+        util.print_json({"released": True})
+    else:
+        util.print_json({"leases": maintenance.status(work)})
+    return 0
+
+
+def _extra_mutation_roots(args: argparse.Namespace) -> list[Path]:
+    """Reserve an adoption target before its configuration has been written."""
+    work = Path(args.work).expanduser().resolve()
+    roots = []
+    if getattr(args, "code", None):
+        roots.append(Path(args.code).expanduser().resolve())
+    if getattr(args, "answers", None):
+        values = util.load_yaml_file(Path(args.answers).expanduser().resolve())
+        repo = values.get("repo", {}) if isinstance(values, dict) else {}
+        if isinstance(repo, dict):
+            for name in ("code_external", "code_path", "wiki_path"):
+                raw = repo.get(name)
+                if isinstance(raw, str) and raw:
+                    path = Path(raw).expanduser()
+                    roots.append((path if path.is_absolute() else work / path).resolve())
+    return roots
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        mutating = args.command in {"init", "adopt", "upgrade"} and not (
+            getattr(args, "dry_run", False) or getattr(args, "check", False)
+        )
+        if mutating:
+            work = Path(args.work).expanduser().resolve()
+            if (args.command == "adopt" or getattr(args, "mode", None) == "adopt") and not work.is_dir():
+                raise util.FactoryError(f"adopt requires an existing work directory: {work}")
+            with maintenance.mutation_guard(
+                work, purpose=f"workflow:factory-{args.command}",
+                extra_roots=_extra_mutation_roots(args), allow_refactor=False,
+            ):
+                return int(args.func(args))
         return int(args.func(args))
     except util.FactoryError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

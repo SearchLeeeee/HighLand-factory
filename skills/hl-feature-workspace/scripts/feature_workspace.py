@@ -919,6 +919,33 @@ def main(argv: list[str] | None = None) -> int:
     transition_parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
 
+    mutating = args.command in {
+        "initiative-integration-handoff", "initiative-integration-result",
+        "finalize-decomposition", "transition",
+    } and not getattr(args, "dry_run", False)
+    if mutating:
+        engine = Path(__file__).resolve().parents[3] / "engine"
+        if str(engine) not in sys.path:
+            sys.path.insert(0, str(engine))
+        from factorylib import maintenance
+
+        # Standalone manifest utilities remain usable; configured work repos
+        # coordinate the entire read/modify/write transaction with maintenance.
+        source = getattr(args, "registry", None) or getattr(args, "feature", None)
+        work = maintenance.find_work(source) if source else None
+        if work is not None:
+            try:
+                with maintenance.mutation_guard(
+                    work, purpose=f"workflow:{args.command}", allow_refactor=False,
+                ):
+                    return _dispatch(args)
+            except maintenance.MaintenanceError as exc:
+                print(f"ERROR: {exc}", file=sys.stderr)
+                return 1
+    return _dispatch(args)
+
+
+def _dispatch(args: argparse.Namespace) -> int:
     if args.command in {"initiative-integration-handoff", "initiative-integration-result"}:
         raw_registry = load_yaml(args.registry)
         entry = next((item for item in raw_registry.get("initiatives", []) if item.get("id") == args.initiative), None)
