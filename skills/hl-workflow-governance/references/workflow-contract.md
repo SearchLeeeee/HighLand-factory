@@ -138,6 +138,13 @@ authority stays with the feature-workspace tools and documentation named by
   overlap; final review and separated acceptance retain their judgement order. Reuse current
   source surveys/owner proposals, supplement missing input, and diagnose stalls before retrying.
   This adds no preparation report, registry, configuration switch or lifecycle gate.
+- Cross-session handoffs explicitly carry the critical sourced constraints, actual evidence scope
+  and continuation entry, and outstanding required checks. The receiver checks applicability in
+  normal execution, without an acknowledgement turn. Recreated or substituted evidence records
+  the reason, old/new provenance, retained/lost continuity and affected rows in the existing plan
+  and acceptance/result mapping; unaffected valid results remain. Capability alone does not prove
+  a required original-chain continuation. Source changes within existing scope add no approval;
+  actual criterion or permission changes keep the existing authorization boundary.
 - Same-Initiative discussion and handoff preferences may be inherited from an explicitly sourced
   current workbench, formal reference or handoff. Re-ask only unresolved or conflicting choices;
   mode/model preferences do not authorize creating a session or performing a merge/push. The

@@ -94,6 +94,52 @@ cosmetic restatement, duplicate source inventory or a new narrative of unchanged
 documentation sync, required gates and source stability still govern that boundary. Re-review and
 re-verify affected findings and their dependent paths after repairs, preserving valid results.
 
+## Cross-Session Continuity
+
+Make the existing handoff sufficient without the prior chat. Carry the current task/next action,
+formal authority paths and the few critical conditions that must survive the handoff, including
+linked same-object, artifact, session or sequence requirements where applicable. State those
+conditions directly with their source sections; a long must-read list alone does not preserve
+them. Separate confirmed constraints from proposals, deferred questions and unresolved gaps.
+
+For evidence the next step will rely on or continue, cite the actual record and what it proves,
+its relevant source/run/object/version identity, reuse conditions and continuation entry point.
+Use the existing evidence record and allowed local-configuration references to locate the required
+state, artifact or client. Do not rely solely on a transient path or prior chat. Keep private
+connection details outside versioned documents. State missing/unavailable entries as gaps rather
+than assuming the environment or original scenario survives. Omit predecessor evidence when none
+is needed; never invent a passing result to fill the handoff.
+
+List required checks not yet executed, not proven or blocked, and what remains to establish them.
+The receiver reconciles the critical conditions and claimed evidence with current manifests,
+contracts and sources as part of its normal work. Successful file reads are not semantic acceptance;
+the coordinator retains the cross-step conditions even when a reader surveys their source files.
+This needs no separate acknowledgement turn, checklist document or repeated user confirmation.
+
+## Evidence Source Changes
+
+If the selected evidence/state becomes unavailable, or work switches to a recreated scenario,
+reset baseline, different artifact or session, preserve the old observations and record the change
+where that work is already tracked:
+
+- Identify the reason and old/new source, with only the identities needed to judge applicability.
+- Explain which continuity conditions remain proven or were lost, and the affected criteria/rows.
+  Same labels, manually reused IDs or the same code do not by themselves establish state lineage.
+- Update the relevant assumption/decision and revision in the existing plan when its selected
+  source changes, and synchronize the acceptance/result mapping. Keep unaffected valid results.
+  Do not rewrite the original run or carry its PASS onto an unproven changed claim.
+- Judge the new evidence against the original criterion. A fresh scenario may prove capability;
+  it proves continuation only with the required lineage and linked conditions. A different physical
+  instance can qualify when that lineage is demonstrated and the criterion permits it. Keep a
+  missing required connection unverified/blocked and execute only the affected missing path.
+
+The coordinator and independent verifier assess that impact; neither a replacement source nor
+the implementer's summary grants acceptance. Source changes within existing authorized scope do
+not require another user approval. If the goal, acceptance condition or permission must change,
+use the existing decision/authorization boundary, retaining any authorization that already covers
+it. Continue independent work and preserve the existing lifecycle owner and gates; add no status,
+source registry, hash requirement or extra report.
+
 ## Diagnose Waiting Instead Of Repeating Work
 
 Prefer completion notifications or a bounded wait that wakes on a result. When those are absent,

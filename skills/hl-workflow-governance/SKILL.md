@@ -81,6 +81,12 @@ expensive work, carry resources/results in the existing plan and handoff, overla
 and diagnose stalled tasks before retrying. Keep only applicable details; this adds no mandatory
 report, configuration, lifecycle state or approval.
 
+Cross-session handoffs use that reference's continuity and evidence-source rules: state the
+critical inherited conditions, actual evidence scope and continuation entry, and remaining
+required checks. If sources change, synchronize the existing plan and result mapping with the
+affected claims; a recreated scenario is not automatically the original chain continued.
+This is an execution check, not another user confirmation or a change to phase boundaries.
+
 Carry explicit discussion and handoff preferences within the same Initiative when a current
 workbench, formal context reference or handoff records their source and scope. A new Leaf does not
 by itself require the user to choose the same mode again. Missing or conflicting preferences need

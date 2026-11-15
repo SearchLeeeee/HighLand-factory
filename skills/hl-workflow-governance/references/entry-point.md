@@ -42,6 +42,8 @@ or workflow maintenance. Do not carry out a Feature transition in the routing sk
   early, without mandating a product or GUI.
   Use [Execution Preparation And Handoff](execution-preparation.md) for preparation ownership,
   suitability checks, safe overlap and concise role handoffs; no separate environment report.
+  Its cross-session rules carry critical constraints, evidence scope/continuation entries and
+  unverified work; source changes update the existing plan/result mapping without a new approval.
 - Inherit explicit same-Initiative discussion/handoff preferences from a current workbench, formal
   reference or handoff. Do not repeat a settled choice merely for a new Leaf; preference is not
   authorization. Profiles and their gate must complete before implementation handoff.
