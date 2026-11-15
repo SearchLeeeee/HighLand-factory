@@ -1,0 +1,6 @@
+interface:
+  display_name: "手动重构"
+  short_description: "手动扫描代码、测试和当前业务 Wiki，在确认收益成本后按范围完成重构"
+  default_prompt: "使用 $hl-refactor 扫描项目，先检查所有 Initiative 已完成，再列出重构候选的收益、成本和风险。"
+policy:
+  allow_implicit_invocation: false
