@@ -17,13 +17,15 @@
 
 `intake → preflight → goal → source survey / plan proposals → integrated plan → implementation → review → verification/acceptance → closure → commit（仅在被授权时）`
 
+下表中的 Feature 计划要求适用于 Feature 开发。用户明确发起的 `hl-refactor` 手动维护保留相同四角色职责、全部通用必读和 owner 边界，以本轮运行记录中的扫描范围、候选、用户选择、依赖、精确文件范围、验收和证据作为统一任务依据。它不创建 Feature 或 Feature profile，不要求虚构 `implementation-plan.md`；只读扫描无需实施计划，修改必须先通过维护准入、占用和候选选择。独立评审同时完成简短只读接续检查，证据可在一份报告中引用，不要求额外功能或重复报告。
+
 | 阶段 | 产出 | 退出条件 |
 | --- | --- | --- |
 | intake | 任务陈述、干系人、期望 | 任务可被一句话说清 |
 | preflight | 权威来源、范围、风险、缺口 | 无阻塞性缺口，或缺口已被显式记录 |
 | goal | 目标、验收标准、非目标 | 验收标准可被验证 |
-| source survey / plan proposals | 当前适用的代码调研与必要 owner 的只读 plan proposal；列出代码事实、候选文件、依赖和验证 | 资料足以形成整 Feature 计划，或缺口已明确升级 |
-| integrated plan | 唯一 Feature 计划 `<feature-root>/code-ai/implementation-plan.md`，按 [implementation-plan-template.md](implementation-plan-template.md) 记录 owner/file map、顺序、依赖、验收、条件风险和有意义的集成检查点 | 主编排者批准；用户需要决定的事项已解决；所有 worker scope 来自获批计划 |
+| source survey / plan proposals | 当前可用的代码走查和必要 owner 的只读 plan proposal；列出现状事实、候选文件、依赖与验证 | Feature 由整合者形成计划；手动维护形成证据与成本明确的候选。缺事实先澄清 |
+| integrated plan | Feature 使用唯一 `<feature-root>/code-ai/implementation-plan.md`，按 [计划模板](implementation-plan-template.md) 记录 owner/file map、顺序、依赖、验收、条件风险和有意义的集成检查点；手动维护使用同一运行记录中的已选候选、顺序与实施范围 | 主编排者批准；用户需要决定的事项已解决；所有 worker scope 来自对应获批依据 |
 | implementation | 按已分配的 plan item 实现并在原位验证，超出计划时停止受影响部分 | 计划项完成并交付证据；必要的里程碑或集成检查通过 |
 | review | 评审报告与发现级别 | 无 Blocker/High，或已获明确处置 |
 | verification/acceptance | 证据、覆盖情况、结论 | 验收项全部有证据或明确未覆盖 |
@@ -32,7 +34,9 @@
 
 任一阶段发现需要改变目标、验收标准、契约或写入范围时，回到对应阶段，不得在实现中偷偷改目标。
 
-计划格式的唯一来源是 [implementation-plan-template.md](implementation-plan-template.md)。阅读角色可在计划创建前调查代码并提出计划建议，但不得修改业务逻辑。主编排者核对调研与 proposal 的来源、owner、范围及当前适用性；已有同 owner、同范围且仍适用的结果可复用，只有缺少 owner 输入或范围变化时才补针对性 plan-only proposal。主编排者维护一份整 Feature 计划，不得为每个 worker 复制一份主计划。计划须在第一个实现文件改动前获批。每个 worker 实施前仍须阅读当前获批计划并确认分配范围，但不为已明确的分配另起一轮确认交接。计划深度按风险选择：有界单 owner 工作可以短一些；跨 owner、共享契约、schema/state、数据迁移、安全或高风险行为需要按模板填写条件章节。
+Feature 计划格式的唯一来源是 [implementation-plan-template.md](implementation-plan-template.md)。阅读角色可在计划创建前调查代码并提出计划建议，但不得修改业务逻辑。主编排者核对调研与 proposal 的来源、owner、范围及当前适用性；已有同 owner、同范围且仍适用的结果可复用，只有缺少 owner 输入或范围变化时才补针对性 plan-only proposal。主编排者维护一份整 Feature 计划，不得为每个 worker 复制一份主计划。计划须在第一个实现文件改动前获批。每个 worker 实施前仍须阅读当前获批计划并确认分配范围，但不为已明确的分配另起一轮确认交接。计划深度按风险选择：有界单 owner 工作可以短一些；跨 owner、共享契约、schema/state、数据迁移、安全或高风险行为需要按模板填写条件章节。
+
+手动维护的等效顺序与范围直接记录在运行记录中，不另复制一份 Feature 计划。
 
 并行 item 必须依赖已满足，且文件范围和契约范围都不重叠。计划安排必要的集成验证点，最终集成由主编排者负责。每个实现步骤仍在原位验证；相同模型/会话不必为每个微步骤写重复 handoff。仅在有意义的里程碑、多 agent 汇合、高风险变化或重大偏差时做简短检查点。重大范围、契约、安全或产品决策停下升级；获批的实现调整更新同一份计划并批准受影响部分后继续。
 
@@ -75,7 +79,7 @@
 
 ## 5. 评审交接
 
-Feature 评审角色必须拿到当前批准的 `implementation-plan.md`，核对改动是否符合获批 scope、owner/file 边界、依赖和集成安排；计划与实际不一致，或评审期间计划的语义变化影响当前判断时，停止受影响部分并交还主编排者处理；单纯记录或非语义性更正不自动使其他有效结论失效。之后按 [review-agent.md](review-agent.md) 与 [_blocks/review-agent-contract.md](_blocks/review-agent-contract.md) 的固定报告结构输出，明确结论、发现级别、未覆盖项与复审建议。
+评审角色必须拿到当前批准依据：Feature 使用 `implementation-plan.md`，手动维护使用运行记录和已选候选。核对改动是否符合获批 scope、owner/file 边界、依赖和集成安排；依据与实际不一致，或评审期间依据的语义变化影响当前判断时，停止受影响部分并交还主编排者处理；单纯记录或非语义性更正不自动使其他有效结论失效。之后按 [review-agent.md](review-agent.md) 与 [_blocks/review-agent-contract.md](_blocks/review-agent-contract.md) 的固定报告结构输出，明确结论、发现级别、未覆盖项与复审建议。
 
 ## 6. 验证交接（固定标题）
 
@@ -97,7 +101,7 @@ Feature 评审角色必须拿到当前批准的 `implementation-plan.md`，核�
 通过、有条件通过、不通过；有条件通过必须列出条件与责任人。
 
 验证交接不得修改被验证对象；发现问题回到实现或评审阶段。
-验证角色使用同一份当前批准计划，逐项确认计划结果和 Feature 验收标准都有可复现证据；其他任务按其明确验收范围执行。对象身份与来源变化见[评审门](_blocks/review-gate.md)，证据复用、局部补验和停止条件见[测试与质量门](_blocks/testing-quality-gate.md)。使用以上五节输出，不再嵌套通用七段。
+验证角色使用同一份当前批准依据，逐项确认 Feature 计划结果和验收标准，或手动维护的已选目标与验收标准，都有可复现证据；其他任务按其明确验收范围执行。对象身份与来源变化见[评审门](_blocks/review-gate.md)，证据复用、局部补验和停止条件见[测试与质量门](_blocks/testing-quality-gate.md)。使用以上五节输出，不再嵌套通用七段。
 
 ## 7. 冲突处理
 

@@ -16,6 +16,7 @@
 5. 只加载任务需要的上下文；不要把整库读入却不使用。
 6. 发现任务超出当前 profile 的职责或写入范围时，立即停止并转交。
 7. 启动阶段不产生代码、配置、迁移或提交。
+8. 实际写入前，按 `<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease` 获取本项目占用，或使用协调者明确委派的 `FACTORY_MAINTENANCE_TOKEN`；每个实施单元开始前复核。借用者不得释放协调者的占用。另一运行占用时停止写入，只读查询仍可继续；占用不代替任何既有授权或必读要求。
 
 ## 启动摘要最小字段
 

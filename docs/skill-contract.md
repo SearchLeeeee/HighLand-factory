@@ -36,6 +36,7 @@ Paths are fixed relative to the **work repo root** (`<work>`). Config may rename
       schema/feature-workspace-schema.md
       initiatives/
     quick-workspace/           # isolated quick-change records
+    refactor-workspace/        # isolated manual-maintenance runs
     code-ai/                   # agent profiles + blocks + manifests
   AGENTS.md
   CLAUDE.md
@@ -67,7 +68,24 @@ Every skill starts its execution with this reasoning step, even if it only reads
 
 5. If the project's `workflow-profile.md` or `factory.yaml` disagrees with what the user is asking, route to `$hl-workflow-governance` instead of improvising.
 
-A skill must fail closed: missing config, missing project profile, failing gate, or unresolved language policy stops the skill with a concrete repair instruction.
+A skill must fail closed: missing config, missing project profile, failing gate, or unresolved language policy stops the skill with a concrete repair instruction. The sole diagnostic exception is an explicitly requested `$hl-refactor` read-only scan of a failing **Wiki structure** baseline: preserve that failure as a finding, keep code/tests/current Wiki unchanged until selection, and require Wiki PASS before closing an implemented run. Invalid lifecycle or registry state always blocks maintenance admission. This exception never marks a failed check as passed or permits ordinary workflow closure behind a red gate.
+
+## 3a. Project write lease
+
+Before project mutation, acquire or explicitly borrow the project lease described in
+[`entry-point.md`](../skills/hl-workflow-governance/references/entry-point.md#project-write-lease).
+Check it before each implementation unit and pass the owning `FACTORY_MAINTENANCE_TOKEN` to
+delegated writers and governed commands. Release only a lease this operation owns. Read-only
+progress remains available without acquiring a lease; a conflicting lease blocks writes, not
+reading or diagnosis. Leases coordinate mono, split and worktree resources through the shared
+engine implementation; they do not add Feature or Initiative lifecycle states.
+
+`$hl-refactor` starts only on an explicit manual request after the existing lifecycle reader
+confirms every effective Initiative and Leaf is terminal with its required closure evidence.
+It keeps its lease during scanning, candidate selection and execution, or explicitly pauses
+and releases it. Resuming requires rechecking admission, source identity and selected evidence.
+Completed Initiative manifests and their original acceptance/history are never reopened or
+rewritten to represent maintenance.
 
 ## 4. Project values a skill may rely on
 
@@ -77,16 +95,23 @@ Read these from `workflow-profile.md` / `factory.yaml`; do not invent them:
 | --- | --- |
 | project | name, slug, one-liner, stack, doc/code/commit language, license, visibility |
 | repo | mode, default branch, code path, wiki path, code external path, commit format |
-| layout | code root, wiki root, feature-workspace root, quick-workspace root, code-ai root |
+| layout | code root, wiki root, feature-workspace root, quick-workspace root, refactor-workspace root, code-ai root |
 | owners | id, title, owned paths, profile path |
 | commands | setup, build, lint, typecheck, test, e2e, dev, verify |
 | verification | baseline evidence path, evidence root, isolated environment policy |
-| workflow | scope gate on/off, split default, quick change, review required, verification separated, merge authorization, initiative integration required |
+| workflow | scope gate on/off, split default, quick change, review required, verification separated, merge authorization, initiative integration required, explicitly registered `process_workspaces` |
 | security | forbidden operations, sensitive classes, secrets file |
 | agents | platforms, review model, verification model |
 | packs | enabled, disabled |
 
 If a needed value is empty, the skill must ask the user once and then route to `$hl-workflow-governance` to persist it; it must not silently default.
+
+The shared `engine/factorylib/workspaces.py` resolver owns current-Wiki process exclusions:
+the built-in feature, quick and refactor workspaces plus explicit Wiki-relative roots in
+`workflow.process_workspaces`. Match those exact roots and descendants, never an arbitrary
+folder whose name contains `workspace`. The generated profile lists the effective exclusions;
+the Wiki validator, merge inventory and maintenance scan use the same set. Process material
+is not current authority and is excluded from default discovery and canonical MOC reachability.
 
 ## 4a. Socratic questioning (mandatory throughout)
 
@@ -126,6 +151,7 @@ names from pre-factory setups are intentionally not listed here; migrate by role
 | `hl-feature-progress` | Read-only progress/blockers/next-session prompt |
 | `hl-history-trace` | Isolated provenance lookup through tombstones |
 | `hl-quick-change` | Bounded bugfix/adjustment on-ramp with escalation |
+| `hl-refactor` | Explicit manual scan, selected maintenance and current-Wiki consistency after all Initiatives close |
 | pack `commit` (skill `hl-commit`) | Optional git policy skill |
 | pack `dev-runtime` (skill `hl-dev-runtime`) | Optional service restart/health skill |
 | pack `remote-verify` (skill `hl-remote-verify`) | Optional remote/isolated verification skill |

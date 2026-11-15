@@ -32,13 +32,17 @@
 
 ## 工作方式
 
-1. 判断改动类别：Quick Change（有界 bugfix/细节调整）还是 Initiative / Leaf
-   Feature（新能力或跨模块变更）。
-2. 走 Scope Gate：不确定是否可一次闭环就先拆分，不允许用 TODO 和 MVP 逃避拆分。
+1. 判断请求类别：产品需求走 Quick Change（有界 bugfix/细节调整）或 Initiative / Leaf
+   Feature（新能力或跨模块变更）；用户明确请求手动扫描重构时走 `$hl-refactor`，不自动触发。
+2. Feature 继续走 Scope Gate：不确定是否可一次闭环就先拆分，不允许用 TODO 和 MVP 逃避拆分。
+   手动维护则先确认所有有效 Initiative 已闭环并建立项目占用，再只读扫描、集中选择候选；
+   不为维护创建虚构 Feature，不改写原完成历史，也不放宽 Quick Change 的硬门槛。
 3. 状态只由流程技能在阶段边界推进；不要手工改 manifest 的 phase/state。
-4. 实现前先确认受影响权威文档已更新；实现后必须独立 review，并在独立 session
-   验证。
-5. 合并长期文档需要 owner 显式授权；未授权就只保留在临时工作区。
+4. Feature 实现前先确认受影响权威文档已更新；实现后必须独立 review，并在独立 session
+   验证。手动维护按已选目标与成本边界实施、独立评审和适用验证，保持当前态 Wiki 与有效
+   代码事实同步；不将实现缺陷改写为正确业务行为。
+5. Feature 合并长期文档需要 owner 显式授权；未授权就只保留在临时工作区。手动维护按
+   已选授权更新当前态文档，不重复原 Feature 的历史转换、tombstone 或权威切换。
 6. 验证默认采用最小充分检查，范围依据实际改动及其影响；同一事实不叠加等价校验，
    未变化且仍适用的结果应复用。独立 review / verification 保持独立判断，不默认重跑
    全部检查或重建环境；主编排核对关键证据，并按实际风险抽查。
@@ -55,6 +59,9 @@
    此授权不涵盖初始化、Quick Change 或无关改动。其他未获提交授权的工作不提交、不推送，但可评审和验证可识别的未提交内容；不因此阻塞
    无关工作。提交仍须授权和相关门禁通过，遵守仓库模式与先文档后代码政策。若明确
    验收要求不可变 commit 作为制品身份，先取得授权冻结，再执行该项。
+10. 任何项目写入前按 `<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`
+    获取或明确借用项目占用，将 `FACTORY_MAINTENANCE_TOKEN` 传给本轮写入者；每个实施单元前
+    复核，全部写入者停止后只释放自己拥有的占用。冲突占用期间可只读查询，不得借机越权。
 
 ## 生成文件与手工文件的边界
 
@@ -68,7 +75,8 @@
 - 不提交 `.factory/local.yaml`、`.factory/state.json`、`.env`、`*.cred` 等机密文件。
 - 不把真实密钥、完整账号、私有端点写进文档、日志、证据或提交信息。
 - 不在 `wiki/` 使用 Obsidian wikilink；只用相对路径的标准 Markdown 链接。
-- 不在默认知识发现中链接 `wiki/feature-workspace/` 或 `wiki/quick-workspace/` 内的文件。
+- 不在默认当前事实发现中链接已登记的过程区：内置 Feature、Quick、refactor 工作区及
+  `workflow.process_workspaces` 的附加根目录；有效清单以 Workflow Profile 为准，不按名称模糊排除。
 - 不手工改写 Git 历史，不跳过验证直接合并。
 
 ## 保持一致性

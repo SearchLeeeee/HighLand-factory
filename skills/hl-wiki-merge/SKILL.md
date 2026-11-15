@@ -40,6 +40,14 @@ marker files are metadata, not merge candidates, so reruns cannot re-import thei
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy stops
 the skill with one concrete repair instruction.
 
+Before any project write, follow
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
+acquire or explicitly borrow the project lease, check access before each implementation unit,
+and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
+maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
+this operation acquired, after its delegated writers stop. The lease grants no additional
+lifecycle, merge, deletion, commit or push authorization.
+
 ## Required Input
 
 Require a staged source path: a Markdown file, or a directory containing Markdown files. The
@@ -200,10 +208,11 @@ Use the inventory script only for discovery and JSON receipt generation; it neve
 never decides semantic targets.
 
 After the semantic merge and the affected-MOC updates, run the independent validator before any
-retained-history transformation. It uses only the Python standard library, always scans the complete
-long-term wiki, and excludes every path under the feature and quick workspaces. It fails on
+retained-history transformation. Use the project's configured interpreter; factory projects load
+their existing YAML configuration to resolve exclusions. It always scans the complete long-term
+Wiki and excludes exact registered process-workspace roots through the shared resolver. It fails on
 Obsidian-style wikilinks, broken local Markdown links or ASCII anchors, Markdown files unreachable
-from the wiki home, shortest MOC routes deeper than three links, feature-workspace traversal,
+from the wiki home, shortest MOC routes deeper than three links, process-workspace traversal,
 deleted legacy-root references, and a competing root-level home. It existence-checks local image
 targets without treating images as navigation edges, strips URL query and fragment components when
 resolving files, accepts platform separators and URL-encoded paths, ignores fenced and inline code

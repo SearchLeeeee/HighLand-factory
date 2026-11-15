@@ -25,7 +25,7 @@
 
 ## 如何使用工作流
 
-日常协作规则写在 [AGENTS.md](AGENTS.md)，Claude 系客户端读 [CLAUDE.md](CLAUDE.md)，两者实质一致。核心动作固定为：
+日常协作规则写在 [AGENTS.md](AGENTS.md)，Claude 系客户端读 [CLAUDE.md](CLAUDE.md)，两者实质一致。产品需求开发的核心动作固定为：
 
 1. 读 `.factory/local.yaml`（本机路径与解释器）和 `wiki/governance/workflow-profile.md`（当前门禁）。
 2. 判断这次改动是 Quick Change 还是 Initiative/Leaf Feature；不允许跳过 Scope Gate 直接写代码。
@@ -33,7 +33,14 @@
 4. 实现、独立 review、独立验证，三者不合并成一个 session。
 5. 验收通过并取得授权后，才把结论合并进 `wiki/`；历史由 Git 保留。
 
-临时场合（明确授权的 Feature 工作或 Quick Change）才会进入 `wiki/feature-workspace/` 与 `wiki/quick-workspace/`；它们不属于默认知识发现路径。
+所有有效 Initiative 完成后，可以明确手动发起 `$hl-refactor` 全量或最近 Initiative
+扫描：先看候选的证据、收益、成本和风险，集中选择后再实施、独立评审、验证和当前态
+Wiki 同步。它不自动随 Initiative 收尾启动，也不重开历史完成状态；工作依据是本轮
+运行记录与选择，无需创建 Feature profile 或实施计划。零改动扫描也是有效结果。
+
+过程区按 `wiki/governance/workflow-profile.md` 的明确清单隔离，包括 Feature、Quick
+Change、手动维护及额外登记的过程根目录；只有对应的明确任务才定向读取，不进入默认
+当前事实发现或 MOC。写入前遵循共享项目占用协议，其他运行占用时保留只读查询。
 
 ## 不要做的事
 

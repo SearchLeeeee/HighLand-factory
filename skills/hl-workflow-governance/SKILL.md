@@ -39,6 +39,13 @@ lifecycle state machine.
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy
 stops the skill with one concrete repair instruction.
 
+Before any project write, follow `references/entry-point.md#project-write-lease`: acquire or
+explicitly borrow a live lease, pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers, and release
+only the lease this operation owns after all its writers stop. Read-only progress remains
+available. A manually requested `$hl-refactor` scan has the narrow Wiki-baseline diagnostic
+exception in `<FACTORY_ROOT>/docs/skill-contract.md`; lifecycle invalidity still blocks admission, and a
+completed implementation still requires Wiki PASS.
+
 ## Minimum Sufficient Verification
 
 Use the smallest set of checks that can decide the current requirements and real risks. Reuse
@@ -104,6 +111,7 @@ to implementation still waits for completed profiles and a passing workspace gat
 | Semantic wiki merge after preflight and authorization, including MOC updates, full validator, retained-history transformation, authority switch | `$hl-wiki-merge` |
 | Provenance / why / history question while reading canonical authority | `$hl-history-trace` (isolated subagent) |
 | Bounded bugfix or detail adjustment that may escalate | `$hl-quick-change` |
+| Explicit manual full or latest-Initiative code/test/current-Wiki scan after all Initiatives close, followed by user-selected maintenance | `$hl-refactor` |
 | When to commit inside the workflow, and what one commit may contain | `references/commit-boundaries.md` plus the opt-in `$hl-commit` pack |
 | Cleaning up a finished or residual worktree and its Feature branch | `references/worktree-lifecycle.md` |
 | A change to these rules themselves | **Workflow Maintenance** below |
@@ -224,8 +232,8 @@ After the Initiative preflight, follow this order without exception for each Fea
 3. Perform the semantic wiki merge into current or domain authority documents.
 4. Update every affected MOC.
 5. Run the full long-term wiki validator owned by `$hl-wiki-merge`
-   (`<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`), which excludes the feature
-   and quick workspaces.
+   (`<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`), which excludes the
+   registered process workspaces through the shared resolver.
 6. Only after validator PASS, perform the retained-history transformation. Preserve the complete
    staged source; never delete it.
 7. Record the Feature as `merged / completed`.
@@ -250,13 +258,32 @@ in the feature workspace; current canonical facts belong in the current or domai
 - When `workflow.quick_change` is false, do not open the lightweight path at all; route the
   request through intake and decomposition.
 
+## Manual Refactoring Boundary
+
+Invoke `$hl-refactor` only on an explicit user request, independently of Initiative closure.
+Use the existing lifecycle reader to require all effective Initiatives and Leaves terminal
+with their required closure; `ready-to-merge / ready` and integration PASS alone are insufficient.
+Do not manufacture admission by cancelling work or editing historical state.
+
+The skill holds a project lease, scans read-only, presents evidence and total cost, then changes
+only user-selected candidates. Full and latest-Initiative scanning share the same selection,
+review and verification rules; scanning broadly does not authorize broad edits. Its run record
+is process material under the resolved refactor workspace, not a second lifecycle authority.
+
+Current-Wiki semantic consistency is checked in both directions and bound to time, source
+versions and relevant configuration. Reuse the existing structural validator; a clean link
+graph is not proof of business correctness. Keep completed Initiative history and tombstones
+unchanged. Process-rule improvements discovered during a run are proposals for another session.
+If a selected finding needs a new Feature, finish its investigation/handoff, pause or close and
+release maintenance before entering that workflow. A handoff does not mean the defect is fixed.
+
 ## Commit Boundaries
 
 Commits stay optional and authorization-gated. Invoking `$hl-feature-orchestrator` grants scoped
 local Feature commit authorization as defined in `references/commit-boundaries.md`; preserve it
 through handoffs without repeated permission requests, subject to explicit restrictions and stricter
 project policy. Push and merge remain separately authorized. The governed boundary list lives in
-`references/commit-boundaries.md`: ten points where a commit is allowed, the gate that must already
+`references/commit-boundaries.md`: the points where a commit is allowed, the gate that must already
 pass at each, and the two packaging modes.
 
 - This is process guidance for the opt-in `$hl-commit` pack. It adds no lifecycle state, no

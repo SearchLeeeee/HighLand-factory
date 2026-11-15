@@ -32,17 +32,12 @@ owner、命令、验证要求、流程门禁与安全边界。它是当前仓库
 
 ## Layout
 
-| 路径 | 角色 |
-| --- | --- |
-| `code/` | 代码根：全部可执行实现与测试。 |
-| `wiki/` | 长期文档权威根：入口是 `wiki/README.md`。 |
-| `wiki/code-ai/` | 实现类 agent profile 与支撑材料。 |
-| `wiki/feature-workspace/` | Initiative / Leaf Feature 临时工作面，默认隔离。 |
-| `wiki/quick-workspace/` | Quick Change 过程记录，默认隔离。 |
-| `.factory/` | 机器可读控制面：`factory.yaml`、`local.yaml`、`state.json`。 |
+{{generated:workflow_profile_layout}}
 
-`wiki/feature-workspace/` 与 `wiki/quick-workspace/` 不属于默认知识发现路径，只在
-明确授权的 Feature/Quick Change 工作中定向访问。
+表中过程工作区不属于当前态 Wiki、默认知识发现、MOC 可达性或自动补链范围；只在
+对应流程、显式交接或审计中定向访问。内建工作区始终保留隔离，项目额外的目录在
+`workflow.process_workspaces` 中按 Wiki 相对路径登记；普通文档不会因为名称包含
+`workspace` 而被排除。
 
 ## Owners
 

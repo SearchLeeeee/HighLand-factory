@@ -34,13 +34,15 @@
 4. [project-facts.md](project-facts.md)：稳定工程事实与真实命令。
 5. [subagent-flow.md](subagent-flow.md)：四角色流程、交接与编排顺序。
 6. 本 owner 的 profile：`<owner>-agent.md`（见名册；没有对应 profile 时不得自行假设职责）。
-7. 当前 feature 的 profile 与任务说明。
+7. 当前工作流的任务材料：Feature 工作读当前 Feature profile 与任务说明；手动维护读本轮 `hl-refactor` 运行记录、用户选择、范围与证据；Quick Change 读其任务记录。
 8. 具体任务本身。
 
 阅读完成后，先在交接中复述范围、权威来源与不确定点，得到确认后再进入实现。
 
 具体 Feature 的实现计划由 orchestrator 在代码调研后保存到该 Feature 的
-`code-ai/implementation-plan.md`。阅读/规划角色可以在计划建立前受派调查；实现、评审和验证角色必须从 dispatch 读取当前同一份计划。计划缺失或与任务不一致时不得开工或出具结论。
+`code-ai/implementation-plan.md`。阅读/规划角色可以在计划建立前受派调查；Feature 的实现、评审和验证角色必须从 dispatch 读取当前同一份计划。计划缺失或与任务不一致时不得开工或出具结论。
+
+独立手动维护不创建虚构的 Feature、Feature profile 或实施计划。所有通用必读与本 owner profile 仍须完整阅读；任务依据使用 `hl-refactor` 的同一份运行记录、已选候选及其依赖、精确文件范围、验收和证据。扫描与接续检查保持只读，实际修改须先通过该运行的准入、占用与选择检查；完成不改变原 Initiative 历史。
 
 ## 4. 共享边界（所有角色一致）
 

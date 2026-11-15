@@ -41,6 +41,14 @@ successful doctor/gate results. Re-run only checks whose configuration, manifest
 sources changed, including the required gate at the profiles-completed boundary. Nested entry
 does not require a fresh environment or another approval.
 
+Before any project write, follow
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
+acquire or explicitly borrow the project lease, check access before each implementation unit,
+and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
+maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
+this operation acquired, after its delegated writers stop. The lease grants no additional
+lifecycle, merge, deletion, commit or push authorization.
+
 ## Purpose
 
 Turn confirmed feature requirements into a set of Code AI profiles that can be handed straight to subagents.

@@ -31,7 +31,7 @@ authority stays with the feature-workspace tools and documentation named by
   `workflow.merge_requires_authorization` is true, after explicit user authorization is obtained,
   in dependency-topological order.
 - For each Feature the fixed order is: semantic wiki merge, affected-MOC updates, full long-term
-  wiki validation excluding the feature and quick workspaces, retained-history transformation
+  wiki validation excluding registered process workspaces, retained-history transformation
   after PASS, `merged/completed`, then authority switch and external routing-record update.
 - The full long-term wiki validator is a `$hl-wiki-merge` machine gate
   (`<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`); it is not a lifecycle field.
@@ -52,6 +52,26 @@ authority stays with the feature-workspace tools and documentation named by
   only a compact handoff to the main session.
 - Quick-change records are process material. A fired hard gate escalates to the feature workflow
   instead of widening the lightweight record's authority.
+- All project writers acquire or explicitly borrow the project lease before mutation and retain
+  it across delegated work; follow `entry-point.md#project-write-lease`. Read-only progress remains
+  available. A lease coordinates execution, never changes lifecycle truth or grants permission.
+- Manual refactoring starts only on an explicit request after every effective Initiative and
+  Leaf reaches its proper terminal condition. It keeps its own run, selection and evidence and
+  never reopens completed work. A selected handoff to new Feature work requires maintenance to
+  pause or finish and release its lease before that work starts.
+- Full and latest-Initiative scans disclose coverage and exclusions, then require user selection
+  before editing. Changed behavior needs explicit item-level selection; ordinary implementation
+  choices within the selected cost/risk boundary do not require repeated confirmation.
+- Current Wiki excludes the exact built-in and explicitly registered process-workspace roots.
+  Check business claims against current implementation and important implementation facts against
+  Wiki in both directions, with time/version/configuration evidence. Separate structural PASS,
+  semantic consistency, business correctness and deployment observations.
+- A baseline Wiki structural failure may be diagnosed by an explicitly requested read-only
+  refactor scan. Preserve the failure; selected implementation cannot close without Wiki PASS.
+  This narrow diagnostic exception does not waive lifecycle validation or normal merge gates.
+- A refactor scan may recommend workflow improvements, but runtime changes to generic skills,
+  templates, dispatch or governance belong to another user-directed session. Current project
+  capability, module responsibility and contract documentation remain in-scope when selected.
 - Every user-facing question follows `references/socratic-questioning.md`, including initialization,
   optional packs and batch workbench review. Ground neutral questions in the user's answers to
   clarify concepts, probe assumptions and evidence, examine alternatives and trace consequences.
@@ -167,6 +187,7 @@ authority stays with the feature-workspace tools and documentation named by
 | `workflow.verification_separate` | `workflow-profile.md` | whether verification runs in a separate session |
 | `workflow.merge_requires_authorization` | `workflow-profile.md` | whether merge needs explicit user authorization |
 | `workflow.initiative_integration_required` | `workflow-profile.md` | whether Initiative integration evidence is a merge precondition |
+| `workflow.process_workspaces` | `workflow-profile.md` | explicit additional Wiki-relative process roots; built-in roots stay excluded |
 | `verification.evidence_root` | `workflow-profile.md` | where immutable integration evidence is written |
 
 ## Change Surface
@@ -178,6 +199,9 @@ authority stays with the feature-workspace tools and documentation named by
 | Lifecycle behaviour tests | `<FACTORY_ROOT>/skills/hl-feature-workspace/tests/test_feature_workspace.py` |
 | Long-term wiki merge validator and inventory | `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts` and its tests |
 | Provenance lookup | `<FACTORY_ROOT>/skills/hl-history-trace/scripts` and its tests |
+| Manual maintenance run, candidate selection and recovery | `<FACTORY_ROOT>/skills/hl-refactor` and its tests; existing lifecycle reader remains state authority |
+| Project write lease and cooperating entry points | `<FACTORY_ROOT>/engine/factorylib/maintenance.py`, engine commands and affected writer skills |
+| Shared process-workspace exclusions | `<FACTORY_ROOT>/engine/factorylib/workspaces.py`, layout/config generation and existing Wiki consumers |
 | Operator process | feature-workspace README/schema for lifecycle changes; affected workflow skills plus this skill's `references/entry-point.md` and `references/workflow-contract.md` |
 | Commit boundaries and commit packaging | this skill's `references/commit-boundaries.md`, the opt-in `packs/hl-commit` skill, and the generated `wiki/code-ai/_blocks/commit-granularity.md` block |
 | Worktree and branch cleanup | this skill's `references/worktree-lifecycle.md` and the affected skill's cleanup steps |

@@ -11,7 +11,7 @@
 - 仓库根 `README.md` 保持紧凑，只指向本 wiki（`wiki/README.md`）。
 - [wiki/README.md](README.md) 是长期文档的唯一导航根，也是 root MOC。
 - `AGENTS.md` 与 `CLAUDE.md` 是 agent 启动入口；它们引用本 wiki，不复制本 wiki。
-- 任何新增文档都必须能从 [wiki/README.md](README.md) 出发、在三跳内到达。
+- 任何新增长期权威文档都必须能从 [wiki/README.md](README.md) 出发、在三跳内到达；过程区按下文隔离。
 
 ## 目录结构
 
@@ -34,6 +34,7 @@ wiki/
   validation/            # 验证记录与证据索引
   feature-workspace/     # 临时工作面，默认隔离
   quick-workspace/       # 小需求过程记录，默认隔离
+  refactor-workspace/    # 手动扫描与维护记录，默认隔离
 ```
 
 ## MOC 层级
@@ -47,7 +48,7 @@ wiki/
 
 ## 三跳发现规则
 
-- 除 `feature-workspace/` 与 `quick-workspace/` 外，每个长期 Markdown 文件都必须
+- 除流程摘要中明确登记的过程区外，每个长期 Markdown 文件都必须
   从 root MOC 出发、经过不超过三个 MOC 跳转可达。
 - 新增目录必须同时：创建该目录的 `README.md`，并在父 MOC 中登记一行。
 - 超过三跳或不可达的文档视为导航缺陷，必须修复而不是放宽规则。
@@ -84,9 +85,14 @@ wiki/
   「准备引入的变化」，不描述当前系统事实。
 - `quick-workspace/`：有界 bugfix 与细节调整的过程记录与验证交接。它同样不构成
   当前系统权威。
-- 两者都必须从默认搜索、派生索引、Graph、MOC、长期记忆和知识发现中排除；只有
-  明确的 Feature/Quick Change 请求或审计请求才能定向读取。
-- 长期 Wiki 不通过链接进入这两个目录；需要引用时只写反引号路径，不写链接。
+- `refactor-workspace/`：用户手动发起的扫描、候选选择、维护与证据；不重开已完成
+  Initiative，也不构成当前系统权威。
+- 内置三类过程区及 `workflow.process_workspaces` 明确登记的附加根目录，以
+  [流程摘要](governance/workflow-profile.md)的有效清单为准。只按精确根目录及其后代排除，
+  不因名称包含 `workspace` 就排除普通文档。
+- 这些过程区必须从默认搜索、派生索引、Graph、MOC、长期记忆和当前事实发现中排除；
+  只有明确的对应工作流、手动维护或审计请求才能定向读取。
+- 长期 Wiki 不通过链接进入过程区；需要引用时只写反引号路径，不写链接。
 - 合并完成后，长期 Wiki 是唯一现行权威，临时材料只作为非权威 provenance 保留。
 
 ## 维护要求
@@ -98,16 +104,17 @@ wiki/
 5. 不写入真实密钥、完整账号、私有端点、内部推理或可复制的私有路径。
 6. 由工具生成的文件（带「由工具生成」横幅）不得手工编辑，只能通过
    `factory upgrade` 重建。
-7. 新增文档必须同时登记父 MOC；删除文档必须同时清理所有入链。
+7. 新增长期权威文档必须同时登记父 MOC；删除文档必须同时清理所有入链。过程区不补入长期 MOC。
 
 ## 合并前检查清单
 
 - [ ] 从 root MOC 出发，所有受影响的长期文档都在三跳内可达。
-- [ ] 不存在 wikilink，也不存在指向 `feature-workspace/` 或 `quick-workspace/` 的链接。
+- [ ] 不存在 wikilink，也不存在指向已登记过程区的长期 Wiki 链接。
 - [ ] 每个本地链接目标存在，锚点存在。
 - [ ] 每个事实只有一个首要权威，没有在两处维护不同表述。
 - [ ] 生成文件与 `.factory/factory.yaml` 同步，且同一次提交。
 - [ ] 临时工作区的内容没有被误当作当前权威，也没有把 I/F 编号写进权威文档。
 - [ ] 逐次验证证据按 `.factory/factory.yaml` 的 `verification.evidence_root` 保存；
       `wiki/validation/` 维护当前有效范围、基线、限制和必要定位说明，不复制执行流水或逐条索引历史记录。
+- [ ] 工作流过程证据留在各自过程区，不补入长期 MOC。
 - [ ] 文件编码与换行风格没有被无意规范化。

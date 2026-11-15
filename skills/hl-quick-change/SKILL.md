@@ -39,6 +39,14 @@ Keep preparation and reusable results in this request's existing record/handoff;
 checks and pass them forward on escalation. A nested skill or new role does not by itself require
 another setup, report or complete survey. Review, separated verification and required gates remain.
 
+Before any project write, follow
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
+acquire or explicitly borrow the project lease, check access before each implementation unit,
+and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
+maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
+this operation acquired, after its delegated writers stop. The lease grants no additional
+lifecycle, merge, deletion, commit or push authorization.
+
 ## Required Reading
 
 At the start of a new request, read:

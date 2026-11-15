@@ -44,6 +44,14 @@ their relevant inputs remain unchanged. A new lifecycle or material source/confi
 still requires its owning gate. New sessions read the supplied formal handoff and current
 authorities; they do not assume a previous session's environment is still suitable.
 
+Before any project write, follow
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
+acquire or explicitly borrow the project lease, check access before each implementation unit,
+and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
+maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
+this operation acquired, after its delegated writers stop. The lease grants no additional
+lifecycle, merge, deletion, commit or push authorization.
+
 ## Scope
 
 Use this skill only when the user explicitly invokes `$hl-feature-orchestrator` and names a registered Leaf Feature — a feature ID, or the `code-ai/` profile directory of that feature.

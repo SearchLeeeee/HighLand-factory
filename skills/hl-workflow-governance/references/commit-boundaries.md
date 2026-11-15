@@ -52,6 +52,7 @@ authorized reading, review or testing. Explicit immutable-artifact requirements 
 | 8 | Initiative integration evidence sealed | Handoff generated, applicable source/runtime identity recorded, required rows passed and result registered | Handoff, integration evidence and status | Preserve the source, conditions and provenance needed to judge each required row; do not imply unchecked work passed |
 | 9 | Per-Feature wiki merge closure | Full long-term wiki validation passes, then retained history, `merged / completed` and authority switch complete | Canonical wiki edits, affected MOCs, validator receipt, tombstone and routing record, retained-history marker, route and checksums | The authority switch is a multi-file state change; if it is not atomic, "which version is current" stops being auditable. One commit per Feature, in `depends_on` topological order |
 | 10 | Quick change completed | Its required repeatable verification artefact exists and the record reaches `completed` | Quick record, fix, verification evidence | The lightweight path needs one revertible point so its evidence stays comparable with the Feature path |
+| 11 | Selected manual refactor run completed | Selected items resolved, independent review and applicable tests pass, current-Wiki semantic checks recorded, existing Wiki gate passes, and read-only Agent handoff check passes | Selected code/test/current-Wiki edits and the run's decision/evidence references | The reviewed maintenance scope and its evidence stay identifiable without rewriting an Initiative's historical completion |
 
 ## Advisory Boundaries
 
@@ -74,6 +75,11 @@ Choose the mode per boundary; never mix them inside one boundary.
   Evidence-only or unrelated working-tree changes do not invalidate checked source content.
   If an explicit criterion requires a clean immutable commit or published artifact, obtain commit
   authorization and establish that target before executing that criterion.
+
+For boundary 11, identify the approved maintenance sources, verify them and package the selected
+changes with their run evidence. A zero-change scan needs no new commit. Selecting refactor
+candidates is not commit or push authorization; reuse existing applicable authorization and
+project policy. Never mix deferred workflow-rule changes into the project maintenance commit.
 
 State any relevant uncommitted content honestly; do not cite a commit alone as its identity. Use
 extra byte snapshots, hashes or isolated clones only when the actual identity or interference risk

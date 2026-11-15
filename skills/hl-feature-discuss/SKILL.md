@@ -40,6 +40,14 @@ For nested skills in the same session, reuse loaded context and successful docto
 only while their relevant inputs remain unchanged. A new skill name alone is not a reason to
 repeat preparation. Required gates after configuration, source or lifecycle changes still run.
 
+Before any project write, follow
+`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
+acquire or explicitly borrow the project lease, check access before each implementation unit,
+and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
+maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
+this operation acquired, after its delegated writers stop. The lease grants no additional
+lifecycle, merge, deletion, commit or push authorization.
+
 ## Purpose
 
 Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then executable Code AI profiles.

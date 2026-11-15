@@ -15,7 +15,7 @@ HighLand-factory/          # 本仓库，clone 一次，装到各个 agent
         ▼
 <你的工作仓库>/            # 一个 git 仓库，两个文件夹
   code/                    # 代码
-  wiki/                    # 长期权威文档 + feature-workspace + code-ai
+  wiki/                    # 长期权威文档 + 三类过程 workspace + code-ai
   .factory/                # 项目配置（提交）+ 机器配置（忽略）
 ```
 
@@ -29,9 +29,9 @@ v0.1 已可用，核心链路已跑通：
 
 - [x] 架构与契约：[docs/architecture.md](docs/architecture.md)、[docs/skill-contract.md](docs/skill-contract.md)
 - [x] 初始化问卷与 DoD：[docs/init-questionnaire.md](docs/init-questionnaire.md)
-- [x] engine：`init / adopt / doctor / upgrade / status / resolve / gate`
-- [x] 工作仓库模板（wiki 权威 + code-ai + feature-workspace + quick-workspace）
-- [x] 核心 skills（14 个，统一 `hl-` 前缀，避免与其他流程重名）+ 4 个可选 pack（`hl-commit` / `hl-dev-runtime` / `hl-remote-verify` / `hl-quality-gates`）
+- [x] engine：`init / adopt / doctor / upgrade / status / resolve / gate`，以及项目写入占用检查与管理
+- [x] 工作仓库模板（wiki 权威 + code-ai + feature-workspace + quick-workspace + refactor-workspace）
+- [x] 核心 skills（15 个，统一 `hl-` 前缀，避免与其他流程重名）+ 4 个可选 pack（`hl-commit` / `hl-dev-runtime` / `hl-remote-verify` / `hl-quality-gates`）
 - [x] AI 引导初始化 prompt：[prompts/quickstart.md](prompts/quickstart.md)
 - [x] 安装脚本 + CI 守卫（模板冒烟、门禁测试、无项目泄漏）
 - [x] 已用一套现有双仓项目的临时副本做 split 模式 adopt 验证（0 门禁错误）
@@ -149,7 +149,7 @@ install 和 upgrade 默认链接全部核心 skills 和 packs；pack 是否启�
 | 目录 | 内容 |
 | --- | --- |
 | `code/` | 实现代码。`mono` 模式下与 wiki 同仓；`split` 模式下指向外部代码仓 |
-| `wiki/` | 长期权威文档、`feature-workspace/`、`quick-workspace/`、`code-ai/` agent profiles |
+| `wiki/` | 长期权威文档、`feature-workspace/`、`quick-workspace/`、`refactor-workspace/`、`code-ai/` agent profiles |
 
 `.factory/factory.yaml` 是唯一项目配置真源；`.factory/local.yaml` 存本机路径和运行时，不提交。
 
@@ -164,6 +164,8 @@ install 和 upgrade 默认链接全部核心 skills 和 packs；pack 是否启�
 - `feature_workspace.py`：唯一生命周期状态机（Feature/Initiative 状态、依赖、Scope Gate、合并门禁、集成证据）
 - `validate_llm_wiki.py`：长期 Wiki 唯一内容门禁（唯一入口、≤3 跳可达、链接完整、工作区隔离）
 - `trace_feature_history.py`：唯一历史溯源读取器
+- `refactor.py`：手动维护准入、候选选择、实施范围、证据与恢复；复用原生命周期读取器和 Wiki validator
+- `factory maintenance-lock / maintenance-check`：协调遵循工厂入口的写入者，维护期间保持项目独占；只读进度仍可查询
 - 其余 skill 通过 `factory gate ...` 调用它们，散文只解释"何时调用"，不重新定义规则
 
 ---
@@ -201,6 +203,7 @@ flowchart TB
 - **一个 Leaf Feature 走完讨论 → profiles → 实现 → review → 验收 → ready**，才会进入 Initiative 合并屏障。
 - **Feature 就绪 ≠ Initiative 可合并 ≠ 长期 wiki 权威切换**，这是三个不同的门。
 - `$hl-feature-progress` 是只读旁路，任何时刻都能问进度和下一步，不会改状态。
+- `$hl-refactor` 是独立的**手动维护入口**：所有有效 Initiative 完成后，按用户请求扫描并处理选定项。它不是需求入口，也不会在 Initiative 结束后自动启动。
 
 ### 2. 一个完整 Feature 的走法
 
@@ -368,11 +371,11 @@ $hl-wiki-merge <feature-root>
 
 1. 只把长期需要的需求、契约、测试预期、运维事实折叠进现有权威文档和对应 MOC；
 2. 更新所有受影响的 MOC；
-3. 跑**全量**长期 wiki validator（排除 feature/quick workspace）；
+3. 跑**全量**长期 wiki validator（排除明确登记的过程 workspace）；
 4. validator PASS 后，才做 retained-history 转换（`RETAINED_HISTORY.md`、`history-route.yaml`、checksum）、写 tombstone、把 Feature 置为 `merged / completed`、切换权威；
 5. 原始 Feature 目录**保留不删**，降级为非权威历史，只能通过 `$hl-history-trace` 定向追溯。
 
-完成后，长期 wiki 是业务、契约、实现、测试和运维的唯一权威。以后再改这个能力，要新建 Initiative 并**从长期 wiki 读基线**，不能继续改已合并的历史材料。
+完成后，长期 wiki 是业务、契约、实现、测试和运维的唯一权威。以后新增能力走新的 Initiative 并**从长期 wiki 读基线**；已完成能力的手动维护可走 `$hl-refactor`。两者都不继续改写已合并的历史材料。
 
 #### 每一步的产物与门禁
 
@@ -388,6 +391,7 @@ $hl-wiki-merge <feature-root>
 | 长期合并 | `$hl-wiki-merge` | 权威 wiki 更新、retained history、tombstone | 全量 `validate_llm_wiki` |
 | 进度查询 | `$hl-feature-progress` | 只读报告、下一会话提示词 | `gate workspace`（只读） |
 | 小改动 | `$hl-quick-change` | quick 记录、验证证据、wiki 目标 | 硬门槛自检 |
+| 手动维护 | `$hl-refactor` | 扫描候选、用户选择、维护记录、代码/测试/当前态 Wiki 同步 | 全部 Initiative 闭环、项目占用、选定范围与证据检查、原 Wiki gate |
 
 #### 提交边界
 
@@ -401,8 +405,7 @@ pack 时按项目自己的策略执行）。上表里的每一行都可能对应
 仍须分别明确授权。
 
 1. **只在门禁通过后提交**——失败的测试、未 review 的实现、未通过的验收不得当作完成态提交；
-2. **先冻结再验证**——先提交实现状态得到 revision，review、验证和集成测试跑在这个干净
-   revision 上，再把记明该 revision 的证据提交上去；
+2. **先识别来源再验证**——用已有 revision 加相关 diff、新文件明确实际验证对象；只有明确的不可变产物要求才需要额外冻结提交，并沿用已有授权边界；
 3. **提交授权不等于推送授权**，推送始终单独授权；
 4. `split` 模式 wiki 仓与代码仓分别提交；worktree 模式代码提交在功能分支，manifest
    与证据留在工作仓库，交接必须写明对应关系。
@@ -474,6 +477,35 @@ $hl-feature-progress
 
 严格只读：报告每个 Feature 的当前 skill/phase/state、剩余阶段、阻塞、可并行的 dependency-ready 工作、下一步该由哪个 skill 维护哪个 manifest，并能生成可复制的下一会话提示词。它不会替你推进状态。
 
+### 6. 手动扫描与重构
+
+所有有效 Initiative 完成后，由你随时发起。全量扫描和最近一次 Initiative 扫描都先展示候选；扫描范围、最终改动范围和成本预算分别记录。
+
+```text
+$hl-refactor 全量扫描当前项目的代码、测试和当前态 Wiki，先给我收益、成本、风险与证据。
+$hl-refactor 只扫描最近一次已完成 Initiative 的完整改动，以及受影响的共享能力和 Wiki。
+```
+
+Agent 先确认全部 Initiative 真正闭环，再建立维护占用。最近一次模式需要覆盖全部 Leaf、集成修复和最终文档的可信版本范围；范围无法确定时会展示缺口，请你集中选择明确范围或切换全量。不能拿最后一个提交代表整个 Initiative。
+
+候选表会说明问题、证据、建议动作、总成本、行为影响与验收方式。你可以一次选择，例如：
+
+```text
+实施 R001、R003；R002 先调查兼容用途与成本；其他保留。
+```
+
+所选项随后连续实施、独立评审和验证。用途不明的防御分支先作有界调查；兼容、错误语义等行为变化单独明确选择。测试清理说明原保护目标及其失效或替代依据。新第三方依赖须有多个真实使用点和明确净收益。
+
+Wiki 按业务场景双向核对，并区分源码、测试和运行观察；结论绑定时间、代码/Wiki 版本与相关配置。排除内置的三类过程 workspace，以及 `workflow.process_workspaces` 明确登记的附加目录；普通文档不因目录名称含有 `workspace` 而豁免。结构校验与业务语义一致性分别记录。
+
+过程资料存于解析后的 `wiki/refactor-workspace/runs/<run-id>/`，不重开原 Initiative、不改写原验收历史。没有值得处理的候选可以零改动完成；未选择的问题如实保留。流程规则改进交给另一个会话；需要新 Feature 的专项先完成交接，再暂停或关闭维护并释放占用。
+
+```text
+$hl-refactor 继续运行 <run-id>，先检查状态、版本、候选依据和已有证据，再完成剩余选定项。
+```
+
+暂停会释放本轮占用，恢复时重新准入与核对；不会仅因占用时间较久就强制接管。项目代码或文档的外部改动会触发重检，这套协议约束遵守工厂入口的写入者。完整操作见 [hl-refactor](skills/hl-refactor/SKILL.md)。
+
 ---
 
 ## 项目落地：从零项目 vs 现存项目
@@ -487,7 +519,7 @@ factory init --work <新目录> [--answers answers.yaml]
 ```
 
 - 目录不存在会自动创建；默认 `mono` 模式（`code/` + `wiki/` 同仓）。
-- 生成完整骨架（约 57 个文件）：入口 `README.md` / `AGENTS.md` / `CLAUDE.md`、`code/` 种子、wiki 权威骨架、`workflow-profile.md`、`feature-workspace/`、`quick-workspace/`、`code-ai/` profiles、baseline。
+- 生成完整骨架：入口 `README.md` / `AGENTS.md` / `CLAUDE.md`、`code/` 种子、wiki 权威骨架、`workflow-profile.md`、`feature-workspace/`、`quick-workspace/`、`refactor-workspace/`、`code-ai/` profiles、baseline。
 - 不生成业务代码；命令为空、baseline 为 pending、未 `git init` 时 `factory doctor` 会给出 warning。
 - 目录**不要求为空**：已存在文件同样跳过，只补缺失骨架；混入已有内容时先跑 `--dry-run` 看计划。
 
