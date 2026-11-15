@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from . import util
+from .workspaces import process_workspace_names
 
 CONFIG_SCHEMA = 1
 CONFIG_REL = Path(".factory") / "factory.yaml"
@@ -70,6 +71,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "verification_separate": True,
         "merge_requires_authorization": True,
         "initiative_integration_required": True,
+        "process_workspaces": [],
     },
     "security": {
         "forbidden_operations": [],
@@ -95,7 +97,7 @@ WORKFLOW_BOOLEAN_KEYS = (
     "merge_requires_authorization",
     "initiative_integration_required",
 )
-WORKFLOW_KEYS = set(WORKFLOW_BOOLEAN_KEYS) | {"scope_gate"}
+WORKFLOW_KEYS = set(WORKFLOW_BOOLEAN_KEYS) | {"scope_gate", "process_workspaces"}
 TOP_LEVEL_KEYS = set(DEFAULT_CONFIG)
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 OWNER_ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -331,6 +333,10 @@ def validate_config(config: dict[str, Any]) -> tuple[list[str], list[str]]:
         for key in WORKFLOW_BOOLEAN_KEYS:
             if not isinstance(workflow.get(key), bool):
                 errors.append(f"workflow.{key} must be a boolean")
+        try:
+            process_workspace_names(config)
+        except ValueError as exc:
+            errors.append(str(exc))
         scope_gate = workflow.get("scope_gate")
         if not isinstance(scope_gate, dict):
             errors.append("workflow.scope_gate must be a mapping")

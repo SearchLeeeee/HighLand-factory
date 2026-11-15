@@ -378,10 +378,16 @@ def _wiki_orphans(layout: Layout) -> list[str]:
         payload = json.loads(completed.stdout)
     except json.JSONDecodeError:
         return []
+    # Keep generated process records out of auto-linking even when a project's
+    # local interpreter still resolves an older validator during an upgrade.
+    from .workspaces import process_workspace_roots
+
+    roots = process_workspace_roots(layout.wiki, config_mod.load_config(layout.work))
     return [
         str(item.get("path"))
         for item in payload.get("errors", [])
         if item.get("code") == "ORPHAN_MARKDOWN" and item.get("path")
+        and not any((layout.wiki / str(item["path"])).resolve().is_relative_to(root) for root in roots)
     ]
 
 

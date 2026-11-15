@@ -65,6 +65,8 @@ def test_init_doctor_and_gates(tmp_path: Path) -> None:
     assert (work / "wiki" / "README.md").is_file()
     assert (work / "wiki" / "governance" / "workflow-profile.md").is_file()
     assert (work / "wiki" / "feature-workspace" / "registry.yaml").is_file()
+    assert (work / "wiki" / "refactor-workspace" / "README.md").is_file()
+    assert "refactor-workspace/" not in (work / "wiki" / "README.md").read_text(encoding="utf-8")
     assert (work / "wiki" / "code-ai" / "core-agent.md").is_file()
     workspace_readme = (work / "README.md").read_text(encoding="utf-8")
     assert workspace_readme.startswith("# Smoke Project")
@@ -183,6 +185,9 @@ commands:
     assert init.returncode == 0, init.stdout + init.stderr
     assert (work / "docs-root" / "README.md").is_file()
     assert not (work / "wiki").exists()
+    assert (work / "docs-root" / "refactor-workspace" / "README.md").is_file()
+    profile = (work / "docs-root" / "governance" / "workflow-profile.md").read_text(encoding="utf-8")
+    assert "docs-root/refactor-workspace/" in profile
     gate = run("gate", "all", "--work", str(work))
     assert gate.returncode == 0, gate.stdout + gate.stderr
 
@@ -319,3 +324,48 @@ def test_adopt_rerun_keeps_recorded_answers(tmp_path: Path) -> None:
     assert "Provenance Project" in record, record
     assert "python -m pytest" in record, record
 
+
+def test_adopt_does_not_auto_link_registered_process_history(tmp_path: Path) -> None:
+    work = tmp_path / "docs-repo"
+    for relative, text in {
+        "wiki/README.md": "# Existing home\n",
+        "wiki/refactor-workspace/old/report.md": "# Process\n[Old](missing.md)\n",
+        "wiki/temporary/audit/report.md": "# Process\n[Old](missing.md)\n",
+        "wiki/product-workspace/guide.md": "# Current business concept\n",
+    }.items():
+        path = work / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    code = tmp_path / "code-repo"
+    code.mkdir()
+    answers = write_answers(tmp_path / "answers.yaml")
+    with answers.open("a", encoding="utf-8") as handle:
+        handle.write("\nworkflow:\n  process_workspaces: [temporary/audit]\n")
+    adopted = run("adopt", "--work", str(work), "--code", str(code), "--answers", str(answers), "--python", sys.executable)
+    assert adopted.returncode == 0, adopted.stdout + adopted.stderr
+    home = (work / "wiki/README.md").read_text(encoding="utf-8")
+    assert "refactor-workspace/" not in home
+    assert "temporary/audit/" not in home
+    assert "product-workspace/guide.md" in home
+    gate = run("gate", "wiki", "--work", str(work))
+    assert gate.returncode == 0, gate.stdout + gate.stderr
+
+
+def test_upgrade_older_project_adds_refactor_workspace_with_optional_config_absent(tmp_path: Path) -> None:
+    from factorylib import config
+
+    work = tmp_path / "work"
+    answers = write_answers(tmp_path / "answers.yaml")
+    initialized = run("init", "--work", str(work), "--answers", str(answers), "--python", sys.executable)
+    assert initialized.returncode == 0, initialized.stdout + initialized.stderr
+    (work / "wiki/refactor-workspace/README.md").unlink()
+    (work / "wiki/refactor-workspace").rmdir()
+    old_config = config.load_config(work)
+    old_config["workflow"].pop("process_workspaces")
+    config.save_config(work, old_config)
+    upgrade = run("upgrade", "--work", str(work), "--apply")
+    assert upgrade.returncode == 0, upgrade.stdout + upgrade.stderr
+    assert (work / "wiki/refactor-workspace/README.md").is_file()
+    assert "refactor-workspace/" not in (work / "wiki/README.md").read_text(encoding="utf-8")
+    doctor = run("doctor", "--work", str(work), "--json")
+    assert json.loads(doctor.stdout)["ok"], doctor.stdout + doctor.stderr

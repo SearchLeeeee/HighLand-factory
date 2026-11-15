@@ -9,6 +9,7 @@ from typing import Any, Callable
 
 from . import util
 from .layout import Layout
+from .workspaces import PROCESS_WORKSPACE_DIRS, process_workspace_names
 
 COMMAND_LABELS = {
     "setup": "安装 / 初始化",
@@ -137,8 +138,34 @@ class GeneratedBlocks:
         else:
             lines.append(f"| `{repo.get('code_path', 'code')}/` | 实现代码 |")
         lines.append(f"| `{repo.get('wiki_path', 'wiki')}/` | 长期权威文档与工作区 |")
-        lines.append(f"| `{repo.get('wiki_path', 'wiki')}/feature-workspace/` | Feature 生命周期工作区 |")
+        lines.extend(self._process_workspace_rows())
         lines.append(f"| `{repo.get('wiki_path', 'wiki')}/code-ai/` | Agent profiles 与通用约束 |")
+        return "\n".join(lines)
+
+    def _process_workspace_rows(self) -> list[str]:
+        wiki = str((self.config.get("repo") or {}).get("wiki_path") or "wiki").rstrip("/")
+        roles = {
+            PROCESS_WORKSPACE_DIRS["feature_workspace"]: "Initiative / Leaf Feature 过程工作区，默认隔离。",
+            PROCESS_WORKSPACE_DIRS["quick_workspace"]: "Quick Change 过程记录，默认隔离。",
+            PROCESS_WORKSPACE_DIRS["refactor_workspace"]: "手动扫描与重构的独立过程记录，默认隔离。",
+        }
+        return [
+            f"| `{wiki}/{name}/` | {roles.get(name, '项目显式登记的过程工作区，默认隔离。')} |"
+            for name in process_workspace_names(self.config)
+        ]
+
+    def workflow_profile_layout(self, owner: dict[str, Any] | None = None) -> str:
+        repo = self.config.get("repo") or {}
+        wiki = str(repo.get("wiki_path") or "wiki").rstrip("/")
+        code = repo.get("code_external") if repo.get("mode") == "split" else repo.get("code_path", "code")
+        lines = [
+            "| 路径 | 角色 |", "| --- | --- |",
+            f"| `{code}/` | 代码根：可执行实现与测试。 |",
+            f"| `{wiki}/` | 长期文档权威根：入口是 `{wiki}/README.md`。 |",
+            f"| `{wiki}/code-ai/` | 实现类 agent profile 与支撑材料。 |",
+            *self._process_workspace_rows(),
+            "| `.factory/` | 机器可读控制面：`factory.yaml`、`local.yaml`、`state.json`。 |",
+        ]
         return "\n".join(lines)
 
     def stack_summary(self, owner: dict[str, Any] | None = None) -> str:

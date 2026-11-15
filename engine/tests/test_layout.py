@@ -24,6 +24,8 @@ def test_mono_layout(tmp_path: Path) -> None:
     assert resolved.code == work / "code"
     assert resolved.wiki == work / "wiki"
     assert resolved.feature_workspace == work / "wiki" / "feature-workspace"
+    assert resolved.refactor_workspace == work / "wiki" / "refactor-workspace"
+    assert resolved.as_dict()["refactor_workspace"] == str(resolved.refactor_workspace)
     assert resolved.registry == work / "wiki" / "feature-workspace" / "registry.yaml"
 
 
@@ -43,3 +45,10 @@ def test_custom_wiki_path(tmp_path: Path) -> None:
     resolved = layout.build_layout(work, cfg, {})
     assert resolved.wiki == work / "docs-root"
     assert resolved.feature_workspace == work / "docs-root" / "feature-workspace"
+    assert resolved.refactor_workspace == work / "docs-root" / "refactor-workspace"
+
+
+def test_optional_refactor_directory_does_not_block_older_layout(tmp_path: Path) -> None:
+    resolved = layout.build_layout(tmp_path, _cfg(), {})
+    assert not resolved.refactor_workspace.exists()
+    assert str(resolved.refactor_workspace) not in layout.missing_layout_paths(resolved)

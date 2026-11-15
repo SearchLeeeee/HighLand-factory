@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from . import util
+from .workspaces import PROCESS_WORKSPACE_DIRS
 
 WIKI_SUBDIRS = {
-    "feature_workspace": "feature-workspace",
-    "quick_workspace": "quick-workspace",
+    **PROCESS_WORKSPACE_DIRS,
     "code_ai": "code-ai",
 }
 
@@ -23,6 +23,7 @@ class Layout:
     wiki: Path
     feature_workspace: Path
     quick_workspace: Path
+    refactor_workspace: Path
     code_ai: Path
     workflow_profile: Path
     registry: Path
@@ -41,6 +42,7 @@ class Layout:
             "wiki": str(self.wiki),
             "feature_workspace": str(self.feature_workspace),
             "quick_workspace": str(self.quick_workspace),
+            "refactor_workspace": str(self.refactor_workspace),
             "code_ai": str(self.code_ai),
             "workflow_profile": str(self.workflow_profile),
             "registry": str(self.registry),
@@ -76,6 +78,7 @@ def build_layout(work: Path, config: dict[str, Any], local: dict[str, Any] | Non
         wiki=wiki,
         feature_workspace=wiki / WIKI_SUBDIRS["feature_workspace"],
         quick_workspace=wiki / WIKI_SUBDIRS["quick_workspace"],
+        refactor_workspace=wiki / WIKI_SUBDIRS["refactor_workspace"],
         code_ai=wiki / WIKI_SUBDIRS["code_ai"],
         workflow_profile=wiki / "governance" / "workflow-profile.md",
         registry=wiki / WIKI_SUBDIRS["feature_workspace"] / "registry.yaml",
