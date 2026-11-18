@@ -29,7 +29,7 @@ v0.1 已可用，核心链路已跑通：
 
 - [x] 架构与契约：[docs/architecture.md](docs/architecture.md)、[docs/skill-contract.md](docs/skill-contract.md)
 - [x] 初始化问卷与 DoD：[docs/init-questionnaire.md](docs/init-questionnaire.md)
-- [x] engine：`init / adopt / doctor / upgrade / status / resolve / gate`，以及项目写入占用检查与管理
+- [x] engine：`init / adopt / doctor / upgrade / status / resolve / gate`
 - [x] 工作仓库模板（wiki 权威 + code-ai + feature-workspace + quick-workspace + refactor-workspace）
 - [x] 核心 skills（15 个，统一 `hl-` 前缀，避免与其他流程重名）+ 4 个可选 pack（`hl-commit` / `hl-dev-runtime` / `hl-remote-verify` / `hl-quality-gates`）
 - [x] AI 引导初始化 prompt：[prompts/quickstart.md](prompts/quickstart.md)
@@ -165,7 +165,6 @@ install 和 upgrade 默认链接全部核心 skills 和 packs；pack 是否启�
 - `validate_llm_wiki.py`：长期 Wiki 唯一内容门禁（唯一入口、≤3 跳可达、链接完整、工作区隔离）
 - `trace_feature_history.py`：唯一历史溯源读取器
 - `refactor.py`：手动维护准入、候选选择、实施范围、证据与恢复；复用原生命周期读取器和 Wiki validator
-- `factory maintenance-lock / maintenance-check`：协调遵循工厂入口的写入者，维护期间保持项目独占；只读进度仍可查询
 - 其余 skill 通过 `factory gate ...` 调用它们，散文只解释"何时调用"，不重新定义规则
 
 ---
@@ -335,7 +334,7 @@ $hl-feature-orchestrator I001-F01
 主会话负责协调和门禁，不自己写业务代码：
 
 1. 进入实现环境时先设置一个目标：把这个 Feature 推进到 `ready-to-merge / ready`；整个实现、review、验收过程保持同一目标，只在状态真正改变时更新；
-2. 预检：phase 必须是 `code-ai-profiles / completed`，Scope Gate 通过，依赖满足，owner 写作用域不重叠；
+2. 预检：phase 必须是 `code-ai-profiles / completed`，Scope Gate 通过，依赖满足，分派的实现路径与契约独立；owner ID 表示职责归属，共用 owner ID 不要求串行；共享工作根目录文件及 Git 合并、索引操作按需协调；
 3. 派发 owner 子 agent（只给允许/禁止文件、验收标准、验证命令），**先交计划，批准后才改文件**；
 4. 实现完成后跑**固定 review profile** 做独立 review，blocker 必须修复并重审；
 5. `workflow.verification_separate` 开启时，验收在独立会话中执行，用真实命令和证据；
@@ -394,7 +393,7 @@ $hl-wiki-merge <feature-root>
 | 长期合并 | `$hl-wiki-merge` | 权威 wiki 更新、retained history、tombstone | 全量 `validate_llm_wiki` |
 | 进度查询 | `$hl-feature-progress` | 只读报告、下一会话提示词 | `gate workspace`（只读） |
 | 小改动 | `$hl-quick-change` | quick 记录、验证证据、wiki 目标 | 硬门槛自检 |
-| 手动维护 | `$hl-refactor` | 扫描候选、用户选择、维护记录、代码/测试/当前态 Wiki 同步 | 全部 Initiative 闭环、项目占用、选定范围与证据检查、原 Wiki gate |
+| 手动维护 | `$hl-refactor` | 扫描候选、用户选择、维护记录、代码/测试/当前态 Wiki 同步 | 全部 Initiative 闭环、选定范围与证据检查、原 Wiki gate |
 
 #### 提交边界
 
@@ -489,7 +488,7 @@ $hl-refactor 全量扫描当前项目的代码、测试和当前态 Wiki，先�
 $hl-refactor 只扫描最近一次已完成 Initiative 的完整改动，以及受影响的共享能力和 Wiki。
 ```
 
-Agent 先确认全部 Initiative 真正闭环，再建立维护占用。最近一次模式需要覆盖全部 Leaf、集成修复和最终文档的可信版本范围；范围无法确定时会展示缺口，请你集中选择明确范围或切换全量。不能拿最后一个提交代表整个 Initiative。
+Agent 先确认全部 Initiative 真正闭环，再建立维护运行记录。最近一次模式需要覆盖全部 Leaf、集成修复和最终文档的可信版本范围；范围无法确定时会展示缺口，请你集中选择明确范围或切换全量。不能拿最后一个提交代表整个 Initiative。
 
 候选表会说明问题、证据、建议动作、总成本、行为影响与验收方式。你可以一次选择，例如：
 
@@ -501,13 +500,13 @@ Agent 先确认全部 Initiative 真正闭环，再建立维护占用。最近�
 
 Wiki 按业务场景双向核对，并区分源码、测试和运行观察；结论绑定时间、代码/Wiki 版本与相关配置。排除内置的三类过程 workspace，以及 `workflow.process_workspaces` 明确登记的附加目录；普通文档不因目录名称含有 `workspace` 而豁免。结构校验与业务语义一致性分别记录。
 
-过程资料存于解析后的 `wiki/refactor-workspace/runs/<run-id>/`，不重开原 Initiative、不改写原验收历史。没有值得处理的候选可以零改动完成；未选择的问题如实保留。流程规则改进交给另一个会话；需要新 Feature 的专项先完成交接，再暂停或关闭维护并释放占用。
+过程资料存于解析后的 `wiki/refactor-workspace/runs/<run-id>/`，不重开原 Initiative、不改写原验收历史。没有值得处理的候选可以零改动完成；未选择的问题如实保留。流程规则改进交给另一个会话；需要新 Feature 的专项先完成交接，再暂停或关闭维护运行。
 
 ```text
 $hl-refactor 继续运行 <run-id>，先检查状态、版本、候选依据和已有证据，再完成剩余选定项。
 ```
 
-暂停会释放本轮占用，恢复时重新准入与核对；不会仅因占用时间较久就强制接管。项目代码或文档的外部改动会触发重检，这套协议约束遵守工厂入口的写入者。完整操作见 [hl-refactor](skills/hl-refactor/SKILL.md)。
+暂停会保留本轮运行记录，恢复时重新准入并核对来源、范围与证据。项目代码或文档的外部改动会触发重检。完整操作见 [hl-refactor](skills/hl-refactor/SKILL.md)。
 
 ---
 

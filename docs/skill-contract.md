@@ -70,20 +70,12 @@ Every skill starts its execution with this reasoning step, even if it only reads
 
 A skill must fail closed: missing config, missing project profile, failing gate, or unresolved language policy stops the skill with a concrete repair instruction. The sole diagnostic exception is an explicitly requested `$hl-refactor` read-only scan of a failing **Wiki structure** baseline: preserve that failure as a finding, keep code/tests/current Wiki unchanged until selection, and require Wiki PASS before closing an implemented run. Invalid lifecycle or registry state always blocks maintenance admission. This exception never marks a failed check as passed or permits ordinary workflow closure behind a red gate.
 
-## 3a. Project write lease
-
-Before project mutation, acquire or explicitly borrow the project lease described in
-[`entry-point.md`](../skills/hl-workflow-governance/references/entry-point.md#project-write-lease).
-Check it before each implementation unit and pass the owning `FACTORY_MAINTENANCE_TOKEN` to
-delegated writers and governed commands. Release only a lease this operation owns. Read-only
-progress remains available without acquiring a lease; a conflicting lease blocks writes, not
-reading or diagnosis. Leases coordinate mono, split and worktree resources through the shared
-engine implementation; they do not add Feature or Initiative lifecycle states.
+## 3a. Manual refactoring admission
 
 `$hl-refactor` starts only on an explicit manual request after the existing lifecycle reader
 confirms every effective Initiative and Leaf is terminal with its required closure evidence.
-It keeps its lease during scanning, candidate selection and execution, or explicitly pauses
-and releases it. Resuming requires rechecking admission, source identity and selected evidence.
+It records scanning, candidate selection and execution in its run. Resuming requires rechecking
+admission, source identity and selected evidence.
 Completed Initiative manifests and their original acceptance/history are never reopened or
 rewritten to represent maintenance.
 

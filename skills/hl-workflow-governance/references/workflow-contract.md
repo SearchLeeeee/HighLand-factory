@@ -52,13 +52,10 @@ authority stays with the feature-workspace tools and documentation named by
   only a compact handoff to the main session.
 - Quick-change records are process material. A fired hard gate escalates to the feature workflow
   instead of widening the lightweight record's authority.
-- All project writers acquire or explicitly borrow the project lease before mutation and retain
-  it across delegated work; follow `entry-point.md#project-write-lease`. Read-only progress remains
-  available. A lease coordinates execution, never changes lifecycle truth or grants permission.
 - Manual refactoring starts only on an explicit request after every effective Initiative and
   Leaf reaches its proper terminal condition. It keeps its own run, selection and evidence and
   never reopens completed work. A selected handoff to new Feature work requires maintenance to
-  pause or finish and release its lease before that work starts.
+  pause or finish before that work starts.
 - Full and latest-Initiative scans disclose coverage and exclusions, then require user selection
   before editing. Changed behavior needs explicit item-level selection; ordinary implementation
   choices within the selected cost/risk boundary do not require repeated confirmation.
@@ -200,7 +197,6 @@ authority stays with the feature-workspace tools and documentation named by
 | Long-term wiki merge validator and inventory | `<FACTORY_ROOT>/skills/hl-wiki-merge/scripts` and its tests |
 | Provenance lookup | `<FACTORY_ROOT>/skills/hl-history-trace/scripts` and its tests |
 | Manual maintenance run, candidate selection and recovery | `<FACTORY_ROOT>/skills/hl-refactor` and its tests; existing lifecycle reader remains state authority |
-| Project write lease and cooperating entry points | `<FACTORY_ROOT>/engine/factorylib/maintenance.py`, engine commands and affected writer skills |
 | Shared process-workspace exclusions | `<FACTORY_ROOT>/engine/factorylib/workspaces.py`, layout/config generation and existing Wiki consumers |
 | Operator process | feature-workspace README/schema for lifecycle changes; affected workflow skills plus this skill's `references/entry-point.md` and `references/workflow-contract.md` |
 | Commit boundaries and commit packaging | this skill's `references/commit-boundaries.md`, the opt-in `packs/hl-commit` skill, and the generated `wiki/code-ai/_blocks/commit-granularity.md` block |

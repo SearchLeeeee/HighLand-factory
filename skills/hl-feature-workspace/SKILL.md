@@ -49,14 +49,6 @@ while the relevant configuration, manifests and checked sources are unchanged. N
 alone does not require another run. A lifecycle or material change still requires its owning gate;
 reusing preparation never replaces independent review or separated verification.
 
-Before any project write, follow
-`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
-acquire or explicitly borrow the project lease, check access before each implementation unit,
-and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
-maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
-this operation acquired, after its delegated writers stop. The lease grants no additional
-lifecycle, merge, deletion, commit or push authorization.
-
 ## Commands
 
 ```bash

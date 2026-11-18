@@ -174,7 +174,7 @@ as if approved. The runtime schema and commands are in `run-protocol.md`.
 
 For a new capability or substantial change requiring the normal Feature process, use `handoff`.
 Complete only the selected investigation and handoff in this run, record the remaining product
-gap, then pause/finish and release the lease before opening a new Initiative. Never reopen the
+gap, then pause/finish the maintenance run before opening a new Initiative. Never reopen the
 original Initiative or report a transfer as a fixed defect.
 
 If the root cause is in generic workflow rules, templates, dispatch or governance, record the

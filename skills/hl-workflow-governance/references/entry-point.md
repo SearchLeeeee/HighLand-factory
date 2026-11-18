@@ -25,35 +25,12 @@ explicit manual refactoring, or workflow maintenance. Do not carry out a Feature
 the routing skill. `$hl-refactor` requires a user request and all effective Initiatives closed;
 Initiative completion never invokes it automatically.
 
-## Project write lease
+## Parallel work and coordination
 
-Before the first project write, use the shared engine lease; checking once without acquiring
-does not protect the interval before a later write. This applies to code, tests, Wiki, profiles,
-process records, Initiative creation and workflow upgrades, including writes by subagents.
-
-1. Inspect `factory maintenance-lock --work <WORK_ROOT> --action status`. If a coordinator
-   explicitly delegated its live `FACTORY_MAINTENANCE_TOKEN`, borrow that lease and run
-   `factory maintenance-check --work <WORK_ROOT>` with the token. Never copy an unrelated
-   operation's token merely to bypass its occupancy.
-2. Otherwise acquire `factory maintenance-lock --work <WORK_ROOT> --action acquire
-   --owner <operation-id> --purpose <task-summary>` and retain the returned token in the
-   execution environment as `FACTORY_MAINTENANCE_TOKEN` for governed commands. A conflicting
-   lease blocks mutation with its owner and recovery instruction.
-3. Pass the same token to delegated writers with explicit disjoint file ownership. Check access
-   before each new implementation unit; keep the lease until those writers stop.
-4. At completion or explicit pause, release a lease **this operation acquired** using
-   `factory maintenance-lock --work <WORK_ROOT> --action release --token <owned-token>`.
-   A borrower returns control to its coordinator and never releases the coordinator's lease.
-
-`hl-refactor` acquires and releases its lease through its run helper and rechecks lifecycle
-admission as well as access. Use that helper's `pause`/`resume`/`finish` commands for its runs.
-Never steal a lease because it looks old; verify the owning operation has stopped and recover
-with its recorded identity. If interrupted acquisition/release left missing peer lock files,
-the exact owner's release token may recover the remaining locks; an unreadable or different-owner
-lock still blocks release. The shared resolver covers work, code, Wiki and common Git worktree
-resources. Cooperating factory writers are protected; arbitrary editors and remote processes
-are detected through source rechecks, not physically prevented. Read-only progress and diagnosis
-do not require a lease.
+Owner IDs identify responsibility; sharing an owner ID does not exclude parallel work. With
+satisfied dependencies, independent worktrees may change independent implementation paths and
+contracts. Coordinate changes to shared work-root files and Git merge/index operations as
+necessary, and preserve existing lifecycle, review, verification and authorization gates.
 
 ## Shared invariants
 
@@ -120,5 +97,4 @@ restrictions and stricter project policy prevail; push and merge still require s
 - Semantic merge workflow: `$hl-wiki-merge/SKILL.md`
 - Provenance resolver: `<FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py`
 - Manual maintenance run: `<FACTORY_ROOT>/skills/hl-refactor/scripts/refactor.py`
-- Project lease: `<FACTORY_ROOT>/engine/factorylib/maintenance.py`
 - Process-workspace registry: `<FACTORY_ROOT>/engine/factorylib/workspaces.py`

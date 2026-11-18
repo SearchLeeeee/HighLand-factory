@@ -68,8 +68,10 @@ around.
 11. Explain maintenance ownership: name the workflow skill responsible for the next state change and
     the manifest it will maintain. Never recommend manual phase advancement.
 12. State that `wave` is only a scheduling hint; parallel execution also requires completed
-    dependencies and non-overlapping owner, file and contract scope. There is no numeric
+    dependencies and non-overlapping implementation file and contract scope. There is no numeric
     concurrency cap: report every dependency-ready, scope-disjoint Feature as parallelizable.
+    A shared owner ID identifies responsibility and does not alone block parallel work; coordinate
+    shared work-root files and Git merge/index operations as necessary.
     When a Feature's workbench records a `worktree` parallel development choice, report it as the
     recorded working mode, and report a worktree the Feature has not yet merged back as pending
     work rather than as a defect.

@@ -40,14 +40,6 @@ For nested skills in the same session, reuse loaded context and successful docto
 only while their relevant inputs remain unchanged. A new skill name alone is not a reason to
 repeat preparation. Required gates after configuration, source or lifecycle changes still run.
 
-Before any project write, follow
-`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
-acquire or explicitly borrow the project lease, check access before each implementation unit,
-and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
-maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
-this operation acquired, after its delegated writers stop. The lease grants no additional
-lifecycle, merge, deletion, commit or push authorization.
-
 ## Purpose
 
 Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then executable Code AI profiles.
@@ -98,8 +90,9 @@ still apply; do not infer worktree authorization from a discussion-mode preferen
    - it is a Leaf, and not `cancelled` or `superseded`;
    - every `depends_on` entry is satisfied: `completed`, or `ready-to-merge / ready` with passed acceptance and complete closure;
    - it has no blocking child;
-   - its owner and file scope do not overlap this Feature's, and it does not change the same contract.
-   There is no numeric concurrency cap: the disjointness test above plus worktree code isolation is what makes concurrent work safe.
+   - its implementation file scope does not overlap this Feature's, and it does not change the same contract.
+   Owner IDs identify responsibility; sharing an owner ID alone does not block parallel work.
+   There is no numeric concurrency cap: the disjointness test above plus worktree code isolation is what makes concurrent work safe. Coordinate shared work-root files and Git merge/index operations as necessary.
 3. Run `feature_workspace.py report` and use its ready and next-action lines as evidence. Never infer parallelism from numbering or from `wave` alone; `wave` is only a scheduling hint.
 4. If at least one sibling qualifies and no applicable authorized choice exists, ask one startup question before writing detailed questions: develop in the shared checkout sequentially, or open a dedicated git worktree for this Feature so the other Features can be developed in parallel. Use the structured choice panel when the platform provides one, put the worktree option first with its tradeoff (isolation buys parallel throughput, at the cost of a later merge-back), and accept a custom answer. When reusing a choice, state its source and applicability. If no sibling qualifies, state that in one line and continue without asking.
 5. Retain the answer in the conversation and include it under `## Parallel development` at the next workbench save.

@@ -39,13 +39,6 @@ lifecycle state machine.
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy
 stops the skill with one concrete repair instruction.
 
-Before any project write, follow `references/entry-point.md#project-write-lease`: acquire or
-explicitly borrow a live lease, pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers, and release
-only the lease this operation owns after all its writers stop. Read-only progress remains
-available. A manually requested `$hl-refactor` scan has the narrow Wiki-baseline diagnostic
-exception in `<FACTORY_ROOT>/docs/skill-contract.md`; lifecycle invalidity still blocks admission, and a
-completed implementation still requires Wiki PASS.
-
 ## Minimum Sufficient Verification
 
 Use the smallest set of checks that can decide the current requirements and real risks. Reuse
@@ -172,7 +165,7 @@ in a broad F01. Before any detailed Feature discussion:
 5. Route only the first dependency-ready Leaf into discussion.
 
 Before that discussion, check whether other Leaf Features are parallelizable at that moment (satisfied
-dependencies, no blocking child, disjoint owners, files and contracts); there is no numeric
+dependencies, no blocking child, clear ownership and disjoint implementation files and contracts); there is no numeric
 concurrency cap — safety comes from that disjointness test plus worktree code isolation. When at
 least one sibling is parallelizable, the operator chooses shared-checkout sequential work or a
 dedicated git worktree, and the choice is recorded in the workbench. The implementation session
@@ -265,7 +258,7 @@ Use the existing lifecycle reader to require all effective Initiatives and Leave
 with their required closure; `ready-to-merge / ready` and integration PASS alone are insufficient.
 Do not manufacture admission by cancelling work or editing historical state.
 
-The skill holds a project lease, scans read-only, presents evidence and total cost, then changes
+The skill scans read-only, presents evidence and total cost, then changes
 only user-selected candidates. Full and latest-Initiative scanning share the same selection,
 review and verification rules; scanning broadly does not authorize broad edits. Its run record
 is process material under the resolved refactor workspace, not a second lifecycle authority.
@@ -274,8 +267,8 @@ Current-Wiki semantic consistency is checked in both directions and bound to tim
 versions and relevant configuration. Reuse the existing structural validator; a clean link
 graph is not proof of business correctness. Keep completed Initiative history and tombstones
 unchanged. Process-rule improvements discovered during a run are proposals for another session.
-If a selected finding needs a new Feature, finish its investigation/handoff, pause or close and
-release maintenance before entering that workflow. A handoff does not mean the defect is fixed.
+If a selected finding needs a new Feature, finish its investigation/handoff, then pause or close
+the maintenance run before entering that workflow. A handoff does not mean the defect is fixed.
 
 ## Commit Boundaries
 

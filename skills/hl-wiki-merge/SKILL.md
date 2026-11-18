@@ -40,14 +40,6 @@ marker files are metadata, not merge candidates, so reruns cannot re-import thei
 Fail closed: missing config, missing profile, a failing gate, or an unresolved language policy stops
 the skill with one concrete repair instruction.
 
-Before any project write, follow
-`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
-acquire or explicitly borrow the project lease, check access before each implementation unit,
-and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
-maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
-this operation acquired, after its delegated writers stop. The lease grants no additional
-lifecycle, merge, deletion, commit or push authorization.
-
 ## Required Input
 
 Require a staged source path: a Markdown file, or a directory containing Markdown files. The

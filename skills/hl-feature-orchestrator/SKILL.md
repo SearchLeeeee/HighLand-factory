@@ -44,14 +44,6 @@ their relevant inputs remain unchanged. A new lifecycle or material source/confi
 still requires its owning gate. New sessions read the supplied formal handoff and current
 authorities; they do not assume a previous session's environment is still suitable.
 
-Before any project write, follow
-`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
-acquire or explicitly borrow the project lease, check access before each implementation unit,
-and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
-maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
-this operation acquired, after its delegated writers stop. The lease grants no additional
-lifecycle, merge, deletion, commit or push authorization.
-
 ## Scope
 
 Use this skill only when the user explicitly invokes `$hl-feature-orchestrator` and names a registered Leaf Feature — a feature ID, or the `code-ai/` profile directory of that feature.
@@ -91,7 +83,7 @@ Entering this skill means entering the code implementation environment, so set o
 
 `$hl-feature-discuss` may have recorded a `worktree` parallel development choice in the workbench. That decision belongs to the implementation session and never changes lifecycle values.
 
-1. Read the workbench `## Parallel development` section. If it records `worktree`, re-verify before creating anything: the Feature is still a Leaf with `code-ai-profiles / completed`, its dependencies are satisfied, no sibling it was compared against now shares its owner, file or contract scope, and those sibling Features are still active. If any check fails, report the change and ask whether to continue sequentially instead.
+1. Read the workbench `## Parallel development` section. If it records `worktree`, re-verify before creating anything: the Feature is still a Leaf with `code-ai-profiles / completed`, its dependencies are satisfied, no sibling it was compared against now overlaps its implementation file or contract scope, and those sibling Features are still active. If any check fails, report the change and ask whether to continue sequentially instead.
 2. Confirm the code root and its owning repository: for `repo.mode: mono` the code root is `repo.code_path` inside `WORK_ROOT` and the owning repository is `WORK_ROOT` itself; for `split` it is the resolved `repo.code_external` and that directory is its own repository. The worktree isolates the code the Feature changes; wiki and feature-workspace files stay in `WORK_ROOT`.
 3. Use these paths, derived from the stable IDs and never hand-picked:
 
@@ -128,8 +120,8 @@ Before dispatching:
 
 - Resolve the owning `feature.yaml`; reject Initiatives and non-Leaf containers.
 - Require phase `code-ai-profiles` completed, a passing Scope Gate, no blocking child, and satisfied dependencies.
-- Confirm the owner ids used by the profiles exist in the profile owners table and their write scopes do not overlap.
-- Treat `wave` as a scheduling hint only; real parallelism requires satisfied dependencies and non-overlapping owner, file and contract scope, and it is not capped by a configured number.
+- Confirm the owner ids used by the profiles exist in the profile owners table and assigned implementation paths and contracts are independent. Owner IDs identify responsibility, not exclusion: sharing an owner ID alone does not require sequential work. Independent worktrees may modify independent implementation paths and contracts; coordinate shared work-root files and Git merge/index operations as necessary.
+- Treat `wave` as a scheduling hint only; real parallelism requires satisfied dependencies and non-overlapping implementation file and contract scope, and it is not capped by a configured number.
 - Read the authority pages that exist before dispatch: `wiki/00-spec.md`, `wiki/02-file-authority-map.md`, `wiki/03-current-decisions.md`, plus any page covering the touched contract or risk.
 - If one of those pages is absent, continue with what exists and mention the gap only when it affects routing, contract safety or validation.
 - Check required external-client access early enough to resolve preparation before its acceptance

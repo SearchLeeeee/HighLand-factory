@@ -30,6 +30,14 @@ All notable changes to HighLand-factory are documented here. Format: Keep a Chan
 - `templates/workspace/.gitignore` and the adopt/init `.gitignore` block now ignore `.factory/worktrees/`, so a dedicated worktree is never committed as a nested tree.
 - The feature-workspace README, schema, `.factory/README.md`, `hl-workflow-governance` entry point and contract, `hl-feature-progress`, the skill catalog, the architecture and skill-contract layout maps and the README walkthrough now restate the worktree choice, the no-merge-before-`ready` rule, the one-goal discipline and the discussion/implementation session boundary.
 
+## [0.1.1] - 2026-11-17
+
+### Removed
+- Project-wide write leases, their `maintenance-lock` / `maintenance-check` commands and token handoffs. Independent worktrees and disjoint Feature records no longer reserve each other's code or Wiki repositories. Existing lock markers are ignored; lifecycle, source-scope, review and acceptance checks still apply. Refresh installed skills and generated factory-owned startup instructions before continuing sessions that loaded the previous protocol.
+
+### Changed
+- A shared owner ID identifies responsibility and no longer serializes otherwise independent Feature work. Coordinate changes to the same files or contracts and shared Git operations by their actual scope.
+
 ## [0.1.0] - 2026-10-22
 
 First usable version: greenfield init + split-mode adopt, core feature lifecycle, machine gates, doctor/upgrade, installer and CI guards.

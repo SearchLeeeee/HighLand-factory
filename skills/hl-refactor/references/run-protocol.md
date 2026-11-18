@@ -1,7 +1,7 @@
 # Manual Maintenance Run Protocol
 
-Use this reference to operate `scripts/refactor.py`. The helper enforces admission, lease
-ownership, selected file boundaries and evidence provenance. The agent remains responsible
+Use this reference to operate `scripts/refactor.py`. The helper enforces admission,
+selected file boundaries and evidence provenance. The agent remains responsible
 for truthful scope, user decisions, semantic inspection and independent review.
 
 ## Contents
@@ -27,10 +27,9 @@ Use `--help` or `<command> --help` to inspect the installed parser. Every comman
 Use resolved paths from Step 0 and a unique, honest implementing session identity for `--actor`.
 An actor label is an audit assertion, not proof of agent independence.
 
-`start` returns the run ID, record path, scope and an `environment` object containing
-`FACTORY_MAINTENANCE_TOKEN`. Set that value in the execution environment for governed factory
-commands and this run's delegated writers. Do not paste it into current Wiki or a user prompt.
-The helper loads its own lease from the run record; do not replace the token or edit the record.
+`start` returns the run ID, record path, status and scope information. Retain the run ID for
+subsequent commands; do not hand-edit the run record. `resume` and selection application return
+status and scope information for the current run.
 
 Keep `run.json` as the canonical aggregate in
 `<WIKI_ROOT>/refactor-workspace/runs/<run-id>/`. It includes source snapshots, candidates,
@@ -67,8 +66,8 @@ change inventory. The helper verifies only mechanically decidable range facts, n
 chosen Initiative really is latest. Do not guess missing refs or present a partial range as full.
 Current uncommitted content is recorded separately and must be considered in the scan.
 
-Startup acquires the lease, validates lifecycle admission and captures current source identities.
-A blocked start preserves a diagnostic record and releases its own lease. Resolve the named
+Startup validates lifecycle admission and captures current source identities.
+A blocked start preserves a diagnostic record. Resolve the named
 problem and start a new manually requested run; do not edit the blocked record to continue.
 
 ## Candidate input
@@ -150,7 +149,7 @@ Before each selected unit:
 begin --work <WORK_ROOT> --run <run-id> --id <selected-id>
 ```
 
-`check` performs the same ongoing access/source checks without starting a unit. `begin`
+`check` performs the same ongoing lifecycle/source/scope checks without starting a unit. `begin`
 authorizes no action beyond the already recorded selection. Keep read-only investigations
 read-only. Execute selected implementation within exact paths and existing project permissions.
 
@@ -228,7 +227,7 @@ or `fixed` resolutions are permitted. Semantic and actual structural receipts ar
 required, but may retain `fail`/`blocked`. Known failures require an explicit `select --ids ""`
 decision identifying the residuals; selected investigation/handoff still requires its resolved
 outcome and independent review/continuation. Zero worthwhile candidates with no failures needs
-no artificial selection. The helper preserves residual IDs and releases its own lease.
+no artificial selection. The helper preserves residual IDs.
 
 ## Pause, resume and changed sources
 
@@ -239,10 +238,9 @@ resume --work <WORK_ROOT> --run <run-id>
 ```
 
 `show` is read-only and remains available for completed/paused runs. Pause records the best
-available source identity and releases only the run's lease. Before resuming, stop any previous
-writer, inspect the run and unresolved items, then let `resume` re-establish access, lifecycle
-admission and evidence validity. Apply the returned token environment. A conflicting lease is
-not stale merely because time passed; coordinate with its owner and never delete it by age.
+available source identity. Before resuming, stop any previous writer for that run, inspect the
+run and unresolved items, then let `resume` recheck lifecycle admission, selected scope and
+evidence validity.
 
 If relevant source/authority changed before edits and the run is still active, refresh only
 after reviewing the changed paths and maintaining the correct range:
@@ -262,25 +260,14 @@ that check: preserve the incomplete record and start a new explicit scan of the 
 work after resolving the divergence. Do not reset source files or rewrite historical Initiative
 state to make a receipt current.
 
-For an interrupted lock acquisition/release with missing peer lock files, first confirm every
-writer belonging to that run has stopped. Use `resume` to recover the same run: it releases and
-reacquires only an exact-owned partial lease, preserves the prior evidence, and rechecks source,
-lifecycle and selected scope. `pause` can also release exact-owned remnants while recording the
-lease warning. Neither path removes another owner's marker or makes stale evidence current.
-For explicit diagnostic recovery, the shared engine also supports
-`factory maintenance-lock --work <WORK_ROOT> --action release --token <run-owned-token>`.
-It validates remaining locks and rejects an unreadable or different-owner lock before removing
-anything. Preserve the run's interrupted outcome and then resume/recheck where possible; otherwise
-start a new explicit scan. This is recovery of the known owner's lease, never expiry-based
-takeover, blanket lock deletion or permission to ignore conflicting work.
-
-A `release-failed` run can `resume` after its exact-owner release: the helper obtains a new
-lease and rechecks admission/source scope. Once its evidence is current, repeat `finish` with
-the appropriate summary/scan-only choice to complete release. Do not hand-edit status fields.
+For an interrupted run, inspect `show`, retain its evidence and unresolved outcomes, and use
+`resume` to recheck lifecycle, sources and selected scope before continuing. Do not hand-edit
+status fields or repeat completed work. Preserve an incomplete record when source divergence
+requires a new explicitly scoped scan.
 
 ## Authority and guarantee limits
 
-The helper borrows the existing Feature/Initiative reader and shared lease implementation. It
+The helper borrows the existing Feature/Initiative reader. It
 creates no new Feature phase or Initiative state and never changes their historical closure.
 Source identity uses Git to enumerate sources and records their actual available working-tree
 bytes, consistently across clean/staged files, Windows line-ending conversion, `assume-unchanged`
@@ -292,8 +279,8 @@ changes do not alone invalidate evidence. Inventory limitations,
 such as nested submodule content or ignored files, remain visible and must not be reported as
 covered. Use project-specific checks for a genuinely needed untracked/generated/runtime surface.
 
-The lease coordinates cooperating factory writers and Git worktree/common repository resources.
-It cannot stop arbitrary editors or remote changes; rechecks detect tracked local interference.
+Source rechecks detect changes within the recorded local source inventory. Coordinate shared
+work-root files and Git merge/index operations as necessary when other work is in progress.
 The parser can validate recorded selection and actor fields but cannot establish actual human
 authorization, semantic correctness or independent judgment. Those remain the coordinator's
 responsibility. Commit, push, deployment and new workflow initiation retain their own existing

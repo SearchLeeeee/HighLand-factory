@@ -22,7 +22,7 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 | `hl-wiki-merge` | Semantic long-term wiki merge, validator gate, retained history | merged authority, MOC updates, retained-history bundle | `validate_llm_wiki.py`, `inventory_llm_wiki_merge.py` |
 | `hl-history-trace` | Isolated provenance lookup through tombstones and history routes | compact handoff | `trace_feature_history.py` |
 | `hl-quick-change` | Bounded bugfix/adjustment on-ramp with hard-gate escalation | quick record, evidence | `$hl-feasibility-grill` on escalation |
-| `hl-refactor` | Explicit manual full or latest-Initiative scan after all Initiatives close; user selects costed candidates before edits | isolated run, candidate decisions, reviewed code/test/current-Wiki maintenance and remaining findings | `refactor.py`, existing lifecycle reader, project write lease and Wiki validator |
+| `hl-refactor` | Explicit manual full or latest-Initiative scan after all Initiatives close; user selects costed candidates before edits | isolated run, candidate decisions, reviewed code/test/current-Wiki maintenance and remaining findings | `refactor.py`, existing lifecycle reader, Wiki validator |
 
 `hl-refactor` is an independent maintenance entry. It is never an automatic Initiative closing
 step and does not reopen completed work. Its read-only scan may diagnose a failed Wiki structural

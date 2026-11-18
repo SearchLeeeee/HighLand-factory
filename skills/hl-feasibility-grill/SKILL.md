@@ -36,14 +36,6 @@ Run this before anything else, including reading the proposal.
    ```
    A failing gate blocks this skill. Do not weaken or bypass a gate; configuration disagreements route to `$hl-workflow-governance`.
 
-Before any project write, follow
-`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
-acquire or explicitly borrow the project lease, check access before each implementation unit,
-and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
-maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
-this operation acquired, after its delegated writers stop. The lease grants no additional
-lifecycle, merge, deletion, commit or push authorization.
-
 ## Overview
 
 Interrogate a proposed feature with strong technical skepticism before any product-style discussion. Stay at the level of feasibility, risk, tradeoff and recommendation. Do not design concrete implementation steps, APIs, schemas, code changes, tests, tickets or task breakdowns.

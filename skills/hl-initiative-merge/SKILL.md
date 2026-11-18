@@ -49,14 +49,6 @@ For nested skills within the same session, reuse already loaded context and appl
 doctor/gate results. Re-run after relevant configuration, source or lifecycle changes; skill entry
 alone does not invalidate them. This does not replace independent judgement or any required gate.
 
-Before any project write, follow
-`<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md#project-write-lease`:
-acquire or explicitly borrow the project lease, check access before each implementation unit,
-and pass `FACTORY_MAINTENANCE_TOKEN` to delegated writers and governed commands. A conflicting
-maintenance run blocks mutation; read-only diagnosis remains available. Release only a lease
-this operation acquired, after its delegated writers stop. The lease grants no additional
-lifecycle, merge, deletion, commit or push authorization.
-
 ## Fixed Boundary
 
 Keep these states separate and never report one as another:

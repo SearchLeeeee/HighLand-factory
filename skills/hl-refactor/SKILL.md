@@ -28,7 +28,7 @@ description: Use only on an explicit user request for a manual full-project or l
    **read-only diagnosis** of that failure. Implemented maintenance still requires the existing
    Wiki gate to pass before completion. Never report a failed baseline as PASS.
 4. Read `<FACTORY_ROOT>/skills/hl-workflow-governance/references/entry-point.md` for the shared
-   write-lease boundary, and the project's formal entry/role-required material. Preserve those
+   workflow boundaries, and the project's formal entry/role-required material. Preserve those
    startup reads. Before any user question read the shared `socratic-questioning.md` beside that
    entry point. Reuse settled answers and authorization; use concentrated candidate review.
 5. Read [run-protocol.md](references/run-protocol.md) before operating a run, and
@@ -55,17 +55,15 @@ Start with a distinct implementing session/agent identity:
 <PYTHON> <FACTORY_ROOT>/skills/hl-refactor/scripts/refactor.py start --work <WORK_ROOT> --mode full --actor <implementer-id> --budget <cost-boundary>
 ```
 
-The helper acquires the shared project lease and uses the existing lifecycle reader to require
+The helper uses the existing lifecycle reader to require
 all effective Initiatives and Leaves properly terminal. `ready-to-merge / ready`, an intermediate
 `completed`, or integration PASS alone does not qualify. Cancelled/superseded work follows the
 existing semantics; report it accurately and never describe cancellation as implementation.
 An initialised project without Initiatives may use `full`.
 
-Retain the returned run ID and `FACTORY_MAINTENANCE_TOKEN` in the execution environment. Pass
-the token only to this run's delegated writers and governed commands. Never create, resume,
-cancel or rewrite an Initiative to gain admission. The run helper owns its lease; use its
-`pause`, `resume` and `finish`, not ad hoc lock deletion. Cooperating factory writers are excluded;
-external editors still require source rechecks.
+Retain the returned run ID and use the helper's `pause`, `resume` and `finish` commands to
+manage the run. Never create, resume, cancel or rewrite an Initiative to gain admission.
+Source changes require rechecks.
 
 Keep one authoritative `run.json` under the resolved `refactor-workspace/runs/<run-id>/`.
 The helper maintains events and evidence references. Place working scan/decision/review evidence
@@ -92,7 +90,7 @@ and never imply whole-project coverage. If budget leaves a full scan incomplete,
 coverage explicitly.
 
 Parallelise independent read-only questions when useful. Keep code, tests and canonical Wiki
-unchanged during scanning; only lease and process records may be written. Validate findings
+unchanged during scanning; only process records may be written. Validate findings
 against source evidence and combine duplicates before presenting them.
 
 ## 3. Present candidates and record the user's batch selection
@@ -131,9 +129,9 @@ proceed autonomously.
 ## 4. Implement the selected work
 
 Run `begin --id <selected-id>` before each implementation or investigation unit. It rechecks the
-lease, lifecycle, source identity and allowed paths. Do not write when the check fails. Assign
-disjoint files and concrete acceptance to any delegated writer; the coordinator retains the
-lease and final responsibility.
+lifecycle, source identity and allowed paths. Do not write when the check fails. Assign
+disjoint files and concrete acceptance to any delegated writer; the coordinator retains final
+responsibility.
 
 For a behavior-preserving refactor, identify relevant current behavior, change structure, then
 verify the preserved outcome. Keep selected behavior changes explicit and test their own
@@ -150,7 +148,7 @@ closure, retained-history transformation, tombstone creation or authority switch
 
 For each selected item, use `resolve` with its evidence, outcome and actual cost. `investigated`
 records what was learned, not an unapproved fix. `transferred` completes a handoff, not the product
-gap: preserve the proposed scope and remaining work, then pause/finish and release maintenance
+gap: preserve the proposed scope and remaining work, then pause/finish maintenance
 before opening a new Initiative. Workflow/skill/template/dispatch improvements discovered here
 are recommendations for another user-directed session, not edits in this run.
 
@@ -190,11 +188,11 @@ refactor or hide a selected failure behind a completion claim.
 Summarise the actual result, realized benefit and cost, source identities, verification,
 Wiki coverage/time, remaining/deferred findings and separate-session workflow proposals. State
 which items were fixed, investigated or handed off. No-change scans are valid outcomes.
-The helper releases the run's own lease. Commit/push/deployment remain governed by existing
+Commit/push/deployment remain governed by existing
 authorization; candidate selection supplies none of those permissions.
 
 For interruption or a requested stop, preserve evidence, use `pause --reason <reason>`, then
 report remaining work and the run ID. Resume the same run with `resume` and recheck its selected
 scope/evidence before continuing. Use `show` for read-only inspection. Never repeat completed
-edits or take a lease merely because it is old. If sources changed, follow the protocol's
+edits. If sources changed, follow the protocol's
 refresh/recovery path; preserve the incomplete result and identify the concrete recheck needed.
