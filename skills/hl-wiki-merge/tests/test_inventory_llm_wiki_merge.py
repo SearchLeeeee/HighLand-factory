@@ -14,7 +14,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "inventory_llm_wiki_m
 class InventoryTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
 
     def tearDown(self) -> None:
         self.temp.cleanup()
