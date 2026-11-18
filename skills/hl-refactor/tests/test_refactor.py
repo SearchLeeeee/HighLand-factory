@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -118,6 +119,18 @@ def selected(project: Project, item: dict | None = None) -> None:
     project.invoke("begin", "--id", "R001")
 
 
+def test_independent_scans_do_not_reserve_the_project(project: Project):
+    other = Project(project.work, project.temporary)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(lambda item: item.start(), (project, other)))
+    assert project.run != other.run
+    for item, result in zip((project, other), results):
+        assert result["status"] == "scanning"
+        assert "environment" not in result and "lease_token" not in result
+        assert "lease" not in item.data()
+        assert item.invoke("check")["status"] == "scanning"
+
+
 def test_full_snapshot_tracks_worktree_bytes_and_excludes_registered_process_roots(project: Project):
     config_path = project.work / ".factory/factory.yaml"
     config = yaml.safe_load(config_path.read_text())
@@ -132,7 +145,7 @@ def test_full_snapshot_tracks_worktree_bytes_and_excludes_registered_process_roo
     record = project.data()
     assert "code:new.py" in record["snapshot"]["files"]
     assert "code:app.py" in record["snapshot"]["dirty_paths"]
-    assert not any("maintenance-notes" in key or "refactor-workspace" in key or "factory-maintenance.lock" in key for key in record["snapshot"]["files"])
+    assert not any("maintenance-notes" in key or "refactor-workspace" in key for key in record["snapshot"]["files"])
     (process / "current.md").write_text("process evidence can change\n")
     project.invoke("check")
     assert record["snapshot"]["repos"]["code"]["head"] == git(project.work, "rev-parse", "HEAD")
@@ -144,7 +157,6 @@ def test_all_initiatives_preflight_rejects_active_or_phase_only_completion(proje
     (project.work / "wiki/feature-workspace/registry.yaml").write_text(yaml.safe_dump(registry))
     result = project.invoke("start", "--mode", "full", "--actor", "fixture", expected=2)
     assert "I002" in result.stderr
-    assert not (project.work / ".factory/factory-maintenance.lock").exists()
     records = list((project.work / "wiki/refactor-workspace/runs").glob("*/run.json"))
     assert len(records) == 1 and json.loads(records[0].read_text())["status"] == "blocked"
 
@@ -152,7 +164,6 @@ def test_all_initiatives_preflight_rejects_active_or_phase_only_completion(proje
 def test_latest_does_not_guess_last_commit_or_highest_identifier(project: Project):
     result = project.invoke("start", "--mode", "latest", "--actor", "fixture", expected=2)
     assert "--range-evidence" in result.stderr
-    assert not (project.work / ".git/factory-maintenance.lock").exists()
 
 
 def test_latest_explicit_complete_range_preserves_rename_and_deleted_paths(project: Project):
@@ -324,67 +335,41 @@ def test_every_editing_unit_checks_scope_and_new_lifecycle_activity(project: Pro
     assert "I009" in failed.stderr
 
 
-def test_pause_releases_resume_checks_external_source_and_keeps_history(project: Project):
+def test_pause_resume_checks_external_source_and_keeps_history(project: Project):
     project.start()
     project.candidates([])
-    project.invoke("pause", "--reason", "Release while a different session investigates")
-    assert not (project.work / ".factory/factory-maintenance.lock").exists()
+    project.invoke("pause", "--reason", "Wait while a different session investigates")
     project.invoke("resume")
     project.invoke("pause", "--reason", "Await user")
     (project.work / "code/app.py").write_text("external = True\n")
     project.invoke("resume", expected=2)
-    assert not (project.work / ".factory/factory-maintenance.lock").exists()
     assert project.data()["status"] == "paused"
     assert (project.record.parent / "events.jsonl").read_text().count('"action": "pause"') == 2
 
 
-def test_owned_partial_release_can_pause_and_resume_the_same_run(project: Project):
+def test_pause_resume_preserves_selection_and_source_identity(project: Project):
     selected(project)
     identifier = project.run
     original_snapshot = project.data()["snapshot"]
-    (project.work / ".git/factory-maintenance.lock").unlink()
-    paused = project.invoke("pause", "--reason", "Recover an interrupted owned release")
-    assert paused["released"] is True and project.data()["pause_lease_error"]
-    assert not (project.work / ".factory/factory-maintenance.lock").exists()
+    paused = project.invoke("pause", "--reason", "Continue the same selected work later")
+    assert paused["status"] == "paused"
     resumed = project.invoke("resume")
     assert resumed["status"] == "implementing" and project.data()["id"] == identifier
     assert project.data()["snapshot"] == original_snapshot
     assert project.data()["selection"]["ids"] == ["R001"]
-    project.invoke("pause", "--reason", "Recovery exercise complete")
+    project.invoke("pause", "--reason", "Work preserved")
 
 
-def test_direct_resume_recovers_only_owned_partial_lease_and_rechecks_source(project: Project):
+def test_direct_resume_rechecks_source_and_preserves_candidates(project: Project):
     project.start()
     project.candidates([candidate()])
     identifier = project.run
-    old_token = project.data()["lease"]["token"]
-    (project.work / ".git/factory-maintenance.lock").unlink()
     project.invoke("resume")
-    assert project.data()["id"] == identifier and project.data()["lease"]["token"] != old_token
-    assert project.data()["lease_history"][-1]["token"] == old_token
-    (project.work / ".git/factory-maintenance.lock").unlink()
+    assert project.data()["id"] == identifier
     (project.work / "code/app.py").write_text("external_change = True\n")
     rejected = project.invoke("resume", expected=2)
     assert "stale" in rejected.stderr
-    assert not (project.work / ".factory/factory-maintenance.lock").exists()
     assert project.data()["candidates"][0]["id"] == "R001"
-    assert "partial-lease-released" in (project.record.parent / "events.jsonl").read_text()
-
-
-def test_partial_recovery_never_removes_a_differently_owned_peer(project: Project):
-    project.start()
-    primary = project.work / ".factory/factory-maintenance.lock"
-    peer = project.work / ".git/factory-maintenance.lock"
-    original_primary = primary.read_bytes()
-    other = json.loads(peer.read_text())
-    other["token"] = "another-owner-token"
-    peer.write_text(json.dumps(other))
-    project.invoke("pause", "--reason", "Do not override another owner", expected=2)
-    assert primary.read_bytes() == original_primary
-    assert json.loads(peer.read_text())["token"] == "another-owner-token"
-    project.invoke("resume", expected=2)
-    assert primary.read_bytes() == original_primary
-    assert json.loads(peer.read_text())["token"] == "another-owner-token"
 
 
 def test_investigation_never_authorizes_source_changes(project: Project):
@@ -414,7 +399,6 @@ def test_finish_requires_fresh_independent_evidence_and_preserves_failures(proje
     project.invoke("verify-wiki")
     result = project.invoke("finish", "--summary", "Selected contract clarification verified; no deployment claim")
     assert result["status"] == "completed"
-    assert not (project.work / ".factory/factory-maintenance.lock").exists()
     assert any(item["verdict"] == "fail" for item in project.data()["checks"])
 
 

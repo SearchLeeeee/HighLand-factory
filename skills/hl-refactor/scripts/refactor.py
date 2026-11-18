@@ -28,7 +28,6 @@ FACTORY = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(FACTORY / "engine"))
 
 from factorylib import config as config_mod  # noqa: E402
-from factorylib import maintenance  # noqa: E402
 from factorylib.layout import build_layout  # noqa: E402
 from factorylib.workspaces import is_process_path, process_workspace_names  # noqa: E402
 
@@ -131,7 +130,7 @@ def namespace(path: Path, layout: Any) -> str | None:
 def excluded(path: Path, layout: Any, config: dict[str, Any]) -> bool:
     if is_process_path(path, layout.wiki, config):
         return True
-    return path in {layout.local_yaml, layout.state_json, layout.work / ".factory/factory-maintenance.lock"} or within(path, layout.work / ".factory/worktrees")
+    return path in {layout.local_yaml, layout.state_json} or within(path, layout.work / ".factory/worktrees")
 
 
 def source_path(raw: str, layout: Any, config: dict[str, Any]) -> tuple[str, Path]:
@@ -320,15 +319,7 @@ def event(path: Path, run: dict[str, Any], action: str, detail: Any) -> None:
     dump(path, run)
 
 
-def own_lock(layout: Any, run: dict[str, Any]) -> None:
-    paths = maintenance.resolve_lock_paths(layout.work)
-    if not all(path.exists() for path in paths):
-        raise RefactorError("Maintenance lease is not active; use resume before continuing")
-    maintenance.check_access(layout.work, run["lease"]["token"])
-
-
 def guarded_snapshot(layout: Any, config: dict[str, Any], run: dict[str, Any]) -> dict[str, Any]:
-    own_lock(layout, run)
     current = snapshot(layout, config, preflight(layout))
     check_range(run, current)
     baseline = run["snapshot"]
@@ -432,8 +423,7 @@ def validate_candidates(payload: Any, layout: Any, config: dict[str, Any]) -> li
 def start(args: Any, layout: Any, config: dict[str, Any]) -> dict[str, Any]:
     identifier = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid.uuid4().hex[:8]
     path = run_file(layout, identifier)
-    lease = maintenance.acquire(layout.work, owner="hl-refactor:" + identifier, purpose="refactor: manual " + args.mode + " scan")
-    run: dict[str, Any] = {"schema": 1, "id": identifier, "created_at": now(), "timezone": "UTC", "mode": args.mode, "actor": args.actor, "budget": args.budget, "lease": lease, "status": "starting", "candidates": [], "candidate_history": [], "selection": None, "checks": [], "resolutions": [], "editing_started": False, "exclusions": list(process_workspace_names(config))}
+    run: dict[str, Any] = {"schema": 1, "id": identifier, "created_at": now(), "timezone": "UTC", "mode": args.mode, "actor": args.actor, "budget": args.budget, "status": "starting", "candidates": [], "candidate_history": [], "selection": None, "checks": [], "resolutions": [], "editing_started": False, "exclusions": list(process_workspace_names(config))}
     try:
         path.parent.mkdir(parents=True, exist_ok=False)
         registry = preflight(layout)
@@ -444,15 +434,12 @@ def start(args: Any, layout: Any, config: dict[str, Any]) -> dict[str, Any]:
         event(path, run, "start", {"mode": args.mode, "budget": args.budget})
     except Exception as exc:
         run["status"] = "blocked"
-        try:
-            if path.parent.is_dir():
-                event(path, run, "start-failed", {"error": str(exc)})
-        finally:
-            maintenance.release(layout.work, lease["token"])
-        retained = f"Blocked run retained at {path}" if path.is_file() else "Run directory could not be created; the lease was released"
+        if path.parent.is_dir():
+            event(path, run, "start-failed", {"error": str(exc)})
+        retained = f"Blocked run retained at {path}" if path.is_file() else "Run directory could not be created"
         raise RefactorError(f"{exc}\n{retained}") from exc
     scope_summary = run["scope"] if args.mode == "latest" else {"seed_path_count": len(run["scope"]["seed_paths"]), "inventory_record": str(path), "note": run["scope"]["note"]}
-    return {"run": identifier, "record": str(path), "status": run["status"], "lease_token": lease["token"], "environment": {"FACTORY_MAINTENANCE_TOKEN": lease["token"]}, "inventory_count": len(current["files"]), "scope": scope_summary, "limitations": current["limitations"]}
+    return {"run": identifier, "record": str(path), "status": run["status"], "inventory_count": len(current["files"]), "scope": scope_summary, "limitations": current["limitations"]}
 
 
 def operate(args: Any, layout: Any, config: dict[str, Any], path: Path, run: dict[str, Any]) -> dict[str, Any]:
@@ -462,55 +449,28 @@ def operate(args: Any, layout: Any, config: dict[str, Any], path: Path, run: dic
     if run["status"] in {"completed", "scan-completed", "blocked"}:
         raise RefactorError("This run is closed or never passed startup; start a new manual run")
     if command == "pause":
-        lease_error = None
-        try:
-            own_lock(layout, run)
-        except (RefactorError, maintenance.MaintenanceError) as exc:
-            # A peer marker may have been removed before an interrupted release.
-            # Only the shared exact-owner release below may authorize cleanup.
-            lease_error = str(exc)
-        run["pause_lease_error"] = lease_error
         try:
             run["pause_snapshot"] = snapshot(layout, config, preflight(layout))
         except Exception as exc:
             run["pause_snapshot"] = None
             run["pause_snapshot_error"] = str(exc)
         previous = run["status"]
-        maintenance.release(layout.work, run["lease"]["token"])
         run["resume_status"] = previous
         run["status"] = "paused"
-        event(path, run, "pause", {"reason": args.reason, "released": True, "lease_warning": lease_error})
-        return {"status": "paused", "released": True}
+        event(path, run, "pause", {"reason": args.reason})
+        return {"status": "paused"}
     if command == "resume":
-        paths = set(maintenance.resolve_lock_paths(layout.work)) | {Path(raw) for raw in run["lease"].get("lock_paths", [])}
-        acquired = False
-        if not all(item.exists() for item in paths):
-            if any(item.exists() for item in paths):
-                previous_lease = run["lease"]
-                # Missing markers alone never establish ownership. release()
-                # validates the run token and all present peers before deleting.
-                maintenance.release(layout.work, previous_lease["token"])
-                run.setdefault("lease_history", []).append(previous_lease)
-                event(path, run, "partial-lease-released", {"owner": previous_lease["owner"], "reason": "recover owned incomplete reservation before source recheck"})
-            run["lease"] = maintenance.acquire(layout.work, owner="hl-refactor:" + run["id"], purpose="refactor: resume manual maintenance")
-            acquired = True
-        try:
-            current = guarded_snapshot(layout, config, run)
-            if run["status"] == "paused":
-                if not run.get("pause_snapshot"):
-                    raise RefactorError("Pause could not preserve a valid source identity; start a new scan after resolving the recorded failure")
-                unchanged(run["pause_snapshot"], current, "Paused source")
-                run["status"] = run["resume_status"]
-            event(path, run, "resume", {"snapshot": current["content_digest"]})
-            return {"status": run["status"], "environment": {"FACTORY_MAINTENANCE_TOKEN": run["lease"]["token"]}}
-        except Exception:
-            if acquired:
-                maintenance.release(layout.work, run["lease"]["token"])
-            raise
+        current = guarded_snapshot(layout, config, run)
+        if run["status"] == "paused":
+            if not run.get("pause_snapshot"):
+                raise RefactorError("Pause could not preserve a valid source identity; start a new scan after resolving the recorded failure")
+            unchanged(run["pause_snapshot"], current, "Paused source")
+            run["status"] = run["resume_status"]
+        event(path, run, "resume", {"snapshot": current["content_digest"]})
+        return {"status": run["status"]}
     if run["status"] == "paused":
         raise RefactorError("Run is paused; resume and recheck evidence first")
     if command == "refresh":
-        own_lock(layout, run)
         if run["editing_started"]:
             raise RefactorError("Cannot refresh an implementation baseline; pause and preserve the incomplete outcome")
         current = snapshot(layout, config, preflight(layout))
@@ -589,7 +549,7 @@ def operate(args: Any, layout: Any, config: dict[str, Any], path: Path, run: dic
         run["pending_selection_check"] = False
         run["status"] = "implementing"
         event(path, run, "begin-unit", {"id": args.id, "snapshot": current["content_digest"]})
-        return {"status": "implementing", "approved_paths": run["selection"]["paths"], "environment": {"FACTORY_MAINTENANCE_TOKEN": run["lease"]["token"]}}
+        return {"status": "implementing", "approved_paths": run["selection"]["paths"]}
     if command == "resolve":
         if not run["editing_started"] or args.id not in run["selection"]["ids"]:
             raise RefactorError("Begin a selected implementation/investigation unit first")
@@ -659,13 +619,7 @@ def operate(args: Any, layout: Any, config: dict[str, Any], path: Path, run: dic
         run["status"] = "scan-completed" if args.scan_only else "completed"
         run["closure_type"] = "diagnostic-scan" if args.scan_only else "verified-maintenance"
         event(path, run, "finish", {"summary": args.summary, "closure_type": run["closure_type"], "changed_paths": changed, "remaining_candidates": run["remaining_candidates"]})
-        try:
-            maintenance.release(layout.work, run["lease"]["token"])
-        except Exception:
-            run["status"] = "release-failed"
-            dump(path, run)
-            raise
-        return {"status": run["status"], "closure_type": run["closure_type"], "record": str(path), "changed_paths": changed, "remaining_candidates": run["remaining_candidates"], "released": True}
+        return {"status": run["status"], "closure_type": run["closure_type"], "record": str(path), "changed_paths": changed, "remaining_candidates": run["remaining_candidates"]}
     raise RefactorError("Unsupported command: " + command)
 
 
@@ -727,7 +681,7 @@ def main(argv: list[str] | None = None) -> int:
             output = operate(args, layout, config, path, run)
         print(json.dumps(output, ensure_ascii=False, indent=2))
         return 1 if args.command == "verify-wiki" and output["verdict"] != "pass" else 0
-    except (RefactorError, maintenance.MaintenanceError, config_mod.ConfigError, OSError, ValueError) as exc:
+    except (RefactorError, config_mod.ConfigError, OSError, ValueError) as exc:
         if path is not None and run is not None:
             event(path, run, "command-failed", {"command": args.command, "error": str(exc)})
         print(f"ERROR: {exc}", file=sys.stderr)

@@ -2,6 +2,9 @@
 
 import importlib.util
 import re
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 from urllib.parse import unquote, urlsplit
@@ -106,6 +109,44 @@ def test_valid_ready_uses_manifest_relative_evidence_and_keeps_future_targets(fw
     assert fw.main(["merge-ready", "--feature", str(path)]) == 0
     assert not (path.parent / "implementation" / "example.md").exists()
     assert not list(path.parent.glob("*.tmp"))
+
+
+def test_disjoint_feature_transitions_can_run_concurrently(fw, workspace):
+    registry, first = workspace
+    second = first.parent.parent / "second-feature" / "feature.yaml"
+    second.parent.mkdir()
+    feature = fw.load_yaml(first)
+    feature["id"] = "I007-F02"
+    for name in ("acceptance.md", "validation.md", "source.md"):
+        (second.parent / name).write_bytes((first.parent / name).read_bytes())
+    fw.write_yaml(second, feature)
+    initiative_path = first.parent.parent / "initiative.yaml"
+    initiative = fw.load_yaml(initiative_path)
+    initiative["initial_decomposition"]["feature_ids"].append(feature["id"])
+    initiative["features"].append({"id": feature["id"], "manifest": "second-feature/feature.yaml"})
+    fw.write_yaml(initiative_path, initiative)
+    control = registry.parent / ".factory"
+    control.mkdir()
+    fw.write_yaml(control / "factory.yaml", {"repo": {"mode": "mono", "code_path": "code", "wiki_path": "wiki"}})
+    legacy = control / "factory-maintenance.lock"
+    legacy.write_text("old project reservation\n", encoding="utf-8")
+    authorities = {path: path.read_bytes() for path in (registry, initiative_path, legacy)}
+    script = Path(fw.__file__)
+
+    def advance(path):
+        return subprocess.run([
+            sys.executable, str(script), "transition", "--registry", str(registry),
+            "--feature", str(path), "--phase", "ready-to-merge", "--state", "ready",
+            "--next-skill", "hl-wiki-merge", "--next-instruction", "Merge after preflight",
+        ], capture_output=True, text=True, timeout=30)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(advance, (first, second)))
+    for result in results:
+        assert result.returncode == 0, result.stdout + result.stderr
+    assert all(fw.load_yaml(path)["state"] == "ready" for path in (first, second))
+    assert all(path.read_bytes() == before for path, before in authorities.items())
+    assert fw.main(["validate", "--registry", str(registry)]) == 0
 
 
 def test_invalid_sibling_rejects_candidate_without_touching_any_manifest(fw, workspace):

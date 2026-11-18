@@ -16,7 +16,6 @@ coverage/
 # --- Factory machine state ---
 .factory/local.yaml
 .factory/state.json
-.factory/factory-maintenance.lock
 .factory/.venv/
 .factory-cache/
 bin/
