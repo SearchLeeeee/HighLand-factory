@@ -205,12 +205,26 @@ Do not present Initiative creation, initial decomposition, mandatory splitting o
 - `Not feasible`: stop broad exploration and state the prerequisite changes required before a new Initiative may be created.
 - `Risky`: narrow the scope first and repeat the Scope Gate before creating or routing any Leaf.
 
-## Final Handoff Prompt
+## Final Handoff: Feature Dependency Topology and Prompt
 
-After Initiative creation, initial Feature decomposition, Scope Gate completion, `finalize-decomposition` and registry validation succeed, produce a prompt in the user's language that names the first dependency-ready Leaf and tells the next session to use `$hl-feature-discuss`. For a hard `Not feasible` verdict, produce the rejection handoff only after stating the prerequisites for revisiting the request.
+After Initiative creation, initial Feature decomposition, Scope Gate completion, `finalize-decomposition` and registry validation succeed, always return both deliverables in the conversation: the Feature dependency topology first, then one fenced, copyable handoff prompt in the user's language. The prompt names the first dependency-ready Leaf and tells the next session to use `$hl-feature-discuss`; the graph does not replace it. Keep both derived from the same validated registry and manifests.
+
+For a hard `Not feasible` verdict, produce the rejection handoff only after stating the prerequisites for revisiting the request. If no Features were registered, explicitly state that there is no Feature dependency topology yet; do not invent F IDs or a graph. A blocked decomposition or failed gate must be reported as a blocker, not a successful discussion handoff.
+
+### Feature Dependency Topology
+
+- Render a Mermaid `flowchart TD` from the final validated Initiative inventory and Feature manifests after all required splits. Include every active Leaf Feature, including isolated nodes with no dependencies; omit superseded split parents from the execution graph.
+- Label each node with its full stable F ID, title and recorded `wave`. Include referenced completed prerequisites with their status so no dependency edge loses its source. Use full IDs to avoid ambiguity.
+- Draw `A --> B` exactly when B declares A in `depends_on`: prerequisite to dependent. State this arrow direction beside the graph. Do not infer edges from numbering, wave, prose or a proposed execution order.
+- Identify the first dependency-ready Leaf selected for the handoff and keep its ID consistent with the prompt. Briefly state which dependencies still block downstream Features. A wave is only a scheduling hint; it does not by itself establish readiness or safe parallel execution.
+- Treat the graph as a view of the validated manifests, not another authority or a persisted next-session prompt. Do not present a graph with unresolved or cyclic dependencies as a validated handoff.
+
+### Copyable Handoff Prompt
 
 The prompt must include:
 
+- Work root, Initiative ID and title, target Leaf ID and title, and their manifest paths
+- Every required `context_refs` input as an explicit must-read path, including shared prior constraints
 - Original feature description
 - Feasibility verdict
 - Recommended direction, or the rejection rationale
@@ -226,6 +240,13 @@ Structure to render in the user's language (keep IDs, paths, skill names and ver
 
 ```markdown
 Continue with $hl-feature-discuss for the following feature.
+
+## Workspace and target Leaf
+- Work root: [WORK_ROOT]
+- Initiative: [ID, title and manifest path]
+- Leaf Feature: [full F ID, title and manifest path]
+- Dependency status: [why this is the first dependency-ready Leaf]
+- Required prior context: [explicit must-read paths resolved from required context_refs]
 
 ## Feature description
 [original description]

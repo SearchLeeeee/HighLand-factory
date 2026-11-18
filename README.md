@@ -263,7 +263,10 @@ sequenceDiagram
 1. 创建 Initiative（示例：`I001`，`wiki/feature-workspace/initiatives/initiative-i001-csv-export/`）；
 2. 建立**完整初始 Feature inventory**（示例：`I001-F01` 同步导出当前视图，`I001-F02` 异步导出大结果集，`depends_on: [I001-F01]`）；
 3. 对每个候选跑 Scope Gate，`must-split` 立即拆分；
-4. 跑 `finalize-decomposition` 封存 inventory，再运行 `factory gate workspace`。
+4. 跑 `finalize-decomposition` 封存 inventory，再运行 `factory gate workspace`；
+5. 在回复中先给出所有当前 Leaf Feature 的 Mermaid 依赖拓扑图（含无依赖的 F、完整 ID、标题、wave 和首个 dependency-ready Leaf；箭头从前置 F 指向依赖它的 F），再给出一个可复制的交接 prompt，写明 Initiative、目标 Leaf、manifest 路径和必读的 prior constraints。图中的连线只取自最终校验通过的 `depends_on`，wave 仅作排期提示。
+
+若结论为 `Not feasible` 且未建立 Feature，交接会说明重启评审所需前提，以及尚无 F 依赖图；不会虚构分解。
 
 > 不允许创建一个宽泛的 F01 承载整个 Initiative 的讨论。可行性结论会作为 prior constraints 记录下来，后续讨论不得无新证据地重开。
 
