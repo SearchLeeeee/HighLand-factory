@@ -32,6 +32,12 @@ options and custom input. When the tool requires a recommendation first, mark it
 the tool and explain its conditional basis without making alternatives sound invalid. For an
 open exploration of meaning or evidence, use a free-text question rather than inventing options.
 
+When the user asks for a recommendation with every question, include the recommendation and
+its applicable conditions in the prompt shown on the same question card. For plain-text questions,
+include both in the same message. Keep the question neutral and the recommendation distinct.
+If evidence cannot support a choice yet, recommend how to resolve the uncertainty and state
+what evidence would support a choice.
+
 An explicitly chosen batch-review mode may present several independent Socratic questions in
 the workbench. Each block states the known context, one open question, the premise or evidence
 being tested and the decision impact; add alternatives or a conditional recommendation only when
@@ -49,6 +55,10 @@ Keep the question flow independent of file writes. By default, retain explicit a
 question IDs, pending items and planned targets in the current conversation, then consolidate
 the discussion record at wrap-up. Do not reread unchanged files or persist each answer merely
 because another question is next. Inspect additional sources when a real uncertainty needs them.
+
+In interactive mode, keep the discussion state in the conversation while waiting for a reply,
+after a wait timeout, and across turn endings. Save only at wrap-up or at an explicit boundary
+below.
 
 Save accumulated conclusions before a phase transition, implementation, a known pause, session
 handoff or context compaction, and when the user requests a save. A required block, split or

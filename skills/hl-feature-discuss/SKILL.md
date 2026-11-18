@@ -155,6 +155,8 @@ That discussion-completion confirmation covers both implementation documents and
 Follow the shared discussion-persistence policy in `references/socratic-questioning.md` under
 `$hl-workflow-governance`. In interactive mode, keep answers, inventory changes, mode choices
 and document/profile targets in the conversation; create or update the workbench at wrap-up.
+Keep that state in the conversation while waiting for a reply, after a wait timeout, and across
+turn endings. Save only at wrap-up or at an explicit boundary below.
 Do not read or rewrite it after each answer. Read an existing workbench once at entry and
 inspect additional authority pages only when the next decision needs new evidence.
 
@@ -263,7 +265,9 @@ Run this loop until the feature is stable enough to document:
 4. Explain why this uncertainty matters.
 5. Probe a relevant concept, assumption, evidence, alternative or consequence; use options only
    when an actual choice is ready to be made.
-6. If supported, state a conditional recommendation separately and name its tradeoff.
+6. If supported, state a conditional recommendation separately from the question and name its
+   tradeoff. When the user requests a recommendation for every question, put the recommendation
+   and its conditions in the same question card, following the shared questioning policy.
 7. Wait for the answer; follow up only on a remaining material uncertainty, then confirm the conclusion.
 8. Retain the explicit conclusion and question status in the conversation; ask the next unresolved question without a routine file write.
 9. Retain document-target and profile-target changes for the same consolidated save.
