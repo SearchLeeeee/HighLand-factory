@@ -215,7 +215,7 @@ def run_doctor(work: Path, *, strict: bool = False, skip_gates: bool = False) ->
     if util.is_git_repo(work):
         result.add("ok", "GIT", "work repo is a git repository")
     else:
-        result.add("warn", "GIT_MISSING", "work directory is not a git repository", "git init and commit after doctor passes")
+        result.add("warn", "GIT_MISSING", "work directory is not a git repository", "git init on the configured default branch")
 
     state = config_mod.load_state(work)
     expected_hash = util.sha256_file(layout.workflow_profile) if layout.workflow_profile.is_file() else ""

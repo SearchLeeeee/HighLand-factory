@@ -272,7 +272,7 @@ def _write_init_record(
             "",
             "1. Run `factory doctor --work .` and fix every failure.",
             "2. Execute the configured commands once and record the green baseline in the baseline evidence file.",
-            "3. Initialize git (if needed) and make the first commit only after the doctor passes.",
+            "3. Initialize git (if needed) on the configured default branch.",
             "4. Start the first change with `$hl-feasibility-grill` (or `$hl-quick-change` for a bounded fix).",
             "",
         ]
