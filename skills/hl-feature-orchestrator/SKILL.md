@@ -94,9 +94,9 @@ Entering this skill means entering the code implementation environment, so set o
 
    The worktree belongs to the repository that owns the code root, but its path always sits under `WORK_ROOT/.factory/worktrees/`, so one convention covers both repository modes.
 
-4. For `mono`, the worktree path is inside the work repository, so prove it is ignored before creating it: `git -C <WORK_ROOT> check-ignore -v .factory/worktrees/<feature-id-lowercase>`. If it is not ignored, stop and tell the user to add `.factory/worktrees/` to `.gitignore` and commit that change, then retry. A worktree must never be committed as a nested tree. For `split`, the path is outside the code repository, so only confirm it is not inside that repository.
+4. For `mono`, the worktree path is inside the work repository, so prove it is ignored before creating it: `git -C <WORK_ROOT> check-ignore -v .factory/worktrees/<feature-id-lowercase>`. If it is not ignored, stop and tell the user to add `.factory/worktrees/` to `.gitignore`, then retry. A worktree must never be committed as a nested tree. For `split`, the path is outside the code repository, so only confirm it is not inside that repository.
 5. Create it from the owning repository, based on the branch that will receive the merge: `git -C <OWNING_REPO> worktree add <WORK_ROOT>/.factory/worktrees/<feature-id-lowercase> -b feature/<feature-id-lowercase> <repo.default_branch>`. If the branch already exists, stop and report it; do not reuse or force-create branches.
-6. Report the actual worktree path to every implementation subagent as its implementation root, and keep allowed and forbidden file scopes relative to it. Lifecycle manifests, evidence and the workspace gate stay in `WORK_ROOT`; commit from the worktree only at a commit boundary in the table below, and report which revision in the worktree corresponds to which manifest or evidence commit in `WORK_ROOT`.
+6. Report the actual worktree path to every implementation subagent as its implementation root, and keep allowed and forbidden file scopes relative to it. Lifecycle manifests, evidence and the workspace gate stay in `WORK_ROOT`; report the worktree revision and relevant diff/new files alongside the corresponding manifest and evidence in `WORK_ROOT`.
 7. A worktree merge back to `repo.default_branch` is a separate operation that is offered only after the Feature reaches `ready-to-merge / ready`. Before that point, do not propose it, do not merge, and do not delete the branch. When the Feature is ready, ask the user explicitly whether to merge the worktree back; perform it only with that authorization, and when `workflow.merge_requires_authorization` is true treat an absent answer as no. Report the branch, the target branch and the resulting commit, and leave removing the worktree and branch to an explicit follow-up under `$hl-workflow-governance`'s `references/worktree-lifecycle.md`; that follow-up never silently deletes unmerged work.
 8. On a blocked or abandoned worktree path, keep the worktree and branch as they are and report them; never silently delete unmerged work. A code merge into `repo.default_branch`, the `ready-to-merge / ready` lifecycle state and the long-term wiki authority merge remain three separate operations.
 
@@ -377,39 +377,6 @@ If implementation, review or acceptance is incomplete, failed or not verified, k
 
 Keep the goal set on entry active through the whole sequence: only the recorded `ready-to-merge / ready` transition completes it. A blocked or paused Feature keeps the same goal with the truthful blocked status instead of a second goal.
 
-## Commit Boundary
-
-Commit points inside this workflow are governed by `$hl-workflow-governance`'s
-`references/commit-boundaries.md`. Within one implementation session the applicable points are:
-
-| Point | Gate that must already pass | Commit |
-| --- | --- | --- |
-| Implementation ready | Implementation and documentation sync complete, `gate workspace` passes | Code and doc sync, when committing is authorized and useful |
-| Review passed | The fixed review gate passes after required fixes and re-review | Review evidence and its remediation |
-| Closure reached | Acceptance passes, closure recorded, `ready-to-merge / ready` recorded | Acceptance evidence, closure data, final manifest |
-
-Requirements that apply to every one of them:
-
-- Invoking this skill for a registered Leaf authorizes local commits for that Feature under
-  `references/commit-boundaries.md`'s Feature Implementation Authorization. It covers implementation,
-  documentation sync, review fixes and closure evidence across handoffs and resumed sessions.
-  Do not ask again at each boundary. Respect explicit user restrictions and stricter project
-  policy; resolve only genuinely missing scope or authority. Push and merge require separate
-  explicit authorization.
-- The optional commit pack must be enabled in `packs.enabled`. If it is not, follow the project's
-  documented policy and do not invent one.
-- Identify the source before verifying. Use an existing commit or a clearly recorded relevant
-  diff/new files; evidence-only writes do not change the tested implementation. A new freeze commit
-  is needed only when an explicit acceptance or artifact identity requires an immutable commit;
-  use the existing Feature authorization unless explicitly restricted, and bind the result to it.
-  Do not block routine authorized checks because a commit has not been authorized.
-- The gate for the chosen commit boundary must pass; never present unreviewed work as reviewed
-  or incomplete acceptance as passed. Reporting `ready` while the manifest shows an earlier phase
-  remains invalid.
-- Never push without an explicit instruction.
-
-Report every commit identifier in the final handoff, together with which point it belongs to.
-
 ## Final Handoff
 
 The visible handoff is the last step, not a substitute for lifecycle maintenance:
@@ -421,9 +388,7 @@ The visible handoff is the last step, not a substitute for lifecycle maintenance
 5. Advance the manifest to `acceptance / completed` with the correct `next_action`.
 6. Run `factory gate workspace --work <WORK_ROOT>` and confirm it passes.
 7. Advance to `ready-to-merge / ready` through the closure gate.
-8. Commit the closure point only if the commit boundary above is satisfied; any earlier point in
-   that table may already have been committed during the sequence.
-9. Then send the final handoff and state the actual completion boundary.
+8. Then send the final handoff and state the actual completion boundary.
 
 If steps 3-7 do not succeed, send a truthful incomplete or blocked handoff and do not claim completion.
 

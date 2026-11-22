@@ -257,9 +257,8 @@ factory gate all --work <work>
    `wiki/validation/init-baseline.md`。只有全部通过才把 `Status: pending` 改成
    `Status: passed`；跑不了的命令记为已知缺口。
 2. 若目录还不是 git 仓库：`git init -b <default_branch>`。
-3. `git add` 后展示 staged 摘要；**doctor 通过 + 用户明确授权**后才做首次提交。
-4. **不要 push。** 把 remote/push 命令打印给用户，由用户自己决定。
-5. 按 `SKILL.md` 的 Step 7 输出中文交接提示词，必须包含：
+3. **不要 push。** 把 remote/push 命令打印给用户，由用户自己决定。
+4. 按 `SKILL.md` 的 Step 7 输出中文交接提示词，必须包含：
    工作仓库路径、factory 版本、模式、repo mode、owner、门禁状态、baseline 状态、
    下一步入口（`$hl-feasibility-grill` 或 `$hl-quick-change`）。
 
@@ -295,7 +294,7 @@ factory gate all --work <work>
 - [ ] `wiki/validation/init-baseline.md` 已按真实执行结果填写（通过或明确记录缺口）。
 - [ ] adopt 模式：代码分析阶段完成，wiki 基线文档已写入并可通过 wiki 门禁。
 - [ ] `wiki/governance/init-record.md` 记录答案、假设、检测事实和生成文件哈希。
-- [ ] git 已初始化在配置的分支；首次提交只在 doctor 通过且用户授权后发生。
+- [ ] git 已初始化在配置的分支。
 - [ ] 已输出交接提示词。
 
 ---

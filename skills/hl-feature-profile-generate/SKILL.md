@@ -172,7 +172,7 @@ All seven must hold before delivery:
 
 ## Orchestration Boundary
 
-Profiles describe owner scope only. The implementation plan, preflight, goal, lifecycle state and commit timing belong to `$hl-feature-orchestrator` and the generic flow. Until work is complete, a handoff may only report `in-progress`, `blocked` or `not verified`.
+Profiles describe owner scope only. The implementation plan, preflight, goal and lifecycle state belong to `$hl-feature-orchestrator` and the generic flow. Until work is complete, a handoff may only report `in-progress`, `blocked` or `not verified`.
 
 ## Relationship to Other Skills
 

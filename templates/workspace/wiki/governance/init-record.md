@@ -16,4 +16,3 @@
 1. `factory doctor --work .` 无 error（warning 需要逐项确认）。
 2. 按 `.factory/factory.yaml` 的 `commands` 跑通一次，并把结果记进
    [初始化基线证据](../validation/init-baseline.md)。
-3. 之后再提交第一个 commit，保证仓库历史从可复现的基线开始。

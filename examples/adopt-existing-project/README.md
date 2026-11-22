@@ -27,8 +27,8 @@ Notes:
 - Existing authoritative documents are never rewritten; adopt adds `.factory/`, the
   workflow digest, missing skeleton files and owner profiles, and reports skipped paths.
 - After adopt, run `factory doctor --work <docs-repo>` and fix failures before any
-  implementation. The wiki gate may fail on pre-existing links; fix them in a separate
-  commit so the adopt commit stays mechanical.
+  implementation. The wiki gate may fail on pre-existing links; report and repair those
+  failures separately from skeleton generation.
 
 The answers file next to this README is a generic starting point. Replace paths,
 commands, owners and security boundaries with your project's real values.

@@ -83,19 +83,6 @@ authority stays with the feature-workspace tools and documentation named by
   interaction rule never weakens an authorization or machine gate.
 - User authorization is required for actual merge, deletion, commit and push operations whenever
   the profile requires it.
-- Starting a registered Leaf through `$hl-feature-orchestrator` supplies standing authorization
-  for its local implementation, documentation sync, review fixes and closure evidence commits at
-  passed boundaries, as defined in `references/commit-boundaries.md`. Preserve it across handoffs
-  and resumes without asking again. Explicit restrictions and stricter project policy prevail;
-  initialization, Quick Change, unrelated changes, push and merge are outside this grant.
-- Commit boundaries are governed by `references/commit-boundaries.md`, not scattered through prose.
-  Commits happen only behind a passing gate, at one of the named boundaries; a commit authorization
-  is never a push authorization. Identify reviewed/tested sources using an existing revision
-  and the relevant diff/new files. New freeze commits are needed only for a concrete immutable
-  artifact or acceptance requirement, with authorization; evidence-only changes do not invalidate
-  unchanged source results. Commit boundaries add no lifecycle state,
-  manifest field or state-machine branch, and the core workflow must still run with
-  `packs.enabled: []`.
 - Parallel development mode — shared checkout sequentially, or one dedicated git worktree per
   Feature — is an implementation decision recorded in the discussion workbench, never a lifecycle
   value. A worktree isolates code only: manifests, evidence and the workspace gate stay in the work
@@ -199,6 +186,6 @@ authority stays with the feature-workspace tools and documentation named by
 | Manual maintenance run, candidate selection and recovery | `<FACTORY_ROOT>/skills/hl-refactor` and its tests; existing lifecycle reader remains state authority |
 | Shared process-workspace exclusions | `<FACTORY_ROOT>/engine/factorylib/workspaces.py`, layout/config generation and existing Wiki consumers |
 | Operator process | feature-workspace README/schema for lifecycle changes; affected workflow skills plus this skill's `references/entry-point.md` and `references/workflow-contract.md` |
-| Commit boundaries and commit packaging | this skill's `references/commit-boundaries.md`, the opt-in `packs/hl-commit` skill, and the generated `wiki/code-ai/_blocks/commit-granularity.md` block |
+| Commit packaging | the opt-in `packs/hl-commit` skill and the generated `wiki/code-ai/_blocks/commit-granularity.md` block |
 | Worktree and branch cleanup | this skill's `references/worktree-lifecycle.md` and the affected skill's cleanup steps |
 | Actual Feature status | Feature and Initiative manifests, updated only through approved workflow boundaries |

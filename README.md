@@ -58,7 +58,7 @@ flowchart TD
     I -->|"否"| J["AI 按 hint 修配置 / 补缺失骨架"]
     J --> H
     I -->|"是"| K["真实执行命令，填写 init-baseline"]
-    K --> L["git init（首次提交需你授权）"]
+    K --> L["git init（如尚未初始化）"]
     L --> M["交接：下一个需求进入 $hl-feasibility-grill"]
 ```
 
@@ -94,7 +94,7 @@ flowchart TD
 | 一次一个问题地完成 P0 访谈 | 一次倾倒几十个问题 |
 | 写 answers 文件，先 dry-run 再初始化 | 不看计划直接写文件 |
 | 跑 `doctor` / `gate`，按 hint 修配置和缺失骨架 | 弱化门禁、手改生成文件、用 `--force` |
-| 记录 baseline，准备 git 首次提交 | push 远端、重写已有权威文档、删除文件 |
+| 记录 baseline | push 远端、重写已有权威文档、删除文件 |
 | 输出可直接用于下一会话的交接提示词 | 在初始化阶段实现业务功能 |
 
 ### 手动模式（不用 AI 引导时）
@@ -395,23 +395,6 @@ $hl-wiki-merge <feature-root>
 | 小改动 | `$hl-quick-change` | quick 记录、验证证据、wiki 目标 | 硬门槛自检 |
 | 手动维护 | `$hl-refactor` | 扫描候选、用户选择、维护记录、代码/测试/当前态 Wiki 同步 | 全部 Initiative 闭环、选定范围与证据检查、原 Wiki gate |
 
-#### 提交边界
-
-提交是可选、需要授权的动作，不产生流程状态，也不是任何门禁的证据。允许的位置由
-`$hl-workflow-governance` 的 `references/commit-boundaries.md` 统一说明（关闭 `commit`
-pack 时按项目自己的策略执行）。上表里的每一行都可能对应一个提交点，要点是：
-
-启动已登记 Leaf 的 `$hl-feature-orchestrator` 即授权当前 Feature 在门禁通过后的本地
-实现、文档同步、评审修复和闭环证据提交；交接及恢复保留授权，不逐阶段重问。用户明确
-限制及更严格的项目政策优先。初始化、Quick Change 和无关改动不在此授权内；推送、合并
-仍须分别明确授权。
-
-1. **只在门禁通过后提交**——失败的测试、未 review 的实现、未通过的验收不得当作完成态提交；
-2. **先识别来源再验证**——用已有 revision 加相关 diff、新文件明确实际验证对象；只有明确的不可变产物要求才需要额外冻结提交，并沿用已有授权边界；
-3. **提交授权不等于推送授权**，推送始终单独授权；
-4. `split` 模式 wiki 仓与代码仓分别提交；worktree 模式代码提交在功能分支，manifest
-   与证据留在工作仓库，交接必须写明对应关系。
-
 ### 3. Feature 生命周期状态机
 
 ```mermaid
@@ -540,7 +523,7 @@ factory adopt --work <docs仓> --code <code仓> [--wiki <wiki目录>] [--answers
 ### 建议
 
 - 任何 `init` / `adopt` 都先跑 `--dry-run --json` 看计划，再决定是否落盘。
-- 现存项目先打标签（如 `git tag pre-adopt-<date>`），把“机械生成”和“人工修链接/配置”分成两次提交。
+- 现存项目先打标签（如 `git tag pre-adopt-<date>`）。
 - 不要用 `--force` 覆盖已有文件；`--force` 只用于明确的重建。
 - 如果只是把 HighLand-factory 当流程参考，**不需要对任何现有仓库运行 init/adopt**：新建一个空目录跑 `factory init` 即可得到一套完整示例工作仓库。
 - 初始化后先跑 `factory doctor --strict`，再把 `factory.yaml` 里的 build/test/verify 实跑一遍并更新 baseline。

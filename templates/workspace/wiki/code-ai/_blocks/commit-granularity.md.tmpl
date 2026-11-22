@@ -1,6 +1,6 @@
 # Block：提交粒度与顺序
 
-> 类型：项目级通用约束 · 适用：所有会落盘的变更
+> 类型：项目级通用约束 · 适用：Git 提交
 > 仓库模式：`{{repo.mode}}`（由工厂注入；下文按模式给出规则）
 
 ## 通用规则
@@ -10,34 +10,10 @@
 3. 不提交生成物、临时文件、凭据、调试残留或本地环境配置。
 4. 提交前确认暂存内容只包含本次变更；保留工作区无关改动，不夹带无关格式化或重排。
 5. 逻辑重构与行为变更分开；依赖升级与业务改动分开。
-6. 启动已登记 Leaf 的 `$hl-feature-orchestrator` 即按治理技能 `references/commit-boundaries.md` 授权当前 Feature 的本地实现、文档同步、评审修复及闭环证据提交；只在对应门禁通过后执行，交接及恢复保留授权，不逐阶段重问。用户明确限制及更严格的项目政策优先，初始化、Quick Change 及无关改动不在授权内。其他未授权工作仍可评审、验证并交接；推送、合并另需明确授权。
-7. 只在门禁通过之后提交。失败的测试、未 review 的实现、未通过的验收不得当作完成态提交。
-8. 对象身份和结果复用按[评审门](review-gate.md)与[测试与质量门](testing-quality-gate.md)执行。
-   若验收明确要求不可变 commit，先取得授权并通过对应提交边界的门禁，再提交冻结并执行该项；
+6. 只在门禁通过之后提交。失败的测试、未 review 的实现、未通过的验收不得当作完成态提交。
+7. 对象身份和结果复用按[评审门](review-gate.md)与[测试与质量门](testing-quality-gate.md)执行。
    提交记录如实说明已完成与未完成项。
-9. 提交授权不等于推送授权；推送始终需要单独授权，也不与任何提交边界捆绑。
-
-## 提交边界
-
-完整清单见 `$hl-workflow-governance` 的 `references/commit-boundaries.md`。常见落点：
-
-| 边界 | 前置门禁 | 提交内容 |
-| --- | --- | --- |
-| 初始化 / adopt 完成 | `doctor` 与 workspace、wiki 两项 gate | 骨架、生成配置、初始化记录、baseline |
-| 初始分解封存 | `finalize-decomposition` 与 `validate` | registry、initiative 与全部候选 feature manifest |
-| 讨论结论与实现文档完成 | `gate workspace` | workbench、已确认结论、领域实现文档 |
-| Code AI profiles 完成 | `gate workspace` | feature `code-ai/` |
-| 实现就绪（需要时冻结） | 提交已授权、实现与文档同步完成、`gate workspace`；不得冒充已完成 review / 验收 | 代码、文档同步 |
-| review 通过 | 固定 review 门禁（含修复后复审） | review 证据与修复 |
-| 验收与 closure 完成 | 验收全过、closure 记录、`ready-to-merge/ready` | 验收证据、closure、最终 manifest |
-| Initiative 集成证据封存 | 稳定且可识别的来源完成既定集成验收并登记结果；明确要求不可变 commit 时先授权冻结 | handoff、不可变证据根 |
-| 每个 Feature 的 wiki 合并收尾 | 全量 validator PASS 后完成 retained history 与权威切换 | 权威文档、MOC、tombstone、retained 材料 |
-| Quick Change 完成 | 具备可重复验证证据且记录 `completed` | quick 记录、修复、验证证据 |
-| 用户选定的手动维护完成 | 所选项完成、独立评审与接续检查、适用验证及 Wiki 结构/语义检查通过 | 已选代码/测试/当前态 Wiki 改动与本轮证据；保留原 Initiative 历史 |
-
-零改动扫描无需新增提交；候选选择不等于提交或推送授权，沿用项目已有授权与策略。
-
-不该提交的时机：每问一次讨论问题、每次重跑 validator、任何门禁失败、未完成的实现。
+8. 提交授权不等于推送授权；推送始终需要单独授权。
 
 ## 当仓库模式为单仓库（`mono`）
 
@@ -70,7 +46,5 @@
 - [ ] 每个提交只有一个关注点。
 - [ ] 文档与代码的先后符合当前仓库模式。
 - [ ] 没有夹带无关文件或生成物。
-- [ ] 提交落在 `$hl-workflow-governance` 的 `references/commit-boundaries.md` 某个边界上，
-      且该边界的门禁已通过。
-- [ ] 评审与验证来源可识别且保持稳定；来源变化已核对受影响结论，明确要求不可变 commit 的验收已先授权冻结。
+- [ ] 评审与验证来源可识别且保持稳定；来源变化已核对受影响结论。
 - [ ] 已获得提交授权，提交信息能独立解释变更；推送另有授权。

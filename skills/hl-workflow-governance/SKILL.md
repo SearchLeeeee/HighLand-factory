@@ -105,7 +105,6 @@ to implementation still waits for completed profiles and a passing workspace gat
 | Provenance / why / history question while reading canonical authority | `$hl-history-trace` (isolated subagent) |
 | Bounded bugfix or detail adjustment that may escalate | `$hl-quick-change` |
 | Explicit manual full or latest-Initiative code/test/current-Wiki scan after all Initiatives close, followed by user-selected maintenance | `$hl-refactor` |
-| When to commit inside the workflow, and what one commit may contain | `references/commit-boundaries.md` plus the opt-in `$hl-commit` pack |
 | Cleaning up a finished or residual worktree and its Feature branch | `references/worktree-lifecycle.md` |
 | A change to these rules themselves | **Workflow Maintenance** below |
 
@@ -269,31 +268,6 @@ graph is not proof of business correctness. Keep completed Initiative history an
 unchanged. Process-rule improvements discovered during a run are proposals for another session.
 If a selected finding needs a new Feature, finish its investigation/handoff, then pause or close
 the maintenance run before entering that workflow. A handoff does not mean the defect is fixed.
-
-## Commit Boundaries
-
-Commits stay optional and authorization-gated. Invoking `$hl-feature-orchestrator` grants scoped
-local Feature commit authorization as defined in `references/commit-boundaries.md`; preserve it
-through handoffs without repeated permission requests, subject to explicit restrictions and stricter
-project policy. Push and merge remain separately authorized. The governed boundary list lives in
-`references/commit-boundaries.md`: the points where a commit is allowed, the gate that must already
-pass at each, and the two packaging modes.
-
-- This is process guidance for the opt-in `$hl-commit` pack. It adds no lifecycle state, no
-  manifest field, no schema value and no state-machine branch, and a commit never records a
-  transition.
-- Commit only behind a passing gate. A failing gate, unreviewed implementation or unaccepted
-  acceptance must never be committed as if it were complete — that is the one rule the whole list
-  serves.
-- A commit authorization is never a push authorization.
-- Identify the source before verifying: an existing Git revision plus relevant diff/new files
-  is the default. A new freeze commit is required only by a concrete immutable-commit acceptance
-  or artifact identity. Use existing authorization or obtain it if absent before that commit, and bind evidence to the source
-  actually checked. Evidence-only writes do not invalidate unchanged implementation results.
-- `split` mode commits the wiki repository and the code repository separately. Worktree mode puts
-  code commits on the Feature branch while manifests and evidence stay in the work root.
-- When `packs.enabled` does not enable `commit`, follow the project's documented policy instead of
-  inventing one.
 
 ## Worktree Lifecycle And Cleanup
 

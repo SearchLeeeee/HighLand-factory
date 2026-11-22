@@ -82,7 +82,7 @@ If the migration cannot be automated, the release notes must say so explicitly a
 
 ## 7. Rollback
 
-The work repo is git. Before a major upgrade, commit or tag the current state:
+The work repo is git. Before a major upgrade, tag the current state:
 
 ```bash
 git -C <work> tag pre-upgrade-<factory-version>

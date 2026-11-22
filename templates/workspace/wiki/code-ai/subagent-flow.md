@@ -15,7 +15,7 @@
 
 ## 2. 编排顺序（固定）
 
-`intake → preflight → goal → source survey / plan proposals → integrated plan → implementation → review → verification/acceptance → closure → commit（仅在被授权时）`
+`intake → preflight → goal → source survey / plan proposals → integrated plan → implementation → review → verification/acceptance → closure`
 
 下表中的 Feature 计划要求适用于 Feature 开发。用户明确发起的 `hl-refactor` 手动维护保留相同四角色职责、全部通用必读和 owner 边界，以本轮运行记录中的扫描范围、候选、用户选择、依赖、精确文件范围、验收和证据作为统一任务依据。它不创建 Feature 或 Feature profile，不要求虚构 `implementation-plan.md`；只读扫描无需实施计划，修改必须先通过维护准入、占用和候选选择。独立评审同时完成简短只读接续检查，证据可在一份报告中引用，不要求额外功能或重复报告。
 
@@ -30,7 +30,6 @@
 | review | 评审报告与发现级别 | 无 Blocker/High，或已获明确处置 |
 | verification/acceptance | 证据、覆盖情况、结论 | 验收项全部有证据或明确未覆盖 |
 | closure | 关闭说明、遗留项、同步清单 | 无未登记遗留项 |
-| commit | 提交与推送（如授权） | 授权明确、提交粒度合规 |
 
 任一阶段发现需要改变目标、验收标准、契约或写入范围时，回到对应阶段，不得在实现中偷偷改目标。
 

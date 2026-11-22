@@ -72,8 +72,6 @@ directory was already cleaned up.
 
 - Cleanup is never a lifecycle transition and is never recorded in `feature.yaml`.
 - Cleanup is not a workflow phase, milestone or acceptance criterion.
-- Cleanup is not a commit boundary. If the project wants a provenance commit for a cleanup record,
-  the ordinary rules in `references/commit-boundaries.md` apply.
 - A worktree is code isolation only. Removing it says nothing about the Feature's review,
   verification, acceptance or wiki-merge state, and never changes any of them.
 - The worktree and its branch belong to one Feature. A shared or reused worktree is outside this

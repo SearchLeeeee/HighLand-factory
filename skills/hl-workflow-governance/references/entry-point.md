@@ -83,12 +83,9 @@ necessary, and preserve existing lifecycle, review, verification and authorizati
 - Before workflow maintenance, state compatibility and fail-closed behavior, update every owning
   surface, and keep generic documents free of project-specific facts.
 
-Detailed commit and worktree rules live in `references/commit-boundaries.md` and
-`references/worktree-lifecycle.md`. Shared policy details and change-surface ownership live in
+Detailed worktree rules live in `references/worktree-lifecycle.md`.
+Shared policy details and change-surface ownership live in
 `references/workflow-contract.md`.
-Starting a registered Leaf with `$hl-feature-orchestrator` grants scoped local commit authorization
-under the commit reference. Preserve it in handoffs; do not ask again at each boundary. Explicit
-restrictions and stricter project policy prevail; push and merge still require separate authorization.
 
 ## Authorities
 

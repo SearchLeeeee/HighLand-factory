@@ -94,7 +94,7 @@ Project-specific additions belong in new files or project-owned docs, not by rew
 
 ### Adding a factory-owned block
 
-A block is only in effect when all five registration points change in the same commit:
+A block is only in effect when all five registration points change together:
 
 1. the block itself under `templates/workspace/wiki/code-ai/_blocks/`;
 2. the block list in `_blocks/README.md`;

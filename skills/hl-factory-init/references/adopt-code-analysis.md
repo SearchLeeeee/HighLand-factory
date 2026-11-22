@@ -9,7 +9,7 @@ Greenfield `init` skips this phase: there is no code to analyze.
 ## When it runs
 
 - after `factory adopt` has written the skeleton and `factory doctor` / `factory gate all` pass;
-- before the green baseline and the initial git commit;
+- before the green baseline;
 - it is read-only with respect to code: no source edit, no behaviour change, no dependency install.
 
 ## Output contract

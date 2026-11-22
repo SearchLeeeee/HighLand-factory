@@ -37,8 +37,7 @@ This skill is the **conversation**. The engine (`factory init` / `factory adopt`
 5. Do not implement product features during init. Init ends at a valid baseline; the first change goes through `$hl-feasibility-grill` or `$hl-quick-change`.
 6. Do not create a placeholder Initiative "for the project". The feature workspace starts empty and valid.
 7. Every write is planned first. Run `factory init --dry-run` (or `adopt --dry-run`), show the plan summary, and get explicit confirmation before applying.
-8. Initial git commit and any push happen only after the doctor passes and only with explicit authorization.
-9. For adopt mode, init is not complete until the code-analysis phase has filled the wiki baseline (see `references/adopt-code-analysis.md`). Analysis is read-only for code; only the wiki and `code-ai/project-facts.md` are written.
+8. For adopt mode, init is not complete until the code-analysis phase has filled the wiki baseline (see `references/adopt-code-analysis.md`). Analysis is read-only for code; only the wiki and `code-ai/project-facts.md` are written.
 
 ## Step 0 — locate the factory
 
@@ -77,7 +76,7 @@ Follow the P0 order in `docs/init-questionnaire.md`. For each item, detect → p
 14. verification: baseline evidence path, evidence root, isolation policy, reproducibility
 15. workflow gates: keep defaults? quick-change? Initiative integration?
 16. naming: ID prefixes, slug rules, wiki taxonomy
-17. git: default branch, commit format, initial commit now?
+17. git: default branch, commit format
 18. packs: commit / dev-runtime / remote-verify / quality-gates
 19. factory version pin and upgrade policy
 
@@ -164,9 +163,8 @@ For every configured command, run it once from the correct directory and record 
 ## Step 7 — git and handoff
 
 1. If the directory is not a git repo: `git init -b <default_branch>`.
-2. `git add` and show the staged summary; make the initial commit only after the doctor passes and the user authorizes.
-3. Do not push. Print the exact remote/push commands and let the user decide.
-4. Produce a Chinese handoff prompt for the next session:
+2. Do not push. Print the exact remote/push commands and let the user decide.
+3. Produce a Chinese handoff prompt for the next session:
 
 ```markdown
 工作仓库 <path> 已初始化完成（factory <version>，<mode>，<repo mode>）。

@@ -1,6 +1,6 @@
 ---
 name: hl-commit
-description: "Opt-in pack for git policy: repo-mode aware granular commits, one concern per commit, docs-before-code ordering, no unrelated dirty changes, commit only when the workflow authorizes it, and push only with explicit authorization. Enable with packs.enabled: [commit] and configure repo.* / project.language.commit; core skills work with this pack disabled."
+description: "Opt-in pack for git policy: repo-mode aware granular commits, one concern per commit, docs-before-code ordering, no unrelated dirty changes, and push only with explicit authorization. Enable with packs.enabled: [commit] and configure repo.* / project.language.commit; core skills work with this pack disabled."
 ---
 
 # Commit (pack)
@@ -34,19 +34,11 @@ This directory is an **optional pack**, not a core skill. Core workflow must run
 
 ## When to use
 
-Use this pack when the user asks to commit, stage, or persist changes, or when a workflow
-reaches a commit boundary and the change set is ready. Use it for the commit **and** the
+Use this pack when the user asks to commit, stage, or persist changes. Use it for the commit **and** the
 optional push, because both carry the same authorization and scope discipline.
 
-Commit boundaries are defined once, in `$hl-workflow-governance`'s
-`references/commit-boundaries.md`: initialization, sealed decomposition, discussion documents,
-Code AI profiles, frozen implementation, passed review, acceptance closure, sealed Initiative
-integration evidence, per-Feature wiki-merge closure, and quick-change completion. Treat that list
-as the set of legal points, not as a schedule: a boundary opens only when its gate has passed and
-the user or governing workflow authorized the commit.
-
-Do not use it to inspect history, to review a diff as its primary goal, or to commit work no
-workflow authorized. If the pack is disabled, or the repo topology is not `mono`/`split`, stop
+Do not use it to inspect history or to review a diff as its primary goal.
+If the pack is disabled, or the repo topology is not `mono`/`split`, stop
 instead of improvising a different commit flow.
 
 ## Step 0 — mandatory preamble
@@ -92,18 +84,11 @@ Add it, run factory doctor --work <work>, then retry.
 
 ### 1. Check authorization
 
-Commit only when the governing workflow or the user authorized committing this change, and only
-behind a gate that has already passed. Without authorization, do not stage, commit or push;
+Without authorization, do not stage, commit or push;
 continue otherwise authorized reading, review and verification using an identifiable source target.
 Push requires its own explicit authorization — a commit authorization is not a push authorization.
 
-For a registered Leaf started through `$hl-feature-orchestrator`, use the standing Feature
-Implementation Authorization in `references/commit-boundaries.md`: local implementation,
-documentation sync, review fixes and closure evidence are authorized at passed boundaries.
-Carry it across handoffs/resumes and do not ask again per boundary. Explicit user restrictions
-and stricter project policy prevail; unrelated work, push and merge remain outside this grant.
-
-For a workflow commit, record its boundary and the source actually reviewed or tested. An
+Record the source actually reviewed or tested. An
 existing revision plus the relevant diff/new files is sufficient for ordinary work; do not invent
 extra freeze commits or require a globally clean tree merely to run checks. If an explicit
 acceptance or artifact requirement needs an immutable commit, use existing authorization or obtain
@@ -207,7 +192,6 @@ report both commit ids and their correspondence. Match the user's language.
   the stage were complete.
 - Never commit unrelated dirty changes or "clean up" a tree that spans several concerns.
 - Never push without explicit authorization; never force-push or rewrite shared history.
-- Never infer a commit boundary from a workflow stage name; read the gate result.
 - Never mix wiki-repo and code-repo changes in one commit in `split` mode.
 - Never infer ownership from a filename or directory.
 - Never stage secrets, credentials, local machine config, or generated runtime artifacts.

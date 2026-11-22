@@ -394,12 +394,8 @@ The prompt must be self-contained so the new session needs no chat history. It c
   checks still unexecuted/unverified/blocked; documentation completion is not application evidence;
 - the recorded parallel development choice from `## Parallel development`. When it is `worktree`, add: create `<WORK_ROOT>/.factory/worktrees/<feature-id-lowercase>` on branch `feature/<feature-id-lowercase>` after the `check-ignore` precondition, work inside it, keep manifests and evidence in `WORK_ROOT`, and never propose merging back to `repo.default_branch` before the Feature is `ready-to-merge / ready`;
 - the mandatory end state: recorded `ready-to-merge / ready` with passing fixed review, separated acceptance, complete closure and a passing `factory gate workspace`;
-- the authorization: invoking `$hl-feature-orchestrator` authorizes local commits scoped to this
-  Feature at passed boundaries (implementation, documentation sync, review fixes and closure
-  evidence); carry existing authorization and explicit restrictions into the prompt, never reset
-  an already granted authorization to "ask separately";
 - the prohibitions: no product re-discussion, no hand-editing `phase`/`state`, no push or merge
-  without separate explicit authorization; honor explicit commit restrictions and stricter project policy.
+  without separate explicit authorization.
 
 Render section labels in the user's language; keep IDs, paths, YAML keys, lifecycle enums and skill names ASCII:
 
@@ -421,9 +417,6 @@ Use $hl-feature-orchestrator <FEATURE_ID> in work repo <WORK_ROOT> to advance Le
 - required work not yet verified: <remaining checks/blockers; do not prefill PASS>
 - deferred questions (do not reopen discussion): <short list>
 - parallel development: sequential | worktree (<worktree path and branch when worktree>)
-- local commits: starting this Feature implementation authorizes scoped implementation, doc sync,
-  review fixes and closure evidence commits at passed boundaries; no repeated permission request;
-  preserve existing authorization and any explicit restrictions or stricter project policy
 - do not: reopen product discussion, hand-edit phase/state, push or merge without separate
   explicit authorization
 ```

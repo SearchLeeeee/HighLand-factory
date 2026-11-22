@@ -58,7 +58,7 @@ These are the items most often missing from a first initialization, and the ones
 | 16 | Verification | Baseline evidence path, evidence root, isolated-environment policy, reproducibility requirements? | Defines what evidence a future session can trust | local evidence root under feature workspace; no isolation for v0.1 unless needed |
 | 17 | Workflow gates | Keep default Scope Gate thresholds? Enable quick-change? Allow parallel Features in worktrees? Require initiative integration testing? | These are policy, not code; wrong defaults silently weaken gates | keep all gates on; quick-change on; parallel worktrees allowed for dependency-ready, scope-disjoint Features |
 | 18 | Naming | Initiative/Feature ID prefixes, slug rules, wiki taxonomy, file naming? | ID schemes and paths are load-bearing in scripts and docs | `I###` / `I###-F##`, kebab-case slugs, standard semantic taxonomy with topic MOCs created when they first have content |
-| 19 | Git | Default branch, commit format and granularity, PR policy, initial commit now? | Commit gate and history hygiene depend on it | `main`, conventional commits, one concern per commit, initial commit only after doctor passes |
+| 19 | Git | Default branch, commit format and granularity, PR policy? | History hygiene depends on it | `main`, conventional commits, one concern per commit |
 | 20 | Packs | Enable `commit`, `dev-runtime`, `remote-verify`, `quality-gates`? | Packs add machine-specific behaviour and need config | `commit` on; others off unless the project has a dev server / remote verifier / a supported language for the complexity, duplication and mutation gates |
 | 21 | Factory version | Pin engine version range and decide upgrade policy? | Prevents silent drift between work repo and factory | pin `>=0.1 <0.2`; upgrade only through `factory upgrade` |
 
@@ -105,7 +105,7 @@ Adopt must additionally determine:
 - Green baseline: every configured build/lint/test/verify command executed once, results recorded in `wiki/validation/init-baseline.md`.
 - Adopt mode only: the code-analysis phase completed, wiki baseline documents written and linked, `project-facts.md` and the authority map updated, and `factory gate wiki` passing.
 - `wiki/governance/init-record.md` with answers, assumptions, detected facts and generated-file hashes.
-- Git initialized on the configured default branch; initial commit only after doctor passes and only with explicit authorization.
+- Git initialized on the configured default branch.
 
 ## 6. What init must not do
 
