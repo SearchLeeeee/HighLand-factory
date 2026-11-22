@@ -5,6 +5,8 @@ description: Use when an Initiative's active Leaf Features are all ready. Runs t
 
 # Initiative Integration And Merge
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -17,7 +19,7 @@ Use this skill after every active, non-cancelled, non-superseded Leaf Feature is
 authority. It does not replace feasibility, feature discussion, Feature acceptance,
 `$hl-feature-workspace`, or `$hl-wiki-merge`.
 
-Read before acting: `wiki/feature-workspace/README.md` and
+Read before acting: `<feature_workspace>/README.md` and
 `schema/feature-workspace-schema.md`; `$hl-feature-workspace`; `$hl-workflow-governance` with its
 `references/entry-point.md`; `$hl-wiki-merge`; the Initiative manifest, every active Feature
 manifest, their required `context_refs`, and the generated integration handoff.
@@ -32,7 +34,7 @@ The lifecycle state machine is the only authority for lifecycle changes. Use
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT`. It defines language, layout,
+3. Read `<workflow_profile>` under `WORK_ROOT`. It defines language, layout,
    owners, commands, verification evidence root, gate switches and security boundaries. If it is
    missing or unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine, not by composing paths:
@@ -67,19 +69,19 @@ Run read-only validation and reporting first:
 
 ```bash
 factory gate workspace --work <WORK_ROOT>
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry wiki/feature-workspace/registry.yaml
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry <registry>
 ```
 
 Then require:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry <registry> --initiative <Ixxx>
 ```
 
 If it fails because integration evidence is absent, generate the handoff exactly once:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-handoff --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx> --output <initiative-dir>/integration-testing/integration-test-handoff.md
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-handoff --registry <registry> --initiative <Ixxx> --output <initiative-dir>/integration-testing/integration-test-handoff.md
 ```
 
 Identify the required criteria and sources before testing. Apply `$hl-workflow-governance`'s
@@ -289,8 +291,8 @@ it. Subagent completion is an internal event, not a user-facing handoff.
 After every required matrix row passes, inspect the evidence root and run:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-result --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx> --evidence <initiative-relative-evidence-file>
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-integration-result --registry <registry> --initiative <Ixxx> --evidence <initiative-relative-evidence-file>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry <registry> --initiative <Ixxx>
 ```
 
 The evidence file must exist inside the Initiative directory, be immutable for this run, and

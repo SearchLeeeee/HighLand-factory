@@ -1,6 +1,6 @@
 # Integration Evidence And Result Binding
 
-Load factory context first: use `.factory/local.yaml` and `wiki/governance/workflow-profile.md`
+Load factory context first: use `.factory/local.yaml` and `<workflow_profile>`
 for paths, commands, required criteria and safety boundaries.
 
 ## Minimum Record

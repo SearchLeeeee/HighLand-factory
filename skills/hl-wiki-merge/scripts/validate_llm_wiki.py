@@ -337,7 +337,11 @@ def validate_wiki(
     except ValueError as exc:
         errors.append(_diag("ERROR", "PROCESS_WORKSPACE_CONFIG", ".", 0, str(exc)))
         return ValidationResult(errors, warnings, 0, 0, 0)
-    process_ref_re = _process_reference_pattern(root, names)
+    discovery_names = tuple(
+        item.relative_to(root).as_posix() if item.is_relative_to(root) else item.parent.name + "/" + item.name
+        for item in process_roots
+    )
+    process_ref_re = _process_reference_pattern(root, discovery_names)
 
     included: dict[str, Path] = {}
     excluded = 0
@@ -404,6 +408,13 @@ def validate_wiki(
                     "default discovery must not traverse into a registered process workspace",
                 ))
 
+        child_navigation = set()
+        in_children = False
+        for number, line in enumerate(parseable.splitlines(), 1):
+            if re.match(r"^ {0,3}#{1,2}(?:\s|$)", line):
+                in_children = bool(re.fullmatch(r" {0,3}##\s+子页导航(?:\s+#+)?\s*", line))
+            elif in_children:
+                child_navigation.add(number)
         for link in _links(parseable):
             if not link.destination or _external(link.destination):
                 continue
@@ -461,7 +472,7 @@ def validate_wiki(
                     ))
                     continue
                 source_name = PurePosixPath(relative).name.casefold()
-                if source_name in {"readme.md", "index.md", "_index.md"}:
+                if source_name in {"readme.md", "index.md", "_index.md", "by-type.md"} or link.line in child_navigation:
                     graph[relative].add(target_relative)
 
             if (

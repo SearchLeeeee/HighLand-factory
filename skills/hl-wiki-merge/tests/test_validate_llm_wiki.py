@@ -61,6 +61,14 @@ class ValidatorTests(unittest.TestCase):
         self.assertTrue(result.ok, result.errors)
         self.assertEqual((result.files_scanned, result.links_checked), (3, 3))
 
+    def test_only_explicit_child_navigation_links_extend_discovery(self):
+        self.wiki.write("README.md", "[Topic](topic.md)\n")
+        self.wiki.write("topic.md", "[Ordinary](other.md)\n## 子页导航\n- [Child](child.md)\n## 更多\n[Ordinary](other.md)\n")
+        self.wiki.write("child.md", "# child\n")
+        self.wiki.write("other.md", "# ordinary\n")
+        result = validate_wiki(self.root)
+        self.assertEqual([(e.code, e.path) for e in result.errors], [("ORPHAN_MARKDOWN", "other.md")])
+
     def test_wikilink_broken_link_and_legacy_references_fail(self) -> None:
         tick = chr(96)
         self.wiki.write(

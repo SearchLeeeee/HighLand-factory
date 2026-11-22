@@ -1,7 +1,7 @@
 # Pre-Flight And Verification Techniques
 
 Load factory context first: read `.factory/local.yaml` and
-`wiki/governance/workflow-profile.md` before running any recipe here. Commands come from the
+`<workflow_profile>` before running any recipe here. Commands come from the
 profile's `commands` section; evidence goes to the configured evidence root. If a command is not
 configured, do not invent one and do not claim verification.
 

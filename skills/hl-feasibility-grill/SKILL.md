@@ -5,6 +5,8 @@ description: Use when someone proposes a feature, capability, or change and want
 
 # Feasibility Grill
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -22,7 +24,7 @@ Run this before anything else, including reading the proposal.
    - `python` → `PYTHON`, an interpreter with PyYAML available
 
    If the file is missing, unreadable, or either value is empty, stop and tell the user to run `$hl-factory-init` (`factory init --work <WORK_ROOT>`). Never guess a checkout path.
-3. Read `WORK_ROOT/wiki/governance/workflow-profile.md`. It is generated from `.factory/factory.yaml` and is the only source for project language, layout, owners, commands, verification, gates, security boundaries and packs. If it is missing, or it disagrees with `.factory/factory.yaml`, stop and run `$hl-factory-doctor`; never hand-edit it.
+3. Read `<workflow_profile>`. It is generated from `.factory/factory.yaml` and is the only source for project language, layout, owners, commands, verification, gates, security boundaries and packs. If it is missing, or it disagrees with `.factory/factory.yaml`, stop and run `$hl-factory-doctor`; never hand-edit it.
 4. Keep these values for the rest of the session:
    - `project.language.docs` — document language. Never hardcode one.
    - `security.forbidden_operations` and `security.sensitive_classes` — the real risk boundary the proposal is tested against.

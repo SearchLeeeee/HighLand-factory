@@ -5,6 +5,8 @@ description: Use when governing the feature workspace lifecycle rules, dependenc
 
 # Workflow Governance
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -15,7 +17,7 @@ chat, choice panels and workbench questions; preserve existing explicit authoriz
 Use this skill to decide which workflow skill owns a request, to check a governed
 transition against policy, and to maintain the workflow itself. It restates the contract;
 it never replaces the owning machine gate. The durable authority remains
-`wiki/feature-workspace/README.md` and `schema/feature-workspace-schema.md`, and
+`<feature_workspace>/README.md` and `schema/feature-workspace-schema.md`, and
 `<FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py` is the only
 lifecycle state machine.
 
@@ -25,7 +27,7 @@ lifecycle state machine.
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT`. It defines project language,
+3. Read `<workflow_profile>` under `WORK_ROOT`. It defines project language,
    layout, owners, commands, verification evidence root, gate switches and security boundaries.
    If it is missing or unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine rather than composing paths by hand:
@@ -101,6 +103,7 @@ to implementation still waits for completed profiles and a passing workspace gat
 | Progress, blockers, next actions, stale work, next-session handoff | `$hl-feature-progress` (read-only) |
 | Feature or Initiative lifecycle state, dependency, closure, validation, split, merge eligibility | `$hl-feature-workspace` |
 | Initiative-level cross-Feature integration after all Leaf Features are ready | `$hl-initiative-merge` |
+| Explicit whole-Wiki maintenance or migration of a named existing work repo | `$hl-wiki-maintain` |
 | Semantic wiki merge after preflight and authorization, including MOC updates, full validator, retained-history transformation, authority switch | `$hl-wiki-merge` |
 | Provenance / why / history question while reading canonical authority | `$hl-history-trace` (isolated subagent) |
 | Bounded bugfix or detail adjustment that may escalate | `$hl-quick-change` |
@@ -109,7 +112,7 @@ to implementation still waits for completed profiles and a passing workspace gat
 | A change to these rules themselves | **Workflow Maintenance** below |
 
 Never treat a narrative report, a chat summary or a directory guess as state authority. Resolve
-`wiki/feature-workspace/registry.yaml`, the current manifests and every required `context_refs`,
+`<registry>`, the current manifests and every required `context_refs`,
 and run `validate` before and after any manifest or workflow change.
 
 ## User Choice Panels

@@ -254,7 +254,7 @@ factory gate all --work <work>
 ## 7. 第七步：baseline、git 和交接
 
 1. 逐条真实运行 `commands` 里配置的命令，把日期、环境、命令、预期、实际结果写进
-   `wiki/validation/init-baseline.md`。只有全部通过才把 `Status: pending` 改成
+   `<wiki>/engineering/init-baseline.md`。只有全部通过才把 `Status: pending` 改成
    `Status: passed`；跑不了的命令记为已知缺口。
 2. 若目录还不是 git 仓库：`git init -b <default_branch>`。
 3. **不要 push。** 把 remote/push 命令打印给用户，由用户自己决定。
@@ -287,13 +287,13 @@ factory gate all --work <work>
       `.factory/state.json` 已生成。
 - [ ] `factory doctor --strict --work <work>` 通过。
 - [ ] `factory gate all --work <work>` 通过（wiki 与 feature-workspace 两个门禁）。
-- [ ] `wiki/` 骨架完整，`wiki/governance/workflow-profile.md` 与配置一致。
-- [ ] `wiki/feature-workspace/registry.yaml` 通过 `feature_workspace.py validate`。
-- [ ] `wiki/code-ai/` 入口、blocks、manifests、owner profiles 齐全。
+- [ ] `wiki/` 骨架完整，`<workflow_profile>` 与配置一致。
+- [ ] `<registry>` 通过 `feature_workspace.py validate`。
+- [ ] `<code_ai>/` 入口、blocks、manifests、owner profiles 齐全。
 - [ ] `AGENTS.md` / `CLAUDE.md` 入口存在。
-- [ ] `wiki/validation/init-baseline.md` 已按真实执行结果填写（通过或明确记录缺口）。
+- [ ] `<wiki>/engineering/init-baseline.md` 已按真实执行结果填写（通过或明确记录缺口）。
 - [ ] adopt 模式：代码分析阶段完成，wiki 基线文档已写入并可通过 wiki 门禁。
-- [ ] `wiki/governance/init-record.md` 记录答案、假设、检测事实和生成文件哈希。
+- [ ] `<wiki>/engineering/init-record.md` 记录答案、假设、检测事实和生成文件哈希。
 - [ ] git 已初始化在配置的分支。
 - [ ] 已输出交接提示词。
 
@@ -323,8 +323,10 @@ factory gate all --work <work>
 - Wiki 基线（仅 adopt）：<写入的文档>；未决未知：<items>
 
 ## 下一步
-请先阅读 wiki/ 下的权威文档，然后：
+请先从解析出的 Wiki 首页进入，按当前职责读角色记忆（如存在），再读相关主题，然后：
 - 有新需求：使用 $hl-feasibility-grill 做可行性拷问，再进入 Initiative/Feature 流程。
 - 边界明确的小改动：使用 $hl-quick-change。
 任何实现前先运行 factory doctor --work <path>。
 ```
+
+对已初始化的项目执行 `factory resolve --work <work> --json`，先读 Wiki 首页，再读当前职责的角色记忆（如存在）和实际 workflow profile。新建项目初始化后也遵循这个顺序。存量项目只在用户点名要求迁移时进入 `$hl-wiki-maintain`。

@@ -5,6 +5,8 @@ description: Use while reading canonical authority documentation when a user or 
 
 # History Trace
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -20,11 +22,11 @@ Operate read-only, and keep historical lookup out of the main session.
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT` for layout, language, gate switches
+3. Read `<workflow_profile>` under `WORK_ROOT` for layout, language, gate switches
    and security boundaries. If it is missing or unreadable, stop and tell the user to run
    `$hl-factory-doctor`.
 4. Confirm the registry path from the profile layout; the default is
-   `wiki/feature-workspace/registry.yaml`.
+   `<registry>`.
 5. If the profile or config contradicts the request, route to `$hl-workflow-governance` instead of
    improvising.
 
@@ -56,7 +58,7 @@ that isolated history lookup is unavailable; do not absorb the lookup into the m
 2. Locate the routing candidate:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py locate --registry wiki/feature-workspace/registry.yaml --authority-doc <canonical-doc> --question "<question>"
+<PYTHON> <FACTORY_ROOT>/skills/hl-history-trace/scripts/trace_feature_history.py locate --registry <registry> --authority-doc <canonical-doc> --question "<question>"
 ```
 
 3. If no candidate is returned, report a provenance-routing gap. Do not scan every retained

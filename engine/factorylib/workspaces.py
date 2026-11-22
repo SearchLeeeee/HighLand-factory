@@ -20,7 +20,7 @@ PROCESS_WORKSPACE_DIRS = {
 DEFAULT_PROCESS_WORKSPACES = tuple(PROCESS_WORKSPACE_DIRS.values())
 
 
-def _workspace_name(value: object) -> str:
+def workspace_name(value: object) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError("workflow.process_workspaces entries must be non-empty strings")
     name = value.strip().replace("\\", "/").rstrip("/")
@@ -53,7 +53,7 @@ def process_workspace_names(
         raise ValueError("workflow.process_workspaces must be a list of directory paths")
     names = list(DEFAULT_PROCESS_WORKSPACES)
     for value in [*registered, *additional]:
-        name = _workspace_name(value)
+        name = workspace_name(value)
         if name not in names:
             names.append(name)
     return tuple(names)
@@ -64,15 +64,60 @@ def process_workspace_roots(
 ) -> tuple[Path, ...]:
     """Resolve roots; absent directories are valid and can be created lazily."""
     wiki = wiki_root.expanduser().resolve(strict=False)
+    config = config or {}
+    configured_path = (config.get("workflow") or {}).get("workspace_root")
+    v2 = (config.get("factory") or {}).get("template") == "workspace-v2"
+    work = wiki
+    wiki_name = Path((config.get("repo") or {}).get("wiki_path") or "wiki")
+    for _ in wiki_name.parts:
+        work = work.parent
+    base = wiki
+    if configured_path or v2:
+        base = (work / workspace_name(configured_path or "workspace")).resolve()
+        if not base.is_relative_to(work) or base == work:
+            raise ValueError("workflow.workspace_root escapes work repository")
     roots: list[Path] = []
     for name in process_workspace_names(config, additional=additional):
-        root = (wiki / name).resolve(strict=False)
-        if root == wiki or not root.is_relative_to(wiki):
+        parent = base if name in DEFAULT_PROCESS_WORKSPACES else wiki
+        root = (parent / name).resolve(strict=False)
+        if root == parent or not root.is_relative_to(parent):
             raise ValueError(f"process workspace must stay inside its Wiki: {name!r}")
         if root.exists() and not root.is_dir():
             raise ValueError(f"process workspace must be a directory: {name!r}")
         roots.append(root)
+    retained = retained_workspace_root(work, config, base)
+    if retained:
+        for name in DEFAULT_PROCESS_WORKSPACES:
+            root = (retained / name).resolve()
+            if not root.is_relative_to(retained) or root == retained:
+                raise ValueError(f"retained process workspace escapes its root: {name}")
+            roots.append(root)
     return tuple(roots)
+
+
+def retained_workspace_root(work: Path, config: Mapping[str, Any], active: Path) -> Path | None:
+    """An optional former process root reserved for explicit historical lookup."""
+    value = (config.get("workflow") or {}).get("retained_workspace_root")
+    if value is None:
+        return None
+    root = (work / workspace_name(value)).resolve()
+    if root == work or not root.is_relative_to(work) or root.is_relative_to(active) or active.is_relative_to(root):
+        raise ValueError("workflow.retained_workspace_root must be inside the work repo and separate from the active process root")
+    return root
+
+
+def retained_registry_for(registry: Path) -> Path | None:
+    """Find the archive for either configured registry path."""
+    registry = registry.resolve()
+    for parent in registry.parents:
+        if not (parent / ".factory" / "factory.yaml").is_file():
+            continue
+        from . import config, layout
+
+        paths = layout.build_layout(parent, config.load_config(parent))
+        if registry in {paths.registry, paths.retained_registry}:
+            return paths.retained_registry
+    return None
 
 
 def is_process_path(

@@ -20,7 +20,7 @@ Rules:
   Explain why it matters. Options are for actual choices; defaults below are conditional proposals,
   not a script that leads the user to agreement. Split bundled bank entries into focused questions.
 - Detect before asking. Stack, commands, existing docs, git remotes, folder structure and licenses are auto-discovered and shown as a proposal to confirm.
-- Record every answer and every assumption in `wiki/governance/init-record.md`.
+- Record every answer and every assumption in `<wiki>/engineering/init-record.md`.
 - Anything answered "unknown / decide later" becomes an explicit assumption with a re-check trigger, not a silent default.
 - Never ask a question whose answer the factory does not consume. A dead config field is a defect.
 
@@ -98,13 +98,13 @@ Adopt must additionally determine:
 
 - `.factory/factory.yaml` valid; `.factory/local.yaml` with a working Python (PyYAML); `.factory/state.json`.
 - `wiki/` skeleton valid under `validate_llm_wiki.py` (not merely a one-file wiki).
-- `wiki/feature-workspace/registry.yaml` valid under `feature_workspace.py validate`.
-- `wiki/governance/workflow-profile.md` matching config hash.
-- `wiki/code-ai/` entry, blocks, manifests and one owner profile per configured owner.
+- `<registry>` valid under `feature_workspace.py validate`.
+- `<workflow_profile>` matching config hash.
+- `<code_ai>/` entry, blocks, manifests and one owner profile per configured owner.
 - `AGENTS.md` / `CLAUDE.md` bootstrap instructions.
-- Green baseline: every configured build/lint/test/verify command executed once, results recorded in `wiki/validation/init-baseline.md`.
+- Green baseline: every configured build/lint/test/verify command executed once, results recorded in `<wiki>/engineering/init-baseline.md`.
 - Adopt mode only: the code-analysis phase completed, wiki baseline documents written and linked, `project-facts.md` and the authority map updated, and `factory gate wiki` passing.
-- `wiki/governance/init-record.md` with answers, assumptions, detected facts and generated-file hashes.
+- `<wiki>/engineering/init-record.md` with answers, assumptions, detected facts and generated-file hashes.
 - Git initialized on the configured default branch.
 
 ## 6. What init must not do

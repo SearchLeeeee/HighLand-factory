@@ -21,6 +21,9 @@ from typing import Any
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "engine"))
+from factorylib.workspaces import retained_registry_for  # noqa: E402
+
 EXCLUDED_CHECKSUM_FILES = {"history-checksums.sha256"}
 
 
@@ -41,6 +44,23 @@ def authority_key(raw: str) -> str:
     normalized = raw.replace("\\", "/").strip()
     parts = [part for part in normalized.split("/") if part]
     return "/".join(parts).casefold()
+
+
+def authority_aliases(original: str, feature_id: str, aliases: dict[str, Any]) -> list[str]:
+    page, separator, anchor = original.partition("#")
+    inherits_page = bool(separator) and original not in aliases
+    rule = aliases.get(page if inherits_page else original)
+    if isinstance(rule, str):
+        targets = [rule]
+    elif isinstance(rule, dict):
+        targets = string_list(rule.get(feature_id))
+    else:
+        return []
+
+    normalized = [authority_key(target) for target in targets]
+    if inherits_page:
+        return [target if "#" in target else f"{target}#{anchor}" for target in normalized if target]
+    return [target for target in normalized if target]
 
 
 def string_list(value: Any) -> list[str]:
@@ -108,12 +128,33 @@ def retained_metadata(record: dict[str, Any]) -> dict[str, str]:
 
 def locate(args: argparse.Namespace) -> int:
     registry = args.registry.resolve()
-    workspace_root = registry.parent
+    archive = retained_registry_for(registry)
+    sources = [(registry, {})]
+    if archive and archive != registry:
+        routes = load_yaml(registry).get("canonical_path_aliases", {})
+        if not isinstance(routes, dict) or not all(isinstance(old, str) for old in routes):
+            print("ERROR: canonical_path_aliases must map old document paths to targets", file=sys.stderr)
+            return 1
+        aliases = {authority_key(old): rule for old, rule in routes.items()}
+        sources.append((archive, aliases))
     wanted = authority_key(args.authority_doc)
+    page_query = "#" not in wanted
     candidates = []
-    for record, base in merged_records(registry):
-        matches = [doc for doc in canonical_docs(record) if authority_key(doc) == wanted]
-        if not matches:
+    records = (
+        (record, base, source.parent, aliases)
+        for source, aliases in sources for record, base in merged_records(source)
+    )
+    for record, base, workspace_root, aliases in records:
+        canonical_doc = None
+        for doc in canonical_docs(record):
+            original = authority_key(doc)
+            if wanted == original or any(
+                wanted == target or (page_query and wanted == target.split("#", 1)[0])
+                for target in authority_aliases(original, record["id"], aliases)
+            ):
+                canonical_doc = doc
+                break
+        if canonical_doc is None:
             continue
         retained = retained_metadata(record)
         raw_root = retained.get("path")
@@ -130,7 +171,7 @@ def locate(args: argparse.Namespace) -> int:
         candidates.append(
             {
                 "feature_id": record.get("id"),
-                "canonical_doc": matches[0],
+                "canonical_doc": canonical_doc,
                 "retained_root": str(source_root),
                 "route_file": str(route_file),
                 "question": args.question,

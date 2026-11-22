@@ -1,7 +1,7 @@
 # Workflow Governance — Entry Point
 
 Load factory context first: read `.factory/local.yaml`, then
-`wiki/governance/workflow-profile.md`. If either is missing, stop and route to `$hl-factory-init`
+`<workflow_profile>`. If either is missing, stop and route to `$hl-factory-init`
 or `$hl-factory-doctor`; do not reconstruct values from memory, chat history or directory guesses.
 
 This page is a fresh-session map. It does not restate every procedure. `$hl-workflow-governance`
@@ -10,8 +10,8 @@ steps; executable and schema authorities below own machine-enforced behavior.
 
 ## Fresh-session entry
 
-1. Read `wiki/feature-workspace/README.md` and
-   `wiki/feature-workspace/schema/feature-workspace-schema.md`.
+1. Read `<feature_workspace>/README.md` and
+   `<feature_workspace>/schema/feature-workspace-schema.md`.
 2. Read `$hl-feature-workspace/SKILL.md` for lifecycle commands and the
    `$hl-workflow-governance/SKILL.md` for request routing and maintenance.
 3. Run `factory gate workspace --work <WORK_ROOT>`. Use the registry and current manifests as

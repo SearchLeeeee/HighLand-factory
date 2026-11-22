@@ -5,6 +5,8 @@ description: Use when the user asks for feature progress, remaining work, blocke
 
 # Feature Progress
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -21,7 +23,7 @@ correctly in a fresh session without relying on chat history.
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT`. It defines language, layout,
+3. Read `<workflow_profile>` under `WORK_ROOT`. It defines language, layout,
    owners, commands, the evidence root, gate switches and security boundaries. If it is missing or
    unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine rather than composing paths: `factory gate workspace --work
@@ -36,7 +38,7 @@ around.
 
 ## Reporting Procedure
 
-1. Resolve the default registry at `wiki/feature-workspace/registry.yaml`, unless the user supplies
+1. Resolve the default registry at `<registry>`, unless the user supplies
    another feature-workspace path.
 2. Read the workspace `README.md`, the registry, referenced Initiative manifests, referenced active
    Feature manifests, and `migration-candidates.yaml`.
@@ -49,8 +51,8 @@ around.
 5. Run the shared validator and report command:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py validate --registry wiki/feature-workspace/registry.yaml
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry wiki/feature-workspace/registry.yaml
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py validate --registry <registry>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry <registry>
 ```
 
 6. If validation fails, report the inconsistencies first. Do not infer replacement state from prose.

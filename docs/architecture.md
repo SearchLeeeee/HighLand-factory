@@ -17,8 +17,9 @@ HighLand-factory (this repo, generic, versioned on GitHub)
   .factory/state.json     init/upgrade bookkeeping (gitignored)
   .factory/worktrees/     per-Feature git worktrees for parallel development (gitignored)
   code/                   implementation
-  wiki/                   authority + feature-workspace + code-ai + quick-workspace
-  AGENTS.md / CLAUDE.md   agent entry: load config -> workflow profile -> skill
+  wiki/                   current authority and role memory
+  workspace/              task process roots in new projects
+  AGENTS.md / CLAUDE.md   agent entry: resolve -> Wiki home -> applicable role -> profile -> skill
 ```
 
 The factory repo contains **no project facts**. The work repo contains **all** project facts. Skills are generic behaviour; configuration is project data.
@@ -30,11 +31,9 @@ The legacy setup rendered `${TOKEN}` values into skill copies at install time. T
 1. Token values are machine-scoped, not project-scoped. Two work repos on one machine cannot carry different repositories, Python interpreters or wiki roots without editing the machine file and re-rendering.
 2. The moment a skill file contains a token it stops being a single physical copy and becomes a generated artifact, so editing, syncing and drift detection become three separate problems.
 
-HighLand-factory instead standardises the layout (`code/` + `wiki/` and fixed paths inside them) and moves variable **values** into `.factory/factory.yaml`. Skills reference relative paths and read the generated `wiki/governance/workflow-profile.md` for values. No template substitution is needed for skill contents, so skills stay single-copy, cross-agent and upgradeable.
+HighLand-factory resolves project configuration through `factory resolve --work <work> --json`. Skills use its paths for the Wiki, process roots, registry, Code AI library and workflow profile. New projects use sibling Wiki and process roots. Ordinary upgrades preserve existing authority pages and process roots.
 
-If a project insists on different folder names, only `repo.code_path` and `repo.wiki_path` move; all other wiki-internal paths stay fixed. This is deliberate: a small contract is what makes the workflow reusable.
-
-The semantic Wiki areas remain distinct, but topic MOCs are created only when the first authority document for that area is added. Greenfield projects do not start with empty topic indexes or a separate taxonomy-mode setting.
+The Wiki home routes readers to product and engineering topics and role memory. A cross-cutting type index links once to each topic. See [Wiki memory and task experience](../skills/hl-workflow-governance/references/wiki-memory.md).
 
 ## 3. Repository modes
 

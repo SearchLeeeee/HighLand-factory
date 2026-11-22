@@ -5,6 +5,8 @@ description: Use when the factory checkout has been updated (git pull), when fac
 
 # Factory Upgrade
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -18,8 +20,8 @@ Keep an existing work repo in sync with a newer HighLand-factory checkout withou
 
 Upgrade touches **generated** artifacts only:
 
-- `wiki/governance/workflow-profile.md`
-- `wiki/code-ai/_manifests/<owner>.yml`
+- `<workflow_profile>`
+- `<code_ai>/_manifests/<owner>.yml`
 - initial owner profiles (only if unchanged since generation)
 - other files recorded in `.factory/state.json:generated_files`
 
@@ -29,7 +31,7 @@ Project-owned authority documents, discussion records, feature manifests, code a
 
 1. Read `<work>/.factory/local.yaml`. If missing, stop and route to `$hl-factory-init` (the work repo is not initialized) or ask the user to run `install` again.
 2. Resolve `FACTORY_ROOT` (`factory_root`) and `PYTHON` (`python`), and confirm `factory --version` runs with that interpreter.
-3. Read `wiki/governance/workflow-profile.md`; if it is missing or unreadable, run `$hl-factory-doctor` first — upgrade on a broken repo cannot distinguish new breakage from old.
+3. Read `<workflow_profile>`; if it is missing or unreadable, run `$hl-factory-doctor` first — upgrade on a broken repo cannot distinguish new breakage from old.
 4. Run `factory status --work <work>` before planning anything.
 
 Fail closed: missing local config, missing profile, or an already-failing doctor stops the upgrade with one concrete repair instruction.
@@ -70,3 +72,5 @@ factory gate all --work <work>
 ## Handoff
 
 Report: old version → new version, files refreshed, files skipped because locally modified, doctor result, gate result, and any follow-up decisions. Match the user's language.
+
+Ordinary upgrade keeps the existing template layout, Wiki home and role memory. Only an explicit request naming an existing work repo for semantic migration routes to `$hl-wiki-maintain`. Preserve the registered process roots, including sealed history.

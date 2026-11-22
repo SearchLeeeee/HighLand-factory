@@ -5,6 +5,8 @@ description: Use when a workflow skill needs to create, validate, transition, sp
 
 # Feature Workspace
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -12,7 +14,7 @@ All user-facing questions must use Socratic questioning. Before asking, read
 (relative to the located factory checkout during bootstrap). Follow that shared policy for
 chat, choice panels and workbench questions; preserve existing explicit authorization gates.
 
-`wiki/feature-workspace/README.md` and `schema/feature-workspace-schema.md` are the workflow
+`<feature_workspace>/README.md` and `schema/feature-workspace-schema.md` are the workflow
 authority. YAML manifests are lifecycle-state authority only; they never override product facts in
 the long-term wiki.
 
@@ -28,16 +30,14 @@ resolve those references recursively.
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT`. It defines language, layout,
+3. Read `<workflow_profile>` under `WORK_ROOT`. It defines language, layout,
    owners, commands, the evidence root, gate switches and security boundaries. If it is missing or
    unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine rather than composing paths:
    `factory gate workspace --work <WORK_ROOT>` (this runs `validate` against the registry) and
    `factory gate wiki --work <WORK_ROOT>`.
 5. Take the scope-gate switches, review and verification policy, evidence
-   root and the feature-workspace root from the profile. The default registry path is
-   `wiki/feature-workspace/registry.yaml`; if the profile declares a different workspace root, use
-   that instead.
+   root and the feature-workspace root from the profile. Pass the resolved `registry` directly to lifecycle commands.
 6. If the profile or config contradicts the request, route to `$hl-workflow-governance` instead of
    improvising.
 
@@ -52,11 +52,11 @@ reusing preparation never replaces independent review or separated verification.
 ## Commands
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py validate --registry wiki/feature-workspace/registry.yaml
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry wiki/feature-workspace/registry.yaml
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py finalize-decomposition --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py validate --registry <registry>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py report --registry <registry>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py finalize-decomposition --registry <registry> --initiative <Ixxx>
 <PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py merge-ready --feature <feature.yaml>
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry <registry> --initiative <Ixxx>
 ```
 
 Transition and integration commands take the same registry/feature/initiative arguments, plus

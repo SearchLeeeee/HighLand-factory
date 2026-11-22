@@ -306,8 +306,8 @@ def run_file(layout: Any, identifier: str) -> Path:
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,100}", identifier):
         raise RefactorError("Invalid run identifier")
     result = layout.refactor_workspace / "runs" / identifier / "run.json"
-    if not within(result.resolve(), layout.wiki):
-        raise RefactorError("Refactor run records must remain inside the configured Wiki")
+    if not within(result.resolve(), layout.refactor_workspace):
+        raise RefactorError("Refactor run records must remain inside the configured Refactor workspace")
     return result
 
 
@@ -677,6 +677,13 @@ def main(argv: list[str] | None = None) -> int:
             output = start(args, layout, config)
         else:
             path = run_file(layout, args.run)
+            if args.command == "show" and not path.exists() and layout.retained_process_root:
+                archive = layout.retained_process_root / layout.refactor_workspace.name
+                relative = path.relative_to(layout.refactor_workspace)
+                retained = (archive / relative).resolve()
+                if retained.is_relative_to(archive) and retained.is_file():
+                    print(retained.read_text(encoding="utf-8"))
+                    return 0
             run = json.loads(path.read_text(encoding="utf-8"))
             output = operate(args, layout, config, path, run)
         print(json.dumps(output, ensure_ascii=False, indent=2))

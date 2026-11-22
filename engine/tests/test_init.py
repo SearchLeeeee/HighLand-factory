@@ -8,8 +8,26 @@ import sys
 from pathlib import Path
 
 import pytest
+from factorylib.config import default_config
+from factorylib.layout import build_layout
+from factorylib.render import Renderer
 
 ENGINE = Path(__file__).resolve().parents[1] / "factory.py"
+
+
+def test_v2_renders_code_ai_links_to_existing_engineering_facts(tmp_path):
+    config = default_config()
+    config["factory"]["template"] = "workspace-v2"
+    config["owners"] = [{"id": "core", "title": "Core", "paths": ["code"]}]
+    layout = build_layout(tmp_path, config)
+    engineering_facts = layout.wiki / "engineering/project-facts.md"
+    engineering_facts.parent.mkdir(parents=True)
+    engineering_facts.write_text("# Project facts\n", encoding="utf-8")
+    assert Path(layout.as_dict()["project_facts"]) == engineering_facts
+    files = {item.rel: item.content for item in Renderer(tmp_path, config, layout).plan_upgrade().files}
+    assert "wiki/code-ai/project-facts.md" not in files
+    assert files["wiki/code-ai/README.md"].count("(../engineering/project-facts.md)") == 3
+    assert "(../engineering/project-facts.md)" in files["wiki/code-ai/core-agent.md"]
 
 
 def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -63,15 +81,18 @@ def test_init_doctor_and_gates(tmp_path: Path) -> None:
     assert init.returncode == 0, init.stdout + init.stderr
     assert (work / ".factory" / "factory.yaml").is_file()
     assert (work / "wiki" / "README.md").is_file()
-    assert (work / "wiki" / "governance" / "workflow-profile.md").is_file()
-    assert (work / "wiki" / "feature-workspace" / "registry.yaml").is_file()
-    assert (work / "wiki" / "refactor-workspace" / "README.md").is_file()
+    assert (work / "wiki" / "engineering" / "workflow-profile.md").is_file()
+    assert (work / "workspace" / "feature-workspace" / "registry.yaml").is_file()
+    assert (work / "workspace" / "refactor-workspace" / "README.md").is_file()
     assert "refactor-workspace/" not in (work / "wiki" / "README.md").read_text(encoding="utf-8")
+    for name in ("product/README.md", "engineering/README.md", "by-type.md", "engineering/init-baseline.md"):
+        assert (work / "wiki" / name).is_file()
+    assert not (work / "wiki" / "role-memory" / "implementation.md").exists()
     assert (work / "wiki" / "code-ai" / "core-agent.md").is_file()
     workspace_readme = (work / "README.md").read_text(encoding="utf-8")
     assert workspace_readme.startswith("# Smoke Project")
     assert "workspace template maintenance" not in workspace_readme.lower()
-    for topic in ("architecture", "domain", "features", "implementation", "product", "testing"):
+    for topic in ("architecture", "domain", "features", "implementation", "testing"):
         assert not (work / "wiki" / topic / "README.md").exists()
         assert f"{topic}/README.md" not in (work / "wiki" / "README.md").read_text(encoding="utf-8")
     gitignore = (work / ".gitignore").read_text(encoding="utf-8")
@@ -80,7 +101,7 @@ def test_init_doctor_and_gates(tmp_path: Path) -> None:
 
     config_text = (work / ".factory" / "factory.yaml").read_text(encoding="utf-8")
     assert "max_parallel_features" not in config_text
-    profile_text = (work / "wiki" / "governance" / "workflow-profile.md").read_text(encoding="utf-8")
+    profile_text = (work / "wiki" / "engineering" / "workflow-profile.md").read_text(encoding="utf-8")
     assert "max_parallel_features" not in profile_text
 
     doctor = run("doctor", "--work", str(work), "--json")
@@ -151,7 +172,7 @@ def test_upgrade_check_and_restore_generated_file(tmp_path: Path) -> None:
     assert clean.returncode == 0, clean.stdout + clean.stderr
     assert json.loads(clean.stdout)["counts"]["overwrite"] == 0
 
-    (work / "wiki" / "governance" / "workflow-profile.md").unlink()
+    (work / "wiki" / "engineering" / "workflow-profile.md").unlink()
     dirty = run("upgrade", "--work", str(work), "--check", "--json")
     assert dirty.returncode == 1
     assert json.loads(dirty.stdout)["counts"]["create"] == 1
@@ -171,6 +192,8 @@ project:
   slug: custom-wiki
 repo:
   wiki_path: docs-root
+verification:
+  baseline_evidence: docs-root/evidence/current-baseline.md
 owners:
   - id: core
     title: Core
@@ -185,9 +208,10 @@ commands:
     assert init.returncode == 0, init.stdout + init.stderr
     assert (work / "docs-root" / "README.md").is_file()
     assert not (work / "wiki").exists()
-    assert (work / "docs-root" / "refactor-workspace" / "README.md").is_file()
-    profile = (work / "docs-root" / "governance" / "workflow-profile.md").read_text(encoding="utf-8")
-    assert "docs-root/refactor-workspace/" in profile
+    assert (work / "workspace" / "refactor-workspace" / "README.md").is_file()
+    profile = (work / "docs-root" / "engineering" / "workflow-profile.md").read_text(encoding="utf-8")
+    assert "workspace/refactor-workspace/" in profile
+    assert (work / "docs-root/evidence/current-baseline.md").is_file()
     gate = run("gate", "all", "--work", str(work))
     assert gate.returncode == 0, gate.stdout + gate.stderr
 
@@ -356,6 +380,8 @@ def test_upgrade_older_project_adds_refactor_workspace_with_optional_config_abse
 
     work = tmp_path / "work"
     answers = write_answers(tmp_path / "answers.yaml")
+    with answers.open("a", encoding="utf-8") as stream:
+        stream.write("\nfactory:\n  template: workspace-v1\n")
     initialized = run("init", "--work", str(work), "--answers", str(answers), "--python", sys.executable)
     assert initialized.returncode == 0, initialized.stdout + initialized.stderr
     (work / "wiki/refactor-workspace/README.md").unlink()
@@ -369,3 +395,61 @@ def test_upgrade_older_project_adds_refactor_workspace_with_optional_config_abse
     assert "refactor-workspace/" not in (work / "wiki/README.md").read_text(encoding="utf-8")
     doctor = run("doctor", "--work", str(work), "--json")
     assert json.loads(doctor.stdout)["ok"], doctor.stdout + doctor.stderr
+
+
+def test_explicit_migration_preserves_reviewed_pages_and_old_task_roots(tmp_path: Path):
+    import os
+    from factorylib import config
+
+    work = tmp_path / "legacy"
+    answers = write_answers(tmp_path / "answers.yaml")
+    with answers.open("a", encoding="utf-8") as stream:
+        stream.write("\nfactory:\n  template: workspace-v1\n")
+    assert run("init", "--work", str(work), "--answers", str(answers)).returncode == 0
+    wiki = work / "wiki"
+    home = wiki / "README.md"
+    for name in ("product/README.md", "engineering/README.md", "by-type.md"):
+        page = wiki / name
+        page.parent.mkdir(exist_ok=True)
+        page.write_text("# Reviewed navigation\n", encoding="utf-8")
+        with home.open("a", encoding="utf-8") as stream:
+            stream.write(f"\n- [Reviewed navigation]({name})\n")
+    for page in [base / name for base in (work, work / "code") for name in ("AGENTS.md", "CLAUDE.md")] + [
+        wiki / "code-ai/core-agent.md", wiki / "code-ai/review-agent.md"
+    ]:
+        pointer = Path(os.path.relpath(home, page.parent)).as_posix()
+        page.write_text(f"# Startup\n\n[Common home]({pointer})\n", encoding="utf-8")
+    before = home.read_bytes()
+    preflight = run("migrate-wiki", "--work", str(work))
+    assert preflight.returncode == 0, preflight.stdout + preflight.stderr
+    assert config.load_config(work)["factory"]["template"] == "workspace-v1"
+    assert run("migrate-wiki", "--work", str(work), "--apply").returncode == 0
+    paths = json.loads(run("resolve", "--work", str(work), "--json").stdout)
+    assert Path(paths["process_root"]) == wiki
+    assert Path(paths["workflow_profile"]) == wiki / "governance/workflow-profile.md"
+    assert Path(paths["registry"]).is_file()
+    assert run("upgrade", "--work", str(work), "--apply").returncode == 0
+    assert home.read_bytes() == before
+    home.unlink()
+    assert run("upgrade", "--work", str(work), "--apply").returncode == 0
+    assert not home.exists()
+
+
+def test_new_split_init_plans_external_startup_and_preserves_existing_content(tmp_path: Path):
+    work = tmp_path / "docs"
+    code = tmp_path / "implementation"
+    code.mkdir()
+    existing = code / "AGENTS.md"
+    existing.write_text("# Local conventions\n", encoding="utf-8")
+    args = ("init", "--work", str(work), "--code", str(code))
+    planned = run(*args, "--dry-run", "--json")
+    assert planned.returncode == 0, planned.stderr
+    files = json.loads(planned.stdout)["files"]
+    assert any(row["path"] == str(existing) and row["action"] == "overwrite" for row in files)
+    assert existing.read_text() == "# Local conventions\n"
+    assert run(*args).returncode == 0
+    content = existing.read_text(encoding="utf-8")
+    assert content.startswith("# Local conventions\n")
+    assert "../docs/wiki/README.md" in content
+    assert run(*args, "--force").returncode == 0
+    assert existing.read_text(encoding="utf-8") == content

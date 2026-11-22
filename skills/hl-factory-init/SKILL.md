@@ -5,6 +5,8 @@ description: Use when a user wants to create a new HighLand-factory work repo or
 
 # Factory Init
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -16,10 +18,10 @@ chat, choice panels and workbench questions; preserve existing explicit authoriz
 
 Turn a project idea (or an existing code + docs pair) into a **valid HighLand-factory work repo**:
 
-- one git repo, `code/` + `wiki/` two folders (or `split` mode with an external code repo),
+- one git repo, `code/`, `wiki/` and sibling `workspace/` (or `split` mode with an external code repo),
 - `.factory/factory.yaml` project config + `.factory/local.yaml` machine config,
 - a complete wiki authority skeleton, `feature-workspace/`, `quick-workspace/`, `code-ai/`,
-- `wiki/governance/workflow-profile.md` digest,
+- `<workflow_profile>` digest,
 - `AGENTS.md` / `CLAUDE.md` agent entry,
 - a green baseline and `factory doctor` PASS.
 
@@ -32,12 +34,12 @@ This skill is the **conversation**. The engine (`factory init` / `factory adopt`
    matters. Offer 2-3 options only for an actual decision; recommendations are conditional and
    separate from the neutral question. Follow the shared questioning policy for panel formatting.
 2. Detect before asking. Inspect the existing directory, git remotes, package manifests, CI files, existing docs, and licenses; present the detection as a proposal to confirm.
-3. Never silently skip a P0 item. If the user says "decide later", record it as an explicit assumption in `wiki/governance/init-record.md` and tell them the consequence.
+3. Never silently skip a P0 item. If the user says "decide later", record it as an explicit assumption in `<wiki>/engineering/init-record.md` and tell them the consequence.
 4. Never store secrets, tokens, account numbers or private keys in committed files. Only references and policy go into `factory.yaml`.
 5. Do not implement product features during init. Init ends at a valid baseline; the first change goes through `$hl-feasibility-grill` or `$hl-quick-change`.
 6. Do not create a placeholder Initiative "for the project". The feature workspace starts empty and valid.
 7. Every write is planned first. Run `factory init --dry-run` (or `adopt --dry-run`), show the plan summary, and get explicit confirmation before applying.
-8. For adopt mode, init is not complete until the code-analysis phase has filled the wiki baseline (see `references/adopt-code-analysis.md`). Analysis is read-only for code; only the wiki and `code-ai/project-facts.md` are written.
+8. For adopt mode, init is not complete until the code-analysis phase has filled the wiki baseline (see `references/adopt-code-analysis.md`). Analyze code read-only and write the Wiki baseline, including the resolved `<project_facts>` page.
 
 ## Step 0 — locate the factory
 
@@ -151,14 +153,14 @@ For adopt, after apply and a passing doctor/gate:
 2. Dispatch the analysis slices as **read-only subagents** — `repo-map`, `core-logic`, `data-contracts`, `operations`, `tests`, `security-privacy`, `domain-glossary`. Run them in parallel when the platform supports it. If the platform has no subagent facility, run the slices sequentially in the main session.
 3. Each subagent writes only `<work>/.factory/analysis/<slice>.md` and never edits code, wiki or git. If it cannot write files, it returns the fixed handoff and the main session records it.
 4. Synthesize the findings into the wiki baseline documents listed in the reference: `architecture/overview.md`, `domain/overview.md`, `implementation/overview.md`, `testing/overview.md`, `governance/runtime-and-operations.md`.
-5. In the same pass update `wiki/02-file-authority-map.md`, `wiki/code-ai/project-facts.md`, all affected MOC links, and append the analysis summary to `wiki/governance/init-record.md`.
+5. In the same pass update `<current topic index linked from the Wiki home>`, `<project_facts>`, all affected MOC links, and append the analysis summary to `<wiki>/engineering/init-record.md`.
 6. Never invent behaviour: cite relative source paths, mark unknowns, record conflicts between README and code instead of repeating the README. Never write secrets or absolute machine paths.
 7. Run `factory gate wiki --work <work>` and `factory doctor --work <work>`; fix links until both pass.
 8. Report the documents written and the unknowns that need an owner decision in the handoff.
 
 ## Step 6 — green baseline
 
-For every configured command, run it once from the correct directory and record date, environment, command, expected and observed result in `wiki/validation/init-baseline.md`. Change `Status: pending` to `Status: passed` only when every configured build/test/verify command actually passes. If a command cannot run yet (greenfield), record that explicitly as a known gap and keep the status pending — doctor will keep warning.
+For every configured command, run it once from the correct directory and record date, environment, command, expected and observed result in `<wiki>/engineering/init-baseline.md`. Change `Status: pending` to `Status: passed` only when every configured build/test/verify command actually passes. If a command cannot run yet (greenfield), record that explicitly as a known gap and keep the status pending — doctor will keep warning.
 
 ## Step 7 — git and handoff
 
@@ -189,3 +191,5 @@ For every configured command, run it once from the correct directory and record 
 - Existing files block the plan: report each path; for adopt this is expected. Never force unless the user explicitly says so after seeing the list.
 - Gate fails: fail closed, report the gate output verbatim, route repairs to the user.
 - Interrupted run: safe to re-run; `factory doctor` reports residual state.
+
+New projects use `factory.template: workspace-v2` with sibling Wiki and process roots. After init resolve paths and follow the generated home. Existing projects require an explicitly named semantic migration through `$hl-wiki-maintain`. Record accepted behavior in product topics and implementation observations in engineering topics. Code alone cannot establish a product promise.

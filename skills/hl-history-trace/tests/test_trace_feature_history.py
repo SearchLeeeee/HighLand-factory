@@ -51,6 +51,18 @@ class TraceFeatureHistoryTests(unittest.TestCase):
         )
         return registry, retained
 
+    def split_registries(self, work: Path) -> tuple[Path, Path]:
+        config = work / ".factory/factory.yaml"
+        config.parent.mkdir()
+        config.write_text(
+            "factory: {template: workspace-v2}\nworkflow: {retained_workspace_root: wiki}\n",
+            encoding="utf-8",
+        )
+        archived, _ = self.fixture(work / "wiki/feature-workspace")
+        active = work / "workspace/feature-workspace/registry.yaml"
+        active.parent.mkdir(parents=True)
+        return archived, active
+
     def test_locate_then_route_from_authority_question(self):
         with tempfile.TemporaryDirectory() as temp:
             registry, retained = self.fixture(Path(temp))
@@ -84,6 +96,96 @@ class TraceFeatureHistoryTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 2)
             self.assertEqual(json.loads(result.stdout)["candidates"], [])
+
+    def test_standalone_lookup_requires_the_exact_authority_anchor(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry, _ = self.fixture(Path(temp))
+            initiative = registry.parent / "initiatives/i007/initiative.yaml"
+            document = "implementation/backend/example.md"
+            original = initiative.read_text(encoding="utf-8")
+            initiative.write_text(original.replace(document, f"{document}#revision"), encoding="utf-8")
+
+            for query, expected in ((f"{document}#revision", 0), (f"{document}#other", 2), (document, 2)):
+                with self.subTest(query=query):
+                    located = self.run_tool(
+                        "locate", "--registry", str(registry), "--authority-doc", query,
+                        "--question", "Why did it change?",
+                    )
+                    self.assertEqual(located.returncode, expected, located.stderr)
+                    self.assertEqual(len(json.loads(located.stdout)["candidates"]), int(expected == 0))
+
+    def test_migrated_anchor_prefers_exact_retained_section(self):
+        with tempfile.TemporaryDirectory() as temp:
+            old, active = self.split_registries(Path(temp))
+            initiative = old.parent / "initiatives/i007/initiative.yaml"
+            original = initiative.read_text(encoding="utf-8")
+            test_tombstone = original.split("features:\n", 1)[1].replace("I007-F02", "I007-F03").replace(
+                "implementation/backend/example.md", "testing/example.md",
+            )
+            original = original.replace("implementation/backend/example.md", "implementation/backend/example.md#revision")
+            initiative.write_text(original + test_tombstone, encoding="utf-8")
+            active.write_text(
+                "initiatives: []\ncanonical_path_aliases:\n"
+                "  implementation/backend/example.md: engineering/example.md\n"
+                "  testing/example.md: engineering/example.md#verification\n",
+                encoding="utf-8",
+            )
+            located = self.run_tool(
+                "locate", "--registry", str(active), "--authority-doc", "engineering/example.md#verification",
+                "--question", "What was verified?",
+            )
+            self.assertEqual(located.returncode, 0, located.stderr)
+            candidates = json.loads(located.stdout)["candidates"]
+            self.assertEqual([(item["feature_id"], item["canonical_doc"]) for item in candidates],
+                             [("I007-F03", "testing/example.md")])
+
+            for anchor, expected_feature in (("revision", "I007-F02"), ("unrelated", None)):
+                with self.subTest(anchor=anchor):
+                    located = self.run_tool(
+                        "locate", "--registry", str(active), "--authority-doc", f"engineering/example.md#{anchor}",
+                        "--question", "Why did it change?",
+                    )
+                    self.assertEqual(located.returncode, 0 if expected_feature else 2, located.stderr)
+                    candidates = json.loads(located.stdout)["candidates"]
+                    self.assertEqual(
+                        [item["feature_id"] for item in candidates], [expected_feature] if expected_feature else [],
+                    )
+
+    def test_shared_old_page_routes_only_features_registered_for_each_new_target(self):
+        with tempfile.TemporaryDirectory() as temp:
+            archived, active = self.split_registries(Path(temp))
+            initiative = archived.parent / "initiatives/i007/initiative.yaml"
+            original = initiative.read_text(encoding="utf-8").replace(
+                "implementation/backend/example.md", "validation/baseline.md",
+            )
+            tombstone = original.split("features:\n", 1)[1]
+            initiative.write_text(
+                original + tombstone.replace("I007-F02", "I007-F03") + tombstone.replace("I007-F02", "I007-F04"),
+                encoding="utf-8",
+            )
+            active.write_text(
+                "initiatives: []\ncanonical_path_aliases:\n"
+                "  validation/baseline.md:\n"
+                "    I007-F02: [engineering/baseline.md#coverage, product/area-a/README.md#behavior]\n"
+                "    I007-F03: engineering/baseline.md#setup\n",
+                encoding="utf-8",
+            )
+            queries = {
+                "engineering/baseline.md": ["I007-F02", "I007-F03"],
+                "engineering/baseline.md#coverage": ["I007-F02"],
+                "engineering/baseline.md#setup": ["I007-F03"],
+                "engineering/baseline.md#unrelated": [],
+                "product/area-a/README.md": ["I007-F02"],
+                "product/area-a/README.md#behavior": ["I007-F02"],
+            }
+            for query, expected in queries.items():
+                with self.subTest(query=query):
+                    located = self.run_tool(
+                        "locate", "--registry", str(active), "--authority-doc", query,
+                        "--question", "What supported this authority?",
+                    )
+                    self.assertEqual(located.returncode, 0 if expected else 2, located.stderr)
+                    self.assertEqual([item["feature_id"] for item in json.loads(located.stdout)["candidates"]], expected)
 
     def test_checksum_and_verify_detect_mutation(self):
         with tempfile.TemporaryDirectory() as temp:

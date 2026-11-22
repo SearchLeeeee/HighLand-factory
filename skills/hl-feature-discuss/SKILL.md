@@ -5,6 +5,8 @@ description: Use when exactly one dependency-ready Leaf Feature is ready to be r
 
 # Feature Discuss
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -22,7 +24,7 @@ Run this before anything else, including reading the feature request.
    - `python` → `PYTHON`, an interpreter with PyYAML available
 
    If the file is missing, unreadable, or either value is empty, stop and tell the user to run `$hl-factory-init` (`factory init --work <WORK_ROOT>`). Never guess a checkout path.
-3. Read `WORK_ROOT/wiki/governance/workflow-profile.md`. It is generated from `.factory/factory.yaml` and is the only source for project language, layout, owners, commands, verification, gates, security boundaries and packs. If it is missing, or it disagrees with `.factory/factory.yaml`, stop and run `$hl-factory-doctor`; never hand-edit it.
+3. Read `<workflow_profile>`. It is generated from `.factory/factory.yaml` and is the only source for project language, layout, owners, commands, verification, gates, security boundaries and packs. If it is missing, or it disagrees with `.factory/factory.yaml`, stop and run `$hl-factory-doctor`; never hand-edit it.
 4. Keep these values for the rest of the session:
    - `project.language.docs` — language of the implementation documents you will write. Never hardcode one.
    - the owners table — the real implementation domains of this project.
@@ -105,11 +107,11 @@ Recorded worktree mode is an implementation decision carried to the implementati
 Use the registered Leaf path; do not invent a parallel location:
 
 ```text
-wiki/feature-workspace/initiatives/initiative-iNNN-<initiative-slug>/features/feat-iNNN-fNN-<feature-slug>/
+<feature_workspace>/initiatives/initiative-iNNN-<initiative-slug>/features/feat-iNNN-fNN-<feature-slug>/
 ```
 
 - Directory names are lowercase kebab-case and carry both the stable ID and a short summary.
-- The authoritative identifiers, numbering rules and directory format are defined in `wiki/feature-workspace/schema/feature-workspace-schema.md`; read it before creating anything and never restate a conflicting rule.
+- The authoritative identifiers, numbering rules and directory format are defined in `<feature_workspace>/schema/feature-workspace-schema.md`; read it before creating anything and never restate a conflicting rule.
 - During discussion maintain only the workbench:
 
 ```text
@@ -134,7 +136,7 @@ During the discussion phase:
 - Before asking detailed questions, enumerate every known question with stable IDs. Interactive mode keeps this inventory in the conversation until the workbench save; batch review writes the inventory and reviewable question blocks before user review.
 - In interactive mode keep asking one unresolved question at a time until behaviour, domain ownership, test cases and acceptance criteria are confirmed or explicitly deferred. In batch-review mode write reviewable batches of pending questions and wait for the user's bulk review; never treat silence or your own recommendation as confirmation.
 - Summarize behavior added, preserved, removed, or degraded relative to the current system. A high-impact removal or degradation requires explicit per-item confirmation, even in batch review; do not bury it in blanket acceptance of recommendations.
-- For behavior, contract, or compatibility changes, use `wiki/02-file-authority-map.md` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are produced. Do not scan unrelated wiki areas.
+- For behavior, contract, or compatibility changes, use `<current topic index linked from the Wiki home>` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are produced. Do not scan unrelated wiki areas.
 - Classify visual/interaction impact while confirming acceptance criteria. When in scope, require persistent evidence tied to the tested build, route/state, and viewport. When not applicable, record why.
 
 At discussion wrap-up, save the accumulated workbench in one pass before presenting it for phase confirmation. Before leaving the discussion phase, summarize: confirmed conclusions, the behavior-change summary, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
@@ -216,7 +218,7 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 - High-impact removals confirmed individually:
 
 ## Authority consistency check
-- Relevant authority documents from `wiki/02-file-authority-map.md`:
+- Relevant authority documents from `<current topic index linked from the Wiki home>`:
 - Semantic conflicts and resolution:
 
 ## Visual and interaction acceptance
@@ -307,7 +309,7 @@ After the documents are ready, record `implementation-docs / completed` through 
 
 If required inputs are missing, a gate fails, or an unresolved requirement changes the confirmed scope or acceptance criteria, repair or route that specific gap before generating profiles. Ask only for the unresolved decision when user input is needed; do not replace the removed phase confirmation with a generic permission question.
 
-That skill produces, under the feature root's `code-ai/`, an index plus reading, per-domain implementation, review and verification profiles. Profiles compose generic constraints from `wiki/code-ai/` by relative-path reference and carry only feature-specific business logic, implementation boundaries, test requirements and acceptance criteria.
+That skill produces, under the feature root's `code-ai/`, an index plus reading, per-domain implementation, review and verification profiles. Profiles compose generic constraints from `<code_ai>/` by relative-path reference and carry only feature-specific business logic, implementation boundaries, test requirements and acceptance criteria.
 
 Profiles must instruct the future implementer to work from the matching domain document, and not to reopen product discussion unless it hits a documented blocker.
 
@@ -315,11 +317,11 @@ Profiles must instruct the future implementer to work from the matching domain d
 
 A complete discussion first produces only the workbench. After discussion-completion confirmation, the complete package produces:
 
-- A registered feature workspace under `wiki/feature-workspace/`.
+- A registered feature workspace under `<feature_workspace>/`.
 - A concise `discussion/workbench.md` with domain classification, confirmed decisions, pending questions and targets.
 - Domain implementation documents in `project.language.docs`, each covering required test cases and acceptance criteria.
 - A `code-ai/README.md` index under `code-ai/`.
-- Executable profiles under `code-ai/`, generated per `$hl-feature-profile-generate`, referencing `wiki/code-ai/` by relative path.
+- Executable profiles under `code-ai/`, generated per `$hl-feature-profile-generate`, referencing `<code_ai>/` by relative path.
 - One copyable startup prompt for a new session running `$hl-feature-orchestrator`, per `## Handoff Prompt`.
 
 Do not finish with chat discussion only when the user asked for durable files.
@@ -357,10 +359,10 @@ Transitions go through the state machine, never by hand-editing `phase`/`state`:
 
 ```bash
 <PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py transition \
-  --feature <WORK_ROOT>/wiki/feature-workspace/initiatives/<initiative>/features/<feature>/feature.yaml \
+  --feature <feature_workspace>/initiatives/<initiative>/features/<feature>/feature.yaml \
   --phase <phase> --state <state> \
   --next-skill <skill> --next-instruction "<instruction in project.language.docs>" \
-  --registry <WORK_ROOT>/wiki/feature-workspace/registry.yaml
+  --registry <registry>
 ```
 
 Then re-run `factory gate workspace --work <WORK_ROOT>`. Never report a transition as successful from prose alone.
@@ -384,7 +386,7 @@ The prompt must be self-contained so the new session needs no chat history. It c
 
 - the invocation: `$hl-feature-orchestrator <Feature ID>`, plus `FACTORY_ROOT`, `WORK_ROOT` and the feature root path;
 - the current lifecycle position (`phase: code-ai-profiles`, `state: completed`) and the objective: advance this Feature to `ready-to-merge / ready`, keeping that one goal until it is recorded;
-- the must-read paths: `feature.yaml`, `discussion/workbench.md`, each domain implementation document, and `code-ai/README.md` with the profiles it indexes;
+- the must-read paths: resolved Wiki home, the current responsibility’s role memory if present, `feature.yaml`, `discussion/workbench.md`, each domain implementation document, and `code-ai/README.md` with the profiles it indexes;
 - the confirmed conclusions and constraints in short form, and the deferred questions marked explicitly as deferred so they are not reopened as discussion;
 - the critical inherited conditions with their formal source sections, stated directly rather
   than only hidden in the must-read list; include linked object/artifact/session/sequence conditions
@@ -404,7 +406,7 @@ Use $hl-feature-orchestrator <FEATURE_ID> in work repo <WORK_ROOT> to advance Le
 
 - FACTORY_ROOT: <FACTORY_ROOT>
 - WORK_ROOT: <WORK_ROOT>
-- feature root: <WORK_ROOT>/wiki/feature-workspace/initiatives/<initiative>/features/<feature>
+- feature root: <feature_workspace>/initiatives/<initiative>/features/<feature>
 - lifecycle: phase=code-ai-profiles, state=completed; profiles already generated
 - goal: advance this Feature to ready-to-merge / ready (implementation and doc sync, fixed review,
   separated acceptance, closure gate, recorded transition with a passing factory gate workspace);

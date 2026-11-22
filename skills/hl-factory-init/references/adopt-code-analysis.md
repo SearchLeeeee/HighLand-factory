@@ -19,14 +19,14 @@ edit the wiki. The main session synthesizes those findings into the long-term wi
 
 | Target | Content |
 | --- | --- |
-| `wiki/architecture/overview.md` | system shape, modules, dependency direction, data flow, runtime boundaries |
-| `wiki/domain/overview.md` | domain objects, business terms, inputs/outputs, calculations or rules found in code |
-| `wiki/implementation/overview.md` (+ per-owner docs when owners are distinct) | what each implementation area does, entrypoints, key files, extension points |
-| `wiki/testing/overview.md` | test layout, how to run tests, offline/network assumptions, known gaps |
-| `wiki/governance/runtime-and-operations.md` | scheduling, install/deploy, config, state/lock files, logs, failure and retry behaviour |
-| `wiki/02-file-authority-map.md` | add the new authority docs to the topic table |
-| `wiki/code-ai/project-facts.md` | real stack, commands, repository layout, test layering |
-| `wiki/governance/init-record.md` | append a short analysis summary and unknowns |
+| `<wiki>/engineering/architecture.md` | system shape, modules, dependency direction, data flow, runtime boundaries |
+| `<wiki>/product/<accepted-topic>.md` | product behavior supported by an existing effective contract and acceptance evidence; put implementation observations in engineering topics |
+| `<wiki>/engineering/implementation.md` (+ per-owner docs when owners are distinct) | what each implementation area does, entrypoints, key files, extension points |
+| `<wiki>/engineering/testing.md` | test layout, how to run tests, offline/network assumptions, known gaps |
+| `<wiki>/engineering/runtime-and-operations.md` | scheduling, install/deploy, config, state/lock files, logs, failure and retry behaviour |
+| `<current topic index linked from the Wiki home>` | add the new authority docs to the topic table |
+| `<project_facts>` | real stack, commands, repository layout, test layering |
+| `<wiki>/engineering/init-record.md` | append a short analysis summary and unknowns |
 
 Only create the documents the code actually supports. Prefer fewer, denser documents over a
 file per module. If the wiki already has a project-owned document at one of these paths
@@ -91,13 +91,13 @@ Rules:
 2. Write in `project.language.docs`; keep code identifiers, paths, API names and schema fields as-is.
 3. Every non-obvious factual claim cites a relative source path; unknowns stay marked as unknowns.
 4. Do not copy README or comments wholesale; synthesize and de-duplicate across slices.
-5. Do not write into `wiki/feature-workspace/`; this is baseline authority, not a Feature.
+5. Do not write into `<feature_workspace>/`; this is baseline authority, not a Feature.
 6. Link every new document from its domain MOC (and the root MOC when it is a primary entry),
    so the long-term wiki stays within three hops and has no orphan Markdown. If that domain has no
    MOC yet, create the directory `README.md` now and add it to the root MOC; do not create MOCs for
    domains with no authority documents.
-7. Update `wiki/02-file-authority-map.md` and `wiki/code-ai/project-facts.md` in the same pass.
-8. Append a short summary to `wiki/governance/init-record.md`: slices run, documents written,
+7. Update `<current topic index linked from the Wiki home>` and `<project_facts>` in the same pass.
+8. Append a short summary to `<wiki>/engineering/init-record.md`: slices run, documents written,
    unresolved unknowns and conflicts found.
 
 ## Validation gate

@@ -22,6 +22,9 @@ from urllib.parse import quote
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "engine"))
+from factorylib.workspaces import retained_registry_for  # noqa: E402
+
 PHASES = [
     "intake",
     "feasibility",
@@ -594,6 +597,10 @@ def apply_transition(
     Validate the candidate, including the full registry when supplied, before
     replacing the original. Dry runs make the same decision without writing.
     """
+    for parent in feature_path.resolve().parents:
+        enclosing_registry = parent / "registry.yaml"
+        if enclosing_registry.is_file() and retained_registry_for(enclosing_registry) == enclosing_registry:
+            raise ValueError("the retained Feature workspace is read-only")
     feature = load_yaml(feature_path)
     updated = transition_feature(
         feature,
@@ -613,6 +620,7 @@ def apply_transition(
                 for item in initiative.get("features", [])
             )
             for initiative in registry.get("initiatives", [])
+            if not initiative.get("_retained")
         )
         if not registered:
             raise ValueError("transition target is not registered in the supplied registry")
@@ -709,6 +717,28 @@ def validate_context_refs(
 
 def load_registry(
     path: Path, *, overrides: dict[Path, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    registry = _load_registry(path, overrides)
+    retained = retained_registry_for(path)
+    if retained and retained != path.resolve():
+        archive = _load_registry(retained, None)
+        terminal = {"completed", "cancelled", "superseded"}
+        for initiative in archive["initiatives"]:
+            if initiative.get("state") not in terminal or any(
+                feature.get("state") not in terminal
+                for feature in initiative.get("features", [])
+            ):
+                raise ValueError(f"retained Initiative {initiative.get('id')} still has active work")
+            initiative["_retained"] = True
+        if registry["next_initiative_number"] < archive["next_initiative_number"]:
+            raise ValueError("active registry would reuse a retained Initiative number")
+        registry["initiatives"] = archive["initiatives"] + registry["initiatives"]
+        registry["feature_tombstones"] = archive.get("feature_tombstones", []) + registry.get("feature_tombstones", [])
+    return registry
+
+
+def _load_registry(
+    path: Path, overrides: dict[Path, dict[str, Any]] | None,
 ) -> dict[str, Any]:
     def read_document(document_path: Path) -> dict[str, Any]:
         candidate = (overrides or {}).get(document_path.resolve())
@@ -923,6 +953,14 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _dispatch(args: argparse.Namespace) -> int:
+    registry = getattr(args, "registry", None)
+    if registry and args.command in {
+        "initiative-integration-handoff", "initiative-integration-result",
+        "finalize-decomposition", "transition",
+    } and retained_registry_for(registry) == registry.resolve():
+        print("ERROR: the retained registry is read-only", file=sys.stderr)
+        return 1
+
     if args.command in {"initiative-integration-handoff", "initiative-integration-result"}:
         raw_registry = load_yaml(args.registry)
         entry = next((item for item in raw_registry.get("initiatives", []) if item.get("id") == args.initiative), None)

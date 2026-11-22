@@ -154,10 +154,10 @@ def test_full_snapshot_tracks_worktree_bytes_and_excludes_registered_process_roo
 @pytest.mark.parametrize("initiative_state,phase,feature_state", [("in-progress", "intake", "not-started"), ("completed", "implementation", "completed"), ("cancelled", "intake", "not-started")])
 def test_all_initiatives_preflight_rejects_active_or_phase_only_completion(project: Project, initiative_state: str, phase: str, feature_state: str):
     registry = {"initiatives": [{"id": "I001", "state": "completed", "features": []}, {"id": "I002", "state": initiative_state, "features": [{"id": "I002-F01", "phase": phase, "state": feature_state, "leaf": True, "wave": 1, "next_action": "continue"}]}]}
-    (project.work / "wiki/feature-workspace/registry.yaml").write_text(yaml.safe_dump(registry))
+    (project.work / "workspace/feature-workspace/registry.yaml").write_text(yaml.safe_dump(registry))
     result = project.invoke("start", "--mode", "full", "--actor", "fixture", expected=2)
     assert "I002" in result.stderr
-    records = list((project.work / "wiki/refactor-workspace/runs").glob("*/run.json"))
+    records = list((project.work / "workspace/refactor-workspace/runs").glob("*/run.json"))
     assert len(records) == 1 and json.loads(records[0].read_text())["status"] == "blocked"
 
 
@@ -167,7 +167,7 @@ def test_latest_does_not_guess_last_commit_or_highest_identifier(project: Projec
 
 
 def test_latest_explicit_complete_range_preserves_rename_and_deleted_paths(project: Project):
-    registry = project.work / "wiki/feature-workspace/registry.yaml"
+    registry = project.work / "workspace/feature-workspace/registry.yaml"
     registry.write_text(yaml.safe_dump({"initiatives": [{"id": "I001", "state": "completed", "features": []}]}))
     (project.work / "code/obsolete.py").write_text("old = True\n")
     base = commit(project.work, "before initiative")
@@ -286,7 +286,7 @@ def test_split_latest_requires_and_records_independent_wiki_range(project: Proje
     values = yaml.safe_load(configuration.read_text())
     values["repo"].update(mode="split", code_external=str(code))
     configuration.write_text(yaml.safe_dump(values), encoding="utf-8")
-    (project.work / "wiki/feature-workspace/registry.yaml").write_text(yaml.safe_dump({"initiatives": [{"id": "I001", "state": "completed", "features": []}]}))
+    (project.work / "workspace/feature-workspace/registry.yaml").write_text(yaml.safe_dump({"initiatives": [{"id": "I001", "state": "completed", "features": []}]}))
     wiki_base = commit(project.work, "before wiki final update")
     wiki_home = project.work / "wiki/README.md"
     wiki_home.write_text(wiki_home.read_text(encoding="utf-8") + "\nCurrent capability value is 2.\n", encoding="utf-8")
@@ -304,7 +304,7 @@ def test_split_latest_requires_and_records_independent_wiki_range(project: Proje
 
 def test_scopes_reject_process_paths_traversal_and_missing_behavior_ack(project: Project):
     project.start()
-    for raw in ("wiki:feature-workspace/registry.yaml", "code:../README.md", "code:*.py", "work:code/app.py"):
+    for raw in ("work:workspace/feature-workspace/registry.yaml", "code:../README.md", "code:*.py", "work:code/app.py"):
         project.candidates([candidate(paths=[raw])], expected=2)
     project.candidates([candidate(kind="behavior")])
     project.invoke("select", "--ids", "R001", "--decision", "Missing individual impact decision", expected=2)
@@ -329,7 +329,7 @@ def test_every_editing_unit_checks_scope_and_new_lifecycle_activity(project: Pro
     failed = project.invoke("check", expected=2)
     assert "code:unapproved.py" in failed.stderr
     unexpected.unlink()
-    registry = project.work / "wiki/feature-workspace/registry.yaml"
+    registry = project.work / "workspace/feature-workspace/registry.yaml"
     registry.write_text(yaml.safe_dump({"initiatives": [{"id": "I009", "state": "in-progress", "features": []}]}))
     failed = project.invoke("begin", "--id", "R001", expected=2)
     assert "I009" in failed.stderr

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from . import util
-from .workspaces import process_workspace_names
+from .workspaces import process_workspace_names, workspace_name
 
 CONFIG_SCHEMA = 1
 CONFIG_REL = Path(".factory") / "factory.yaml"
@@ -97,7 +97,9 @@ WORKFLOW_BOOLEAN_KEYS = (
     "merge_requires_authorization",
     "initiative_integration_required",
 )
-WORKFLOW_KEYS = set(WORKFLOW_BOOLEAN_KEYS) | {"scope_gate", "process_workspaces"}
+WORKFLOW_KEYS = set(WORKFLOW_BOOLEAN_KEYS) | {
+    "scope_gate", "process_workspaces", "workspace_root", "retained_workspace_root",
+}
 TOP_LEVEL_KEYS = set(DEFAULT_CONFIG)
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 OWNER_ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -224,6 +226,8 @@ def validate_config(config: dict[str, Any]) -> tuple[list[str], list[str]]:
     factory = config.get("factory") or {}
     if not isinstance(factory, dict) or not str(factory.get("version") or "").strip():
         errors.append("factory.version is required")
+    elif factory.get("template", "workspace-v1") not in ("workspace-v1", "workspace-v2"):
+        errors.append("factory.template must be workspace-v1 or workspace-v2")
 
     project = config.get("project") or {}
     if not isinstance(project, dict):
@@ -335,6 +339,9 @@ def validate_config(config: dict[str, Any]) -> tuple[list[str], list[str]]:
                 errors.append(f"workflow.{key} must be a boolean")
         try:
             process_workspace_names(config)
+            for key in ("workspace_root", "retained_workspace_root"):
+                if key in workflow:
+                    workspace_name(workflow[key])
         except ValueError as exc:
             errors.append(str(exc))
         scope_gate = workflow.get("scope_gate")

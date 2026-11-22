@@ -116,7 +116,16 @@ def inventory_source(source: Path) -> dict[str, object]:
     ignored: list[Path] = []
     merged_history: list[Path] = []
 
+    from factorylib import config
+    from factorylib.layout import build_layout
+    from factorylib.memory import NOTE, task_root
+
+    project = next((parent for parent in (root, *root.parents) if config.config_path(parent).is_file()), None)
+    layout = build_layout(project, config.load_config(project)) if project else None
     for path in files:
+        if layout and NOTE.fullmatch(path.name) and task_root(path.resolve().parent, layout):
+            skipped.append(path)
+            continue
         scope_path = path.relative_to(root.parent)
         if path.name.casefold() in RETAINED_MARKERS:
             skipped.append(path)

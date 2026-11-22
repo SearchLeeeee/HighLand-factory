@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass, field
 from datetime import date
@@ -12,6 +13,7 @@ from . import config as config_mod
 from . import util
 from .generated import GeneratedBlocks
 from .layout import Layout
+from .workspaces import process_workspace_roots
 
 PLACEHOLDER_RE = re.compile(r"\{\{([A-Za-z0-9_.:\-]+)\}\}")
 TEMPLATE_SUFFIX = ".tmpl"
@@ -79,6 +81,8 @@ class Renderer:
         self.version = version or util.factory_version()
         self.template_root = (template_root or util.TEMPLATE_ROOT).resolve()
         self.owner_template_root = (owner_template_root or util.OWNER_TEMPLATE_ROOT).resolve()
+        self.v2 = (project_config.get("factory") or {}).get("template") == "workspace-v2"
+        self.overlay = self.template_root.parent / "workspace-v2"
         self.blocks = GeneratedBlocks(project_config, layout, self.version)
         self.scalars = self._build_scalars()
 
@@ -89,6 +93,23 @@ class Renderer:
         flat["generated.factory_version"] = self.version
         flat["layout.code"] = util.rel_posix(self.layout.code, self.layout.work)
         flat["layout.wiki"] = util.rel_posix(self.layout.wiki, self.layout.work)
+        home = self.layout.wiki / "README.md"
+        try:
+            flat["layout.code_to_home"] = Path(os.path.relpath(home, self.layout.code)).as_posix()
+        except ValueError:  # Windows split repos on different volumes
+            flat["layout.code_to_home"] = home.as_uri()
+        flat["layout.workflow_profile"] = util.rel_posix(self.layout.workflow_profile, self.layout.work)
+        flat["layout.code_ai_project_facts"] = Path(
+            os.path.relpath(self.layout.project_facts, self.layout.code_ai)
+        ).as_posix()
+        self.process_roots = process_workspace_roots(self.layout.wiki, self.config)
+        baseline = self.layout.baseline_evidence
+        if baseline.is_relative_to(self.layout.wiki) and not any(baseline.is_relative_to(root) for root in self.process_roots):
+            relative = Path(os.path.relpath(baseline, self.layout.wiki / "engineering")).as_posix()
+            flat["layout.baseline_reference"] = f"[验证基线](<{relative}>)"
+        else:
+            flat["layout.baseline_reference"] = "验证基线位置见[流程与命令](workflow-profile.md)"
+        flat["layout.feature_workspace"] = util.rel_posix(self.layout.feature_workspace, self.layout.work)
         return flat
 
     def _map_rel(self, rel: str) -> str | None:
@@ -100,6 +121,18 @@ class Renderer:
         repo = self.config.get("repo") or {}
         wiki_name = str(repo.get("wiki_path") or "wiki").strip("/")
         code_name = str(repo.get("code_path") or "code").strip("/")
+        if self.v2:
+            if rel == "wiki/code-ai/project-facts.md" and self.scalars["layout.code_ai_project_facts"] != "project-facts.md":
+                return None
+            if rel == "wiki/engineering/workflow-profile.md":
+                return self.layout.workflow_profile.relative_to(self.work).as_posix()
+            if rel == "wiki/engineering/init-record.md":
+                return self.layout.init_record.relative_to(self.work).as_posix()
+            for attr in ("feature_workspace", "quick_workspace", "refactor_workspace"):
+                root = getattr(self.layout, attr)
+                prefix = "wiki/" + root.name + "/"
+                if rel.startswith(prefix):
+                    return util.rel_posix(root, self.layout.work) + "/" + rel[len(prefix):]
         if rel == "code" or rel.startswith("code/"):
             if str(repo.get("mode") or "mono") == "split":
                 return None
@@ -146,57 +179,137 @@ class Renderer:
             raise RenderError("template rendering failed:\n- " + "\n- ".join(unique))
         return rendered
 
+    def _sources(self):
+        sources = {}
+        for source in self.template_root.rglob("*"):
+            if not source.is_file():
+                continue
+            rel = source.relative_to(self.template_root).as_posix()
+            if rel in SKIP_TEMPLATE_FILES:
+                continue
+            if self.v2 and (
+                rel.startswith(("wiki/governance/", "wiki/human/", "wiki/validation/"))
+                or (rel.startswith("wiki/") and rel.count("/") == 1 and rel != "wiki/README.md.tmpl")
+            ):
+                continue
+            sources[rel] = source
+        if self.v2:
+            for source in self.overlay.rglob("*"):
+                if source.is_file():
+                    rel = source.relative_to(self.overlay).as_posix()
+                    if rel in SKIP_TEMPLATE_FILES:
+                        continue
+                    sources.pop(rel.removesuffix(TEMPLATE_SUFFIX), None)
+                    sources[rel] = source
+        return sorted(sources.items())
+
     # -- plan -------------------------------------------------------------
     def plan(self, *, force: bool = False, only: set[str] | None = None) -> Plan:
+        return self._template_plan(force=force, only=only, upgrade=False)
+
+    def plan_upgrade(self) -> Plan:
+        return self._template_plan(force=False, only=None, upgrade=True)
+
+    def _template_plan(self, *, force: bool, only: set[str] | None, upgrade: bool) -> Plan:
         if not self.template_root.is_dir():
             raise RenderError(f"template root not found: {self.template_root}")
         plan = Plan(work=self.work)
         state = config_mod.load_state(self.work)
         generated_hashes: dict[str, str] = state.get("generated_files") or {}
 
-        for source in sorted(self.template_root.rglob("*")):
-            if not source.is_file():
-                continue
-            rel_source = source.relative_to(self.template_root).as_posix()
-            if rel_source in SKIP_TEMPLATE_FILES:
-                continue
-            if rel_source.endswith(TEMPLATE_SUFFIX):
-                rel_out = self._map_rel(rel_source[: -len(TEMPLATE_SUFFIX)])
-                content = self.render(source.read_text(encoding="utf-8"))
-                generated = True
+        def add(rel, content, generated, source):
+            if rel is None or (only is not None and rel not in only):
+                return
+            if upgrade:
+                planned = self._planned_upgrade(rel, content, generated, source, generated_hashes)
             else:
-                rel_out = self._map_rel(rel_source)
-                content = source.read_text(encoding="utf-8")
-                generated = False
-            if rel_out is None:
-                continue
-            if only and rel_out not in only:
-                continue
-            plan.files.append(
-                self._planned(rel_out, content, generated, rel_source, force, generated_hashes)
-            )
+                planned = self._planned(rel, content, generated, source, force, generated_hashes)
+            plan.files.append(planned)
+
+        for rel_source, source in self._sources():
+            generated = rel_source.endswith(TEMPLATE_SUFFIX)
+            rel_out = self._map_rel(rel_source.removesuffix(TEMPLATE_SUFFIX))
+            content = source.read_text(encoding="utf-8")
+            if generated or (self.v2 and source.is_relative_to(self.overlay)):
+                content = self.render(content)
+            add(rel_out, content, generated, rel_source)
 
         # Per-owner files.
-        owner_profile_template = self.owner_template_root / "owner-agent.md.tmpl"
+        owner_profile_template = self.owner_template_root / ("owner-agent-v2.md.tmpl" if self.v2 else "owner-agent.md.tmpl")
         owner_manifest_template = self.template_root / OWNER_MANIFEST_TEMPLATE
+        if self.v2:
+            owner_manifest_template = self.overlay / OWNER_MANIFEST_TEMPLATE
         for owner in self.blocks.owners:
             owner_id = str(owner.get("id"))
             explicit_profile = str(owner.get("profile") or "").strip()
             if owner_profile_template.is_file():
                 content = self.render(owner_profile_template.read_text(encoding="utf-8"), owner=owner)
                 rel = explicit_profile or self._map_rel(f"wiki/code-ai/{owner_id}-agent.md")
-                if rel is not None and (not only or rel in only):
-                    plan.files.append(
-                        self._planned(rel, content, True, "templates/owner-templates/owner-agent.md.tmpl", force, generated_hashes)
-                    )
+                if self.v2 and explicit_profile:
+                    parent = (self.work / explicit_profile).parent
+                    def relocate(link):
+                        target = self.layout.code_ai / link.group(1)
+                        return "](" + Path(os.path.relpath(target, parent)).as_posix() + ")"
+                    content = re.sub(r"\]\(([^() :]+)\)", relocate, content)
+                add(rel, content, True, "templates/owner-templates/" + owner_profile_template.name)
             if owner_manifest_template.is_file():
                 content = self.render(owner_manifest_template.read_text(encoding="utf-8"), owner=owner)
                 rel = self._map_rel(f"wiki/code-ai/_manifests/{owner_id}.yml")
-                if rel is not None and (not only or rel in only):
-                    plan.files.append(
-                        self._planned(rel, content, True, OWNER_MANIFEST_TEMPLATE, force, generated_hashes)
-                    )
+                add(rel, content, True, OWNER_MANIFEST_TEMPLATE)
+        if self.v2 and not upgrade:
+            self._plan_split_entries(plan)
+            self._complete_index(plan)
         return plan
+
+    def _plan_split_entries(self, plan: Plan) -> None:
+        if (self.config.get("repo") or {}).get("mode") != "split":
+            return
+        if not self.layout.code.is_dir():
+            raise RenderError(f"external code repository is missing: {self.layout.code}")
+        for name in ("AGENTS.md", "CLAUDE.md"):
+            target = self.layout.code / name
+            template = self.overlay / "code" / (name + ".tmpl")
+            entry = self.render(template.read_text(encoding="utf-8")).strip()
+            action = "create"
+            if target.exists():
+                existing = target.read_text(encoding="utf-8-sig")
+                if any(old in existing for old in ("00-spec", "02-file-authority-map", "03-current-decisions")):
+                    raise RenderError(f"review existing startup instructions and reconcile them with the Wiki home before init: {target}")
+                if self.scalars["layout.code_to_home"] in existing and "职责" in existing:
+                    action = "skip"
+                else:
+                    action = "overwrite"
+                    entry = existing.rstrip() + "\n\n" + entry.partition("\n")[2].strip()
+            plan.files.append(PlannedFile(str(target), action, False, "shared Wiki home in external code repository", entry + "\n", str(template)))
+
+    def _complete_index(self, plan: Plan) -> None:
+        index = next((item for item in plan.files if self.work / item.rel == self.layout.wiki / "by-type.md"), None)
+        if index is None or index.action == "skip":
+            return
+        topics: dict[str, list[str]] = {}
+        paths = {self.work / item.rel for item in plan.files} | {self.layout.baseline_evidence}
+        categories = {
+            "overview.md": "概览与导航", "decisions.md": "决策",
+            "workflow-profile.md": "配置与执行契约", "init-record.md": "来源与验证",
+            "init-baseline.md": "来源与验证", "authority.md": "规范与约束", "wiki-protocol.md": "规范与约束",
+        }
+        for path in sorted(paths):
+            if path.suffix.lower() != ".md" or not path.is_relative_to(self.layout.wiki):
+                continue
+            relative = path.relative_to(self.layout.wiki)
+            if len(relative.parts) < 2 or any(path.is_relative_to(root) for root in self.process_roots):
+                continue
+            kind = categories.get(relative.name, "配置与执行契约" if relative.parts[0] == "code-ai" else "主题")
+            if relative.name == "README.md":
+                kind = "概览与导航"
+            elif "_blocks" in relative.parts:
+                kind = "规范与约束"
+            elif relative.parts[0] == "role-memory":
+                kind = "角色经验"
+            topics.setdefault(kind, []).append(f"- [{relative.as_posix()}]({relative.as_posix()})")
+        index.content = (index.content or "").rstrip() + "\n\n" + "\n\n".join(
+            f"## {heading}\n\n" + "\n".join(links) for heading, links in topics.items()
+        ) + "\n"
 
     def _planned(
         self,
@@ -210,6 +323,8 @@ class Renderer:
         target = self.work / rel
         if not target.exists():
             return PlannedFile(rel=rel, action="create", generated=generated, content=content, source=source)
+        if self.v2 and (target in (self.layout.wiki / "README.md", self.layout.wiki / "by-type.md") or target.is_relative_to(self.layout.role_memory)):
+            return PlannedFile(rel, "skip", False, "project-owned Wiki page", source=source)
         if force:
             return PlannedFile(rel=rel, action="overwrite", generated=generated, reason="--force", content=content, source=source)
         if generated and rel in generated_hashes and util.sha256_file(target) == generated_hashes[rel]:
@@ -223,53 +338,6 @@ class Renderer:
             )
         return PlannedFile(rel=rel, action="skip", generated=generated, reason="exists; not overwritten", content=content, source=source)
 
-    def plan_upgrade(self) -> Plan:
-        """Refresh generated files that are unchanged since the last generation.
-
-        Files that were edited by the project (hash differs from the recorded
-        generated hash) are reported as skipped and never overwritten.
-        """
-        if not self.template_root.is_dir():
-            raise RenderError(f"template root not found: {self.template_root}")
-        plan = Plan(work=self.work)
-        state = config_mod.load_state(self.work)
-        generated_hashes: dict[str, str] = state.get("generated_files") or {}
-
-        for source in sorted(self.template_root.rglob("*")):
-            if not source.is_file():
-                continue
-            rel_source = source.relative_to(self.template_root).as_posix()
-            if rel_source in SKIP_TEMPLATE_FILES:
-                continue
-            if rel_source.endswith(TEMPLATE_SUFFIX):
-                rel_out = self._map_rel(rel_source[: -len(TEMPLATE_SUFFIX)])
-                content = self.render(source.read_text(encoding="utf-8"))
-                generated = True
-            else:
-                rel_out = self._map_rel(rel_source)
-                content = source.read_text(encoding="utf-8")
-                generated = False
-            if rel_out is None:
-                continue
-            plan.files.append(self._planned_upgrade(rel_out, content, generated, rel_source, generated_hashes))
-
-        owner_profile_template = self.owner_template_root / "owner-agent.md.tmpl"
-        owner_manifest_template = self.template_root / OWNER_MANIFEST_TEMPLATE
-        for owner in self.blocks.owners:
-            owner_id = str(owner.get("id"))
-            explicit_profile = str(owner.get("profile") or "").strip()
-            if owner_profile_template.is_file():
-                content = self.render(owner_profile_template.read_text(encoding="utf-8"), owner=owner)
-                rel = explicit_profile or self._map_rel(f"wiki/code-ai/{owner_id}-agent.md")
-                if rel is not None:
-                    plan.files.append(self._planned_upgrade(rel, content, True, "templates/owner-templates/owner-agent.md.tmpl", generated_hashes))
-            if owner_manifest_template.is_file():
-                content = self.render(owner_manifest_template.read_text(encoding="utf-8"), owner=owner)
-                rel = self._map_rel(f"wiki/code-ai/_manifests/{owner_id}.yml")
-                if rel is not None:
-                    plan.files.append(self._planned_upgrade(rel, content, True, OWNER_MANIFEST_TEMPLATE, generated_hashes))
-        return plan
-
     def _planned_upgrade(
         self,
         rel: str,
@@ -279,6 +347,12 @@ class Renderer:
         generated_hashes: dict[str, str],
     ) -> PlannedFile:
         target = self.work / rel
+        wiki_relative = (self.work / rel).relative_to(self.layout.wiki).as_posix() if (self.work / rel).is_relative_to(self.layout.wiki) else None
+        project_topic = self.v2 and wiki_relative and wiki_relative.startswith(("product/", "engineering/")) and target != self.layout.workflow_profile
+        if project_topic or wiki_relative in {"README.md", "by-type.md"} or (wiki_relative or "").startswith("role-memory/"):
+            return PlannedFile(rel, "skip", False, "project-owned Wiki navigation and memory", source=source)
+        if self.v2 and self.layout.process_root == self.layout.wiki and wiki_relative and not target.exists() and target != self.layout.workflow_profile:
+            return PlannedFile(rel, "skip", False, "preserve migrated project structure", source=source)
         if not target.exists():
             return PlannedFile(rel=rel, action="create", generated=generated, content=content, source=source)
         if generated and rel in generated_hashes and util.sha256_file(target) == generated_hashes[rel]:

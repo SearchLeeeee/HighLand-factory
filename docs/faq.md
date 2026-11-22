@@ -10,7 +10,7 @@ Because two folders are the smallest contract that lets every skill use relative
 
 ## Why not keep the `${TOKEN}` rendering approach?
 
-Token values are machine-scoped, so one machine could only serve one project configuration, and any skill containing a token stopped being a single physical copy. HighLand-factory instead fixes the layout and moves variable values into `.factory/factory.yaml`, read through the generated `wiki/governance/workflow-profile.md`. Skills stay single-copy and upgradeable.
+Token values are machine-scoped, so one machine could only serve one project configuration, and any skill containing a token stopped being a single physical copy. HighLand-factory instead fixes the layout and moves variable values into `.factory/factory.yaml`, read through the resolved workflow profile. Skills stay single-copy and upgradeable.
 
 ## Does the factory repo ever contain project content?
 
@@ -30,7 +30,7 @@ The validator enforces navigation, not completeness: a one-file wiki can pass. T
 
 ## Can I rename `code/` or `wiki/`?
 
-Only `repo.code_path` and `repo.wiki_path` are configurable, and the wiki-internal structure stays fixed. Renaming internal paths (`feature-workspace/`, `code-ai/`) is a factory change because the state machine and validator treat those segments as load-bearing. Keep the contract; it is what makes upgrades and skills portable.
+Use `repo.code_path` and `repo.wiki_path` for code and Wiki roots, and `workflow.workspace_root` for new project process placement. Existing process roots can remain at their original locations. Inspect the effective paths with `factory resolve --work <work> --json`.
 
 ## How do I migrate an existing two-repo project?
 

@@ -5,6 +5,8 @@ description: Use when one registered Leaf Feature has completed Code AI profiles
 
 # Feature Orchestrator
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -22,7 +24,7 @@ Run this before anything else, including reading the request.
    - `python` → `PYTHON`, an interpreter with PyYAML available
 
    If the file is missing, unreadable, or either value is empty, stop and tell the user to run `$hl-factory-init` (`factory init --work <WORK_ROOT>`). Never guess a checkout path.
-3. Read `WORK_ROOT/wiki/governance/workflow-profile.md`. It is generated from `.factory/factory.yaml` and is the only source for project language, layout, owners, commands, verification, gates, security boundaries and packs. If it is missing, or it disagrees with `.factory/factory.yaml`, stop and run `$hl-factory-doctor`; never hand-edit it.
+3. Read `<workflow_profile>`. It is generated from `.factory/factory.yaml` and is the only source for project language, layout, owners, commands, verification, gates, security boundaries and packs. If it is missing, or it disagrees with `.factory/factory.yaml`, stop and run `$hl-factory-doctor`; never hand-edit it.
 4. Keep these values for the rest of the session:
    - the **owners table** — owner ids, titles, owned paths, profile paths. Owner selection and write-scope enforcement read from here, never from memory.
    - the **commands table** — the only validation commands you may run or cite.
@@ -55,10 +57,10 @@ This skill normally runs in a new session that starts from the copyable prompt p
 The Feature's Code AI profiles live under its feature root:
 
 ```text
-wiki/feature-workspace/initiatives/<initiative>/features/<feature>/code-ai/
+<feature_workspace>/initiatives/<initiative>/features/<feature>/code-ai/
 ```
 
-The review gate is the fixed exception and is not discovered dynamically: `wiki/code-ai/review-agent.md`, resolved relative to `WORK_ROOT`. If it is not readable when review is required, stop and report that the review gate cannot run instead of substituting another review profile.
+The review gate is the fixed exception and is not discovered dynamically: `<code_ai>/review-agent.md`, resolved relative to `WORK_ROOT`. If it is not readable when review is required, stop and report that the review gate cannot run instead of substituting another review profile.
 
 ## Minimum Sufficient Verification
 
@@ -122,7 +124,7 @@ Before dispatching:
 - Require phase `code-ai-profiles` completed, a passing Scope Gate, no blocking child, and satisfied dependencies.
 - Confirm the owner ids used by the profiles exist in the profile owners table and assigned implementation paths and contracts are independent. Owner IDs identify responsibility, not exclusion: sharing an owner ID alone does not require sequential work. Independent worktrees may modify independent implementation paths and contracts; coordinate shared work-root files and Git merge/index operations as necessary.
 - Treat `wave` as a scheduling hint only; real parallelism requires satisfied dependencies and non-overlapping implementation file and contract scope, and it is not capped by a configured number.
-- Read the authority pages that exist before dispatch: `wiki/00-spec.md`, `wiki/02-file-authority-map.md`, `wiki/03-current-decisions.md`, plus any page covering the touched contract or risk.
+- Read the authority pages that exist before dispatch: the resolved Wiki home, current role memory when present, and the topic pages covering the touched contract or risk.
 - If one of those pages is absent, continue with what exists and mention the gap only when it affects routing, contract safety or validation.
 - Check required external-client access early enough to resolve preparation before its acceptance
   step. Prefer an existing compatible native client and synthetic endpoint; verify tool discovery
@@ -177,7 +179,7 @@ Every Feature implementation requires one durable plan before the first implemen
 <feature-root>/code-ai/implementation-plan.md
 ```
 
-Use the shared format in `wiki/code-ai/implementation-plan-template.md` as the single authority for plan sections. Do not copy the full discussion or domain documents into the plan; cite them and record only the decisions needed to guide execution.
+Use the shared format in `<code_ai>/implementation-plan-template.md` as the single authority for plan sections. Do not copy the full discussion or domain documents into the plan; cite them and record only the decisions needed to guide execution.
 
 After preflight and source discovery, inspect the actual code for the touched modules. Ask each selected implementation owner for a plan-only proposal where needed, then consolidate the proposals into the canonical plan. A bounded single-owner change still needs a short ordered plan; multi-owner, contract, schema/state, migration, security or otherwise high-risk work needs the applicable conditional details. If the main agent is also the implementer, write and check the plan in the same session without inventing an independent approval or a separate handoff.
 
@@ -211,7 +213,7 @@ Use this order of authority:
 3. The discovered profile's own content.
 4. The owners table in `workflow-profile.md`, then the authority map and current decisions.
 
-When an existing Code AI profile library under `wiki/code-ai/` contains a profile for the owner, reference it (`wiki/code-ai/<owner>-agent.md`) instead of restating its boundaries.
+When an existing Code AI profile library under `<code_ai>/` contains a profile for the owner, reference it (`<code_ai>/<owner>-agent.md`) instead of restating its boundaries.
 
 Do not select the reviewer from the feature worker set. Review always uses the fixed review profile.
 
@@ -226,7 +228,8 @@ proposal from an owner whose applicable input is already available:
 
 ```text
 You are <Owner Agent Name>.
-Profile: <path to the selected profile>
+Wiki entry: <resolved home>, then <responsibility’s role memory if present>
+Profile: <path to the selected profile with binding responsibility and write scope>
 Code AI profile directory: <feature code-ai directory>
 Wiki root: <wiki root>
 Implementation root: <implementation root>
@@ -293,7 +296,7 @@ The main agent owns this gate even when a subagent writes the draft.
 
 For any code or behaviour change, run the fixed review gate before claiming completion:
 
-`wiki/code-ai/review-agent.md`
+`<code_ai>/review-agent.md`
 
 Resolve it relative to `WORK_ROOT`. Do not replace it with a discovered profile. If it is unreadable and `workflow.review_required` is on, stop and report that the gate cannot run.
 
@@ -347,10 +350,10 @@ Update the owning `feature.yaml` only through the state machine, never by hand-e
 
 ```bash
 <PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py transition \
-  --feature <WORK_ROOT>/wiki/feature-workspace/initiatives/<initiative>/features/<feature>/feature.yaml \
+  --feature <feature_workspace>/initiatives/<initiative>/features/<feature>/feature.yaml \
   --phase <phase> --state <state> \
   --next-skill <skill> --next-instruction "<instruction in project.language.docs>" \
-  --registry <WORK_ROOT>/wiki/feature-workspace/registry.yaml
+  --registry <registry>
 ```
 
 | Boundary | Phase | State |

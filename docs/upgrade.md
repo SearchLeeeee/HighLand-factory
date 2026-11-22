@@ -15,7 +15,7 @@ factory:
 
 `.factory/state.json:generated_files` records the SHA-256 of every file written by `factory init`/`upgrade`. A file is "generated" only if it is in that map.
 
-- **Generated**: `wiki/governance/workflow-profile.md`, `wiki/code-ai/<owner>-agent.md` (initial), `wiki/code-ai/_manifests/<owner>.yml`, plus template-rendered files.
+- **Generated**: `<workflow_profile>`, `<code_ai>/<owner>-agent.md` (initial), `<code_ai>/_manifests/<owner>.yml`, plus template-rendered files.
 - **Project-owned after init**: authority docs, discussion records, feature manifests, project facts, code.
 - **Machine-owned**: `.factory/local.yaml`, `.factory/state.json`.
 
@@ -129,3 +129,6 @@ files still upgrade with `install/upgrade.ps1 -Work <work> -ApplyWorkUpgrade` or
 factory skills do not collide with skills managed elsewhere; retire old equivalents in the
 manager whenever the project no longer needs them.
 
+## Existing Wiki layout
+
+Ordinary upgrade preserves the existing Wiki home, role memories and effective layout. A user who names an existing work repo for migration can run `$hl-wiki-maintain` for a staged semantic comparison with the old originals before switching. Preserve process roots, registries and sealed history. Use `factory resolve --work <work> --json` for the effective paths.

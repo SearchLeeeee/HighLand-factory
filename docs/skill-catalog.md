@@ -8,6 +8,7 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 
 | Skill | Role | Produces | Calls |
 | --- | --- | --- | --- |
+| [hl-flow-eval](../skills/hl-flow-eval/SKILL.md) | Independent assessment of one enrolled workflow | First-delivery result, independence and cost coverage | [Flow recording](flow-eval.md) |
 | `hl-factory-init` | Guided bootstrap of a work repo (new/adopt): requirements → architecture → verification → security → governance → agent policy; adopt mode also dispatches read-only code-analysis subagents and fills the wiki baseline | `.factory/factory.yaml`, wiki skeleton + baseline docs, digest, baseline | `factory init/adopt`, `factory doctor`, `factory gate` |
 | `hl-factory-doctor` | Diagnose config/layout/digest/gates and drive repairs | repair plan | `factory doctor`, `factory gate` |
 | `hl-factory-upgrade` | Refresh generated files safely after a factory update | refreshed digest/manifests | `factory upgrade`, `factory doctor` |
@@ -19,6 +20,7 @@ All skill directories and their `name:` fields carry an `hl-` prefix (the agent 
 | `hl-feature-progress` | Read-only progress, blockers, parallelizable work, next-session prompt | report | `feature_workspace.py report` |
 | `hl-workflow-governance` | Routing and durable invariants entry point | decisions, maintenance | all of the above |
 | `hl-initiative-merge` | Initiative-level cross-Feature integration acceptance before merge | frozen evidence, PASS record | `feature_workspace.py`, `factory gate` |
+| `hl-wiki-maintain` | Explicit whole-Wiki structure, incremental experience and named semantic migration | Current topic and role updates | `factory memory-scan`, `factory gate wiki` |
 | `hl-wiki-merge` | Semantic long-term wiki merge, validator gate, retained history | merged authority, MOC updates, retained-history bundle | `validate_llm_wiki.py`, `inventory_llm_wiki_merge.py` |
 | `hl-history-trace` | Isolated provenance lookup through tombstones and history routes | compact handoff | `trace_feature_history.py` |
 | `hl-quick-change` | Bounded bugfix/adjustment on-ramp with hard-gate escalation | quick record, evidence | `$hl-feasibility-grill` on escalation |

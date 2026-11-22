@@ -5,6 +5,8 @@ description: Use when staged Markdown must be folded semantically into the long-
 
 # Wiki Merge
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -27,7 +29,7 @@ marker files are metadata, not merge candidates, so reruns cannot re-import thei
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT`. It defines language, layout,
+3. Read `<workflow_profile>` under `WORK_ROOT`. It defines language, layout,
    owners, commands, the evidence root, the merge-authorization switch and security boundaries. If
    it is missing or unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine, not by composing paths: `factory gate wiki --work <WORK_ROOT>` and
@@ -43,8 +45,7 @@ the skill with one concrete repair instruction.
 ## Required Input
 
 Require a staged source path: a Markdown file, or a directory containing Markdown files. The
-canonical wiki root is `wiki/` under `WORK_ROOT`, resolved from the profile's layout section rather
-than assumed.
+canonical Wiki root is the `wiki` path returned by the resolver.
 
 ## Exclusion Rules
 
@@ -67,6 +68,8 @@ governed feature workspace where its contract requires it.
 
 ### 1. Preflight
 
+Coordinate scheduling with manual Wiki maintenance. Scan experience under the affected task roots using `factory memory-scan --work <WORK_ROOT> --task <task-root>`. Include only actually affected topics and responsibilities in this merge. Experience files are candidates for evidence review even when discovered alongside staged Markdown; exclude them from direct source-to-product import.
+
 1. Resolve `PYTHON` and `FACTORY_ROOT` from `.factory/local.yaml`. Verify the inventory script, the
    validator script and `feature_workspace.py` exist before writing anything.
 2. Resolve the source path and capture its kind, Markdown SHA-256, and the starting version-control
@@ -85,16 +88,14 @@ governed feature workspace where its contract requires it.
 <PYTHON> <FACTORY_ROOT>/skills/hl-wiki-merge/scripts/inventory_llm_wiki_merge.py --source <staged-path> --format json
 ```
 
-2. Read the current wiki overview documents (`wiki/README.md`, `01-reading-guide.md`,
-   `02-file-authority-map.md`), then inspect only likely target documents and nearby style examples.
+2. From the Wiki home and relevant role memory follow the affected product or engineering topic, then inspect likely targets and nearby examples. For v2, update its single topic link in the applicable by-type index.
 3. Map every eligible source to exactly one canonical target and disposition before editing:
 
 ```text
 source -> canonical target -> action (update/create/skip) -> reason -> conflict
 ```
 
-Stop and ask when authority cannot be inferred or the mapping contains unresolved conflicts. Never
-begin a partial merge.
+For each contested claim, use targeted history tracing against its old decision and acceptance. Ask about remaining ambiguity and continue unrelated mapping and verification. Complete the mapping before the authority switch.
 
 ### 3. Canonical Apply
 
@@ -102,9 +103,9 @@ begin a partial merge.
    `workflow.merge_requires_authorization` is true.
 2. Apply only the completed mapping to canonical wiki documents and affected MOCs. Create a topic
    MOC only when the merge adds the first authority document in that area, then link the new MOC
-   from the root home. Do not create empty MOCs for unused topics. Record before/after hashes in the
+   from the relevant topic index within the three-link limit. Do not create empty MOCs for unused topics. Record before/after hashes in the
    apply receipt.
-3. Keep integration semantic and concise. Do not modify source Feature manifests, retained-history
+3. Apply accepted experience to the appropriate role, topic or home in the same change as the long-term facts. Retire or narrow affected outdated claims where evidence supports it, retaining live exceptions and entry points. Defer unrelated historical cleanup to manual maintenance. Keep integration semantic and concise. Do not modify source Feature manifests, retained-history
    files, tombstones or registry routing during this phase.
 
 ### 4. Validate
@@ -115,7 +116,7 @@ begin a partial merge.
    validator and save its exit code, scan counts, errors and warnings in the validator receipt:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py --wiki-root wiki --format json
+<PYTHON> <FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py --wiki-root <wiki> --format json
 ```
 
 3. Any validator error stops the workflow. Leave the Feature `ready-to-merge / ready`; do not
@@ -147,9 +148,7 @@ Prefer precise integration:
   expectations.
 - Preserve source meaning even when rewriting the prose.
 
-When staged content conflicts with current wiki content, do not silently overwrite and do not route
-the conflict into deleted legacy decision, discussion or open-question roots. Stop the merge and ask
-the user when authority cannot be inferred.
+For a conflict with current authority, trace the specific old decision and its applicable conditions through `$hl-history-trace`. Ask only about ambiguity that remains after checking that evidence. Continue unrelated mapping and checks while holding the contested authority change.
 
 ## Source Retention And Authority
 
@@ -212,9 +211,7 @@ for link syntax and default-discovery references, allows existence-checked links
 repository root without adding them to the wiki graph, and never fetches external URLs. Non-ASCII
 heading anchors are warning-only in this version.
 
-Navigation edges are same-line inline Markdown links to `.md` files originating only from MOCs named
-`README.md`, `index.md` or `_index.md`; leaf-to-leaf links are validated but do not establish
-reachability. ATX headings and explicit HTML `id` or `name` anchors are recognised. Reference-style
+Navigation edges include MOC links and direct child links under `## 子页导航` on a topic or role page. Other body references are checked for broken links and do not establish reachability. ATX headings and explicit HTML `id` or `name` anchors are recognised. Reference-style
 links, HTML navigation, setext headings and generated-site route rewriting are not interpreted; use
 explicit inline Markdown links for governed MOC routes.
 
@@ -230,7 +227,7 @@ merge.
 Before the first Feature merge for an Initiative, require:
 
 ```bash
-<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry wiki/feature-workspace/registry.yaml --initiative <Ixxx>
+<PYTHON> <FACTORY_ROOT>/skills/hl-feature-workspace/scripts/feature_workspace.py initiative-merge-ready --registry <registry> --initiative <Ixxx>
 ```
 
 This rejects an Initiative until every non-cancelled, non-superseded Leaf Feature is

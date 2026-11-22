@@ -60,6 +60,9 @@ class GeneratedBlocks:
         wiki_rel = self.layout.wiki.relative_to(self.layout.work).as_posix()
         return f"{wiki_rel}/code-ai/{owner.get('id')}-agent.md"
 
+    def owner_manifest_output(self, owner: dict[str, Any]) -> str:
+        return self.owner_profile_rel(owner)
+
     def owner_profile_link(self, owner: dict[str, Any]) -> str:
         """Link target for the code-ai README, relative to wiki/code-ai/."""
         wiki_rel = self.layout.wiki.relative_to(self.layout.work).as_posix()
@@ -149,10 +152,14 @@ class GeneratedBlocks:
             PROCESS_WORKSPACE_DIRS["quick_workspace"]: "Quick Change 过程记录，默认隔离。",
             PROCESS_WORKSPACE_DIRS["refactor_workspace"]: "手动扫描与重构的独立过程记录，默认隔离。",
         }
-        return [
-            f"| `{wiki}/{name}/` | {roles.get(name, '项目显式登记的过程工作区，默认隔离。')} |"
+        rows = [
+            f"| `{self.layout.process_root.relative_to(self.layout.work).as_posix() if name in PROCESS_WORKSPACE_DIRS.values() else wiki}/{name}/` | {roles.get(name, '项目显式登记的过程工作区，默认隔离。')} |"
             for name in process_workspace_names(self.config)
         ]
+        if self.layout.retained_process_root:
+            retained = self.layout.retained_process_root.relative_to(self.layout.work).as_posix()
+            rows.extend(f"| `{retained}/{name}/` | 原位置保留的历史，只按明确路径或编号追溯。 |" for name in roles)
+        return rows
 
     def workflow_profile_layout(self, owner: dict[str, Any] | None = None) -> str:
         repo = self.config.get("repo") or {}
@@ -249,7 +256,7 @@ class GeneratedBlocks:
             return ""
         return (
             f"- 允许修改: 仅限 `{owner.get('id')}` 负责的路径（见上）。\n"
-            "- 禁止修改: 其他 owner 的路径、`wiki/feature-workspace/` 生命周期 manifest、"
+            f"- 禁止修改: 其他 owner 的路径、`{self.layout.feature_workspace.relative_to(self.layout.work).as_posix()}/` 生命周期 manifest、"
             "其他 Feature 的 profile、`.factory/state.json`。\n"
             "- 需要超出范围时：先提交 change request 给主 agent，先同步权威文档再实现。"
         )

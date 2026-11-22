@@ -5,6 +5,8 @@ description: "Opt-in pack for remote/isolated verification: takes one commit thr
 
 # Remote Verify (pack)
 
+Run `factory resolve --work <WORK_ROOT> --json` for the configured paths. Start with `<wiki>/README.md`, read the current responsibility’s role-memory page if present, then use the resolved `workflow_profile`.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -52,7 +54,7 @@ run — say those were not run.
 1. Read `<work>/.factory/local.yaml` and resolve `factory_root` and `python`.
    If missing or unreadable, stop: "machine config missing — run `factory init`
    (or `$hl-factory-init`) for this work repo, then retry."
-2. Read `<work>/wiki/governance/workflow-profile.md`.
+2. Read `<workflow_profile>`.
    If missing, stop: "workflow profile missing — run `factory upgrade --apply --work <work>`,
    then `$hl-factory-doctor`; do not hand-write the profile."
 3. Confirm `packs.enabled` contains `remote-verify`. If not, stop with the enable snippet and

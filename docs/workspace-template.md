@@ -142,3 +142,7 @@ authoritative document in that area, not as empty placeholders during `factory i
 - 不要在 `templates/workspace/wiki/` 里创建 `moc/`、`maps/`、`decisions/`
   `discussions/` 之类的第二套入口目录。
 - 普通 Wiki 骨架维护不要顺带修改 `templates/workspace/wiki/code-ai/`；其改动走单独确认的 Code AI artifact 阶段。
+
+## 新项目的实际布局
+
+新建项目使用 `workspace-v2`。首页、`product/`、`engineering/`、`by-type.md` 和按需建立的角色记忆组成当前 Wiki；`workflow.workspace_root` 解析为独立过程根。上文模板源文件路径不应作为工作仓运行路径。使用 `factory resolve --work <work> --json` 读取实际位置。

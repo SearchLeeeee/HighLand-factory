@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import posixpath
 import subprocess
@@ -438,10 +439,27 @@ def _ensure_reachability(layout: Layout) -> list[str]:
     return linked
 
 
-def _config_for_run(work: Path, answers: dict[str, Any]) -> dict[str, Any]:
+def _config_for_run(work: Path, answers: dict[str, Any], *, new: bool = False) -> dict[str, Any]:
     """Base the config on the recorded one when the repo is already initialized."""
     existing = config_mod.load_config(work) if config_mod.config_path(work).is_file() else None
-    return config_mod.merge_onto_existing(existing, answers)
+    config = config_mod.merge_onto_existing(existing, answers)
+    if new and existing is None and "template" not in (answers.get("factory") or {}):
+        config["factory"]["template"] = "workspace-v2"
+    if existing and (existing.get("factory") or {}).get("template", "workspace-v1") != config["factory"].get("template"):
+        raise util.FactoryError("use explicit Wiki migration to change factory.template")
+    if config["factory"].get("template") == "workspace-v2" and existing is None:
+        workflow = config.get("workflow")
+        if not isinstance(workflow, dict):
+            raise util.FactoryError("workflow must be a mapping")
+        process = workflow.setdefault("workspace_root", "workspace")
+        if not isinstance(process, str):
+            raise util.FactoryError("workflow.workspace_root must be a work-relative directory")
+        supplied = answers.get("verification") or {}
+        if "baseline_evidence" not in supplied:
+            config["verification"]["baseline_evidence"] = "wiki/engineering/init-baseline.md"
+        if "evidence_root" not in supplied:
+            config["verification"]["evidence_root"] = process + "/feature-workspace"
+    return config
 
 
 def _finish_init(
@@ -491,7 +509,7 @@ def cmd_init(args: Any) -> int:
         )
         return 2
     answers = _load_answers(args.answers)
-    config = _config_for_run(work, answers)
+    config = _config_for_run(work, answers, new=args.mode == "new")
     _apply_identity(config, work)
     mode = args.mode or "new"
     if mode not in {"new", "adopt"}:
@@ -588,6 +606,43 @@ def cmd_upgrade(args: Any) -> int:
         if item.action == "skip" and item.generated:
             print(f"  kept locally modified: {item.rel}")
     print("Next: factory doctor --work .")
+    return 0
+
+
+def cmd_migrate_wiki(args: Any) -> int:
+    """Activate reviewed Wiki routing without rewriting any project pages."""
+    work = Path(args.work).expanduser().resolve()
+    config = config_mod.load_config(work)
+    layout = build_layout(work, config, config_mod.load_local(work))
+    required = ("README.md", "product/README.md", "engineering/README.md", "by-type.md")
+    missing = [name for name in required if not (layout.wiki / name).is_file()]
+    if missing:
+        raise util.FactoryError("prepare and review these Wiki navigation pages first: " + ", ".join(missing))
+    home = layout.wiki / "README.md"
+    entries = {base / name for base in (work, layout.code) for name in ("AGENTS.md", "CLAUDE.md")}
+    for owner in config.get("owners") or []:
+        entries.add(work / owner["profile"] if owner.get("profile") else layout.code_ai / (owner["id"] + "-agent.md"))
+    entries.add(layout.code_ai / "review-agent.md")
+    for path in sorted(entries):
+        if not path.is_file():
+            raise util.FactoryError(f"prepare the existing project's session/profile entry before migration: {path}")
+        body = path.read_text(encoding="utf-8-sig").replace("\\", "/")
+        try:
+            pointer = Path(os.path.relpath(home, path.parent)).as_posix()
+        except ValueError:
+            pointer = home.as_uri()
+        if pointer not in body and home.as_posix() not in body and home.as_uri() not in body:
+            raise util.FactoryError(f"review this project entry and point it at {home}: {path}")
+    code, output, error = doctor_mod.run_gate(layout, "wiki")
+    if code:
+        raise util.FactoryError(error or output)
+    config.setdefault("workflow", {})["workspace_root"] = layout.process_root.relative_to(work).as_posix()
+    config.setdefault("factory", {})["template"] = "workspace-v2"
+    config_mod.require_valid(config)
+    if args.apply:
+        config_mod.save_config(work, config)
+        _write_state(layout, config, mode="migrate-wiki", hashes={})
+    print(("Activated" if args.apply else "Ready to activate") + f" workspace-v2 with process root {layout.process_root}")
     return 0
 
 

@@ -1,6 +1,6 @@
 # Worktree Lifecycle And Cleanup
 
-Load factory context first: read `.factory/local.yaml` and `wiki/governance/workflow-profile.md`
+Load factory context first: read `.factory/local.yaml` and `<workflow_profile>`
 before using this file. The worktree path and branch name are the ones the implementation session
 recorded; `repo.mode`, `repo.default_branch` and `workflow.merge_requires_authorization` come from
 the profile.

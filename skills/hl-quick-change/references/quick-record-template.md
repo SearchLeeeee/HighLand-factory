@@ -1,7 +1,7 @@
 # Quick Change Record Template
 
 Load factory context first: confirm the quick-workspace root from
-`wiki/governance/workflow-profile.md` before creating a record, and keep the record inside that
+`<workflow_profile>` before creating a record, and keep the record inside that
 root. This template is process material, never a lifecycle manifest.
 
 Persist prose in `project.language.docs` when the profile sets it, otherwise in the user's language.

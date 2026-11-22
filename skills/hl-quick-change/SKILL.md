@@ -5,6 +5,8 @@ description: Handle bounded bugfixes and detail adjustments with a hard-gate sco
 
 # Quick Change
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -21,7 +23,7 @@ record and the routing decision. It never creates or modifies a second lifecycle
    `$hl-factory-init` (or `factory init`); never guess a path or interpreter.
 2. Resolve `FACTORY_ROOT` (`factory_root`), `PYTHON` (`python`), and `WORK_ROOT` (the git
    top-level, or the directory containing `.factory/`).
-3. Read `wiki/governance/workflow-profile.md` under `WORK_ROOT`. It defines language, layout, the
+3. Read `<workflow_profile>` under `WORK_ROOT`. It defines language, layout, the
    quick-workspace root, `workflow.quick_change`, review and verification policy, and security
    boundaries. If it is missing or unreadable, stop and tell the user to run `$hl-factory-doctor`.
 4. Run gates through the engine rather than composing paths: `factory gate workspace --work
@@ -43,8 +45,8 @@ another setup, report or complete survey. Review, separated verification and req
 
 At the start of a new request, read:
 
-1. The long-term wiki entry point: `wiki/README.md`.
-2. `wiki/feature-workspace/README.md` when judging escalation or handing off to the heavy workflow.
+1. The long-term wiki entry point: `<wiki>/README.md`.
+2. `<feature_workspace>/README.md` when judging escalation or handing off to the heavy workflow.
 3. `<FACTORY_ROOT>/skills/hl-workflow-governance/references/socratic-questioning.md` for the
    shared Socratic, one-question-at-a-time behaviour.
 4. The feasibility or feature-discussion skill only when routing to that heavy workflow.
@@ -55,9 +57,13 @@ excluded. Do not treat a quick record as current system authority.
 
 ## Entry And Routing
 
-Create `wiki/quick-workspace/active/<id>.md` immediately at intake, resolving the path from
+Create `<quick_workspace>/active/<id>.md` immediately at intake, resolving the path from
 `WORK_ROOT` and the profile's quick-workspace root. Use an ID such as `quick-YYYYMMDD-###` and
 preserve it for the request lifetime.
+
+For an explicit history question, resolve the exact ID under the status directories of the
+active quick workspace and, if configured, `retained_quick_workspace`. Retained records are
+read-only. Intake and status transitions use only the active quick workspace.
 
 Run a hard-gate scope check before implementation. Escalate immediately if any of these apply:
 
@@ -189,3 +195,5 @@ implementation. Obtain the applicable authorization and follow the owning skill 
 Talk to the user in their language. For any persisted document, use `project.language.docs` when the
 profile sets it, otherwise match the user's language. Keep IDs, keys, paths, status values, verdict
 labels and skill names in their stable ASCII form.
+
+When the request produces a reusable observation, capture it beside the task at `<quick_workspace>/tasks/<id>/experience.md` or `experience-<subtask>.md`. The ID remains stable as the existing status record moves; read these candidates during the targeted Wiki handoff.

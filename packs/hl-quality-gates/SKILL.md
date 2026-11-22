@@ -5,6 +5,8 @@ description: "Opt-in pack for quantitative quality signals: runs configured crap
 
 # Quality Gates (pack)
 
+Run `factory resolve --work <WORK_ROOT> --json` for the configured paths. Start with `<wiki>/README.md`, read the current responsibility’s role-memory page if present, then use the resolved `workflow_profile`.
+
 ## Questioning Style
 
 All user-facing questions must use Socratic questioning. Before asking, read
@@ -81,7 +83,7 @@ Every run of this pack starts here, even when it only reads config.
 
    If `local.yaml` is missing or unreadable, stop: "machine config missing — run `factory init`
    (or `$hl-factory-init`) for this work repo, then retry." Never guess an interpreter path.
-2. Read `<WORK_ROOT>/wiki/governance/workflow-profile.md`. If missing, stop: "workflow profile
+2. Read `<workflow_profile>`. If missing, stop: "workflow profile
    missing — run `factory upgrade --apply --work <WORK_ROOT>`, then `$hl-factory-doctor`; do not
    hand-write the profile."
 3. Confirm `packs.enabled` in `<WORK_ROOT>/.factory/factory.yaml` contains `quality-gates`. If

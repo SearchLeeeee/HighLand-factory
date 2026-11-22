@@ -32,7 +32,7 @@ subsequent commands; do not hand-edit the run record. `resume` and selection app
 status and scope information for the current run.
 
 Keep `run.json` as the canonical aggregate in
-`<WIKI_ROOT>/refactor-workspace/runs/<run-id>/`. It includes source snapshots, candidates,
+`<refactor_workspace>/runs/<run-id>/`. It includes source snapshots, candidates,
 decisions, resolutions and checks. `events.jsonl` preserves the operation trail; `evidence/`
 holds copied evidence. Other compact working notes in this same process area are allowed,
 but must not become a second candidate ledger or current-capability catalogue.

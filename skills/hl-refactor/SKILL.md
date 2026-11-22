@@ -5,12 +5,14 @@ description: Use only on an explicit user request for a manual full-project or l
 
 # Manual Refactor
 
+On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
+
 ## Step 0 — Load factory context
 
 1. Resolve `WORK_ROOT` from the directory containing `.factory/`. Read
    `<WORK_ROOT>/.factory/local.yaml`; obtain `FACTORY_ROOT` and `PYTHON`. Missing or unreadable
    values require `$hl-factory-init`; do not guess an interpreter or project path.
-2. Read the generated `<WIKI_ROOT>/governance/workflow-profile.md` under the resolved Wiki layout and
+2. Read the generated `<workflow_profile>` under the resolved Wiki layout and
    `.factory/factory.yaml`. Obtain language, code/Wiki roots, owners, real commands, verification
    policy, security constraints, enabled packs and registered process-workspace exclusions.
    Missing/stale configuration requires `$hl-factory-doctor`; do not edit generated files.

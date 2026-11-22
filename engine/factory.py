@@ -21,7 +21,7 @@ ENGINE_DIR = Path(__file__).resolve().parent
 if str(ENGINE_DIR) not in sys.path:
     sys.path.insert(0, str(ENGINE_DIR))
 
-from factorylib import commands, util  # noqa: E402
+from factorylib import commands, measurement, util  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -86,6 +86,18 @@ def build_parser() -> argparse.ArgumentParser:
     gate.add_argument("--json", action="store_true")
     gate.set_defaults(func=commands.cmd_gate)
 
+    migrate = sub.add_parser("migrate-wiki", help="activate explicitly reviewed Wiki navigation in an existing project")
+    migrate.add_argument("--work", required=True)
+    migrate.add_argument("--apply", action="store_true")
+    migrate.set_defaults(func=commands.cmd_migrate_wiki)
+
+    from factorylib import memory
+    scan = sub.add_parser("memory-scan", help="find changed task-root experience notes")
+    scan.add_argument("--work", required=True)
+    scan.add_argument("--task", help="explicit process task root")
+    scan.add_argument("--json", action="store_true")
+    scan.set_defaults(func=memory.run)
+    measurement.add_parser(sub)
     return parser
 
 
