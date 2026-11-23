@@ -14,7 +14,7 @@ from uuid import uuid4
 import zlib
 from datetime import datetime, timezone
 
-from . import util
+from . import flow_recording, util
 
 EVENTS = ("UserPromptSubmit", "PostToolUse", "SubagentStart", "SubagentStop", "Stop",
           "Interrupt", "SessionEnd")
@@ -220,6 +220,7 @@ def ingest(directory, switch, payload):
 def add_parser(commands):
     parser = commands.add_parser("debug", help="enroll, record and evaluate named flows")
     sub = parser.add_subparsers(dest="debug_action", required=True)
+    flow_recording.add_parser(sub)
     for action in ("on", "off", "arm", "hook", "hook-config", "report", "content", "seal"):
         p = sub.add_parser(action)
         if action in ("on", "off", "hook", "hook-config", "seal"):

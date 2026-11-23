@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from factorylib import config, util
 from factorylib.config import default_config
 from factorylib.layout import build_layout
 from factorylib.render import Renderer
@@ -180,6 +181,42 @@ def test_upgrade_check_and_restore_generated_file(tmp_path: Path) -> None:
     assert run("upgrade", "--work", str(work), "--apply").returncode == 0
     doctor = run("doctor", "--work", str(work), "--json")
     assert json.loads(doctor.stdout)["ok"] is True
+
+
+@pytest.mark.parametrize("template", ["workspace-v1", "workspace-v2"])
+def test_upgrade_refreshes_legacy_code_ai_rules_and_preserves_customizations(tmp_path: Path, template: str) -> None:
+    work = tmp_path / "work"
+    answers = write_answers(tmp_path / "answers.yaml")
+    with answers.open("a", encoding="utf-8") as stream:
+        stream.write(f"\nfactory:\n  template: {template}\n")
+    init = run("init", "--work", str(work), "--answers", str(answers), "--python", sys.executable)
+    assert init.returncode == 0, init.stdout + init.stderr
+
+    blocks = Path("wiki/code-ai/_blocks")
+    index_path = blocks / "README.md"
+    index = work / index_path
+    legacy = {
+        blocks / "agent-notes-rule.md": "# 记录头（固定五字段）\n\n**Edit when**\n",
+        blocks / "coding-discipline.md": "# 编码纪律\n\n记录每一次动作与原因。\n",
+        index_path: index.read_text(encoding="utf-8").replace("源码注释与交接记录的写法", "五字段记录头与维护时机"),
+    }
+    state = config.load_state(work)
+    for path, text in legacy.items():
+        util.write_text(work / path, text)
+        state["generated_files"][path.as_posix()] = util.sha256_file(work / path)
+    config.save_state(work, state)
+
+    custom_index = legacy[index_path] + "\n项目自己的阅读顺序。\n"
+    util.write_text(index, custom_index)
+    upgrade = run("upgrade", "--work", str(work), "--apply")
+    assert upgrade.returncode == 0, upgrade.stdout + upgrade.stderr
+
+    assert "取消五字段记录头" in (work / blocks / "agent-notes-rule.md").read_text(encoding="utf-8")
+    assert "记录每一次动作与原因" not in (work / blocks / "coding-discipline.md").read_text(encoding="utf-8")
+    assert index.read_text(encoding="utf-8") == custom_index
+    assert not list((work / blocks).glob("*.tmpl"))
+    gate = run("gate", "all", "--work", str(work))
+    assert gate.returncode == 0, gate.stdout + gate.stderr
 
 
 def test_init_with_custom_wiki_path(tmp_path: Path) -> None:
