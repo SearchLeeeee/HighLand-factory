@@ -89,6 +89,8 @@ required checks. If sources change, synchronize the existing plan and result map
 affected claims; a recreated scenario is not automatically the original chain continued.
 This is an execution check, not another user confirmation or a change to phase boundaries.
 
+Use the owning implementation document as the source for each Leaf acceptance criterion. Refer to its ID in plans and role handoffs. Apply the synchronization in `$hl-feature-orchestrator` after an authorized change and before resuming or closing the affected item.
+
 Carry explicit discussion and handoff preferences within the same Initiative when a current
 workbench, formal context reference or handoff records their source and scope. A new Leaf does not
 by itself require the user to choose the same mode again. Missing or conflicting preferences need

@@ -47,7 +47,7 @@ does not require a fresh environment or another approval.
 
 Turn confirmed feature requirements into a set of Code AI profiles that can be handed straight to subagents.
 
-Core principle: **compose by reference, never copy**. Generic constraints — startup order, safety boundaries, doc sync, review gate, agent notes, README sync, commit granularity, handoff structure — live in `<code_ai>/`. Generated feature profiles reference those documents by relative path and contain only feature-specific business logic, implementation boundaries, test requirements and acceptance criteria. Copying a generic block into a feature profile is forbidden because it creates drift.
+Core principle: **compose by reference, never copy**. Generic constraints — startup order, safety boundaries, doc sync, review gate, agent notes, README sync, commit granularity, handoff structure — live in `<code_ai>/`. Generated feature profiles reference those documents by relative path and contain only feature-specific business logic, implementation boundaries, test requirements and links to acceptance criteria. Copying a generic block into a feature profile is forbidden because it creates drift.
 
 ## Inputs
 
@@ -123,7 +123,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 
 ## Tests and acceptance
 - Required test cases, including negative and guardrail cases
-- Acceptance criteria as observable pass/fail
+- Reference each applicable acceptance criterion by stable ID and relative link to its owning implementation document. Add role-specific checks and evidence steps that follow the criterion without duplicating its pass/fail wording.
 - Visual/interaction impact and evidence requirements; if not applicable, the recorded reason
 - Verification commands taken from the profile commands table — never invented
 - Reference the existing plan/handoff's prepared entry points, conditions and remaining checks; do not copy local configuration or create a second environment inventory.
@@ -144,7 +144,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 
 **Reading agent profile** — given a scope (list of module paths) and focus points; may add or update agent notes, must not change business logic; produces the fixed reading handoff. Generate only when the touched modules have no prior survey or agent notes are missing.
 
-**Implementation agent profile** — one per domain. It references the matching owner profile for boundaries and review focus, and writes only the feature's business logic, file-level allowed and forbidden scope, TDD order, mandatory test list and acceptance criteria. It requires the current approved plan and limits work to its assigned plan item. The TDD order is stated in the feature's own terms but derives from `<code_ai>/_blocks/coding-discipline.md`; the profile references that block rather than restating its rules. Definition of done references `<code_ai>/_blocks/common-definition-of-done.md` plus feature-specific additions.
+**Implementation agent profile** — one per domain. It references the matching owner profile for boundaries and review focus, and writes only the feature's business logic, file-level allowed and forbidden scope, TDD order, mandatory test list and references to acceptance criteria. It requires the current approved plan and limits work to its assigned plan item. The TDD order is stated in the feature's own terms but derives from `<code_ai>/_blocks/coding-discipline.md`; the profile references that block rather than restating its rules. Definition of done references `<code_ai>/_blocks/common-definition-of-done.md` plus feature-specific additions.
 
 **Review agent profile** — must state this seven-step procedure:
 

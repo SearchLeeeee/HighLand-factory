@@ -138,6 +138,7 @@ During the discussion phase:
 - Summarize behavior added, preserved, removed, or degraded relative to the current system. A high-impact removal or degradation requires explicit per-item confirmation, even in batch review; do not bury it in blanket acceptance of recommendations.
 - For behavior, contract, or compatibility changes, use `<current topic index linked from the Wiki home>` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are produced. Do not scan unrelated wiki areas.
 - Classify visual/interaction impact while confirming acceptance criteria. When in scope, require persistent evidence tied to the tested build, route/state, and viewport. When not applicable, record why.
+- Before confirming a required acceptance criterion that depends on an external source, check available evidence for the required sample, window and inputs. Use an existing authorized read-only probe when evidence is insufficient and the probe can resolve the question. Confirm a concrete passing scenario, any acceptable substitute evidence and what remains unverified without a real sample. Resolve a material ambiguity at the existing discussion boundary.
 
 At discussion wrap-up, save the accumulated workbench in one pass before presenting it for phase confirmation. Before leaving the discussion phase, summarize: confirmed conclusions, the behavior-change summary, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
 
@@ -300,6 +301,8 @@ When discussion is stable and the user explicitly confirms entry into the docume
 - Acceptance criteria as observable pass/fail outcomes.
 - Test and verification expectations, citing only commands from the profile commands table.
 - Open questions explicitly deferred out of implementation.
+
+Give each acceptance criterion a stable ID in its owning implementation document. That entry is the current executable criterion. The workbench retains the decision and, once the document exists, refers to the criterion by ID and relative path. Use the same ID in plans and role handoffs.
 
 Keep each document authoritative for its own domain; do not paste the workbench into every document.
 

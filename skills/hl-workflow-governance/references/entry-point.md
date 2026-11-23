@@ -59,6 +59,8 @@ necessary, and preserve existing lifecycle, review, verification and authorizati
 - Acceptance requires boolean `true` and actual evidence files; ready closure also requires actual
   validation evidence. Registry-backed transitions validate the full candidate before atomic
   replacement, leaving the original unchanged on rejection. Planned canonical targets may be absent.
+- Plans and role handoffs link to the current Leaf acceptance criterion by ID. Synchronize the
+  affected material and tests after a criterion change and before resuming or closing that item.
 - Integration matrices preserve confirmed same-object/artifact/session/sequence requirements;
   historical capability evidence cannot relax those conditions.
 

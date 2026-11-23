@@ -107,6 +107,11 @@ authority stays with the feature-workspace tools and documentation named by
   freeze commits are not mandatory. Changes invalidate affected conclusions only; metadata or an
   unrelated HEAD change does not automatically invalidate review. Broaden checks when real impact
   requires it, and preserve applicable unaffected results with their provenance.
+- Required externally dependent criteria confirm a concrete passing scenario and its evidence
+  conditions during discussion. The owning implementation document holds the current criterion by
+  stable ID. On authorized changes, synchronize the affected workbench, plan, role profiles, tests
+  and evidence mapping before resuming or closing that item. Keep prior conditions and results with
+  their applicable revision in existing history.
 - Quick Change records test impact, selected commands and reasons for omitted commands. Shared contracts, persistence/migration, security/permissions and cross-module changes require
   coverage of the affected compatibility and safety boundaries; broaden verification when impact
   cannot be bounded, without automatically rerunning unrelated suites. Context compaction is required only for a real session
