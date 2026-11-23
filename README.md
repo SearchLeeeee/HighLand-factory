@@ -30,6 +30,7 @@ v0.1 已可用，核心链路已跑通：
 - [x] 架构与契约：[docs/architecture.md](docs/architecture.md)、[docs/skill-contract.md](docs/skill-contract.md)
 - [x] 初始化问卷与 DoD：[docs/init-questionnaire.md](docs/init-questionnaire.md)
 - [x] engine：`init / adopt / doctor / upgrade / status / resolve / gate`
+- [x] 跨 agent 的流程录制。每条流程默认关闭 debug；在该流程开场明确开启后，各客户端用同一编号记录决策、交接、实测命令和产出版本。[开启录制与复盘](docs/flow-eval.md)
 - [x] 工作仓库模板（wiki 权威 + code-ai + feature-workspace + quick-workspace + refactor-workspace）
 - [x] 核心 skills（15 个，统一 `hl-` 前缀，避免与其他流程重名）+ 4 个可选 pack（`hl-commit` / `hl-dev-runtime` / `hl-remote-verify` / `hl-quality-gates`）
 - [x] AI 引导初始化 prompt：[prompts/quickstart.md](prompts/quickstart.md)
@@ -166,6 +167,8 @@ install 和 upgrade 默认链接全部核心 skills 和 packs；pack 是否启�
 - `trace_feature_history.py`：唯一历史溯源读取器
 - `refactor.py`：手动维护准入、候选选择、实施范围、证据与恢复；复用原生命周期读取器和 Wiki validator
 - 其余 skill 通过 `factory gate ...` 调用它们，散文只解释"何时调用"，不重新定义规则
+
+主 agent 在 [关键提交节点](skills/hl-workflow-governance/references/commit-boundaries.md) 通过相应门禁后提交已授权的改动。提交正文记录变更原因、行为或契约影响、验证结果与适用证据。Code AI 在源码中保留理解实现需要的注释，取消固定五字段文件头。
 
 ---
 

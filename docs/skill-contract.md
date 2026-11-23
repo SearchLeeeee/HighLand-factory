@@ -158,6 +158,9 @@ Generated files include at least: `<workflow_profile>`, the project initializati
 
 - `project.language.docs` controls user-facing wiki prose and discussion documents.
 - `project.language.commit` controls commit subject/body language.
+- [Workflow commit checkpoints](../skills/hl-workflow-governance/references/commit-boundaries.md)
+  define when to commit verified work and the history each message preserves. The optional commit
+  pack governs packaging when enabled.
 - Stable IDs, paths, YAML keys, lifecycle enums, skill names and verdict labels stay ASCII in their required form regardless of language.
 - A skill that talks to the user matches the user's language, not the configured doc language, unless the configured policy explicitly says otherwise.
 

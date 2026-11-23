@@ -45,6 +45,11 @@ another tool manages your agent skill roots (for example a central skill manager
 run the script with `-NoSkills` / `--no-skills` and register `<factory>/skills` there
 instead.
 
+The Code AI maintenance, coding discipline and block index templates keep their installed Markdown
+paths. Upgrade refreshes copies whose contents match the hashes recorded by the factory. If the
+preview reports a customized or untracked copy of these rules, reconcile it with the new template
+before resuming Code AI, keeping project-specific guidance and removing any fixed five-field rule.
+
 Classification:
 
 | Action | Meaning | Safe? |
