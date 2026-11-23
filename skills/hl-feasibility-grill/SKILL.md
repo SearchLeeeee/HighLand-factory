@@ -188,6 +188,9 @@ A positive verdict is a gate into governed decomposition, not a direct jump into
 When the user confirms `Feasible` or `Conditionally feasible`, or confirms a narrowed scope:
 
 1. Use `$hl-feature-workspace` to create the human-readable Initiative first.
+   If this flow opened with a pending Initiative debug scope, bind its newly registered
+   ID per `hl-workflow-governance/references/execution-preparation.md`. For a pending
+   Leaf scope, bind the specific authorized Leaf after its registration.
 2. Derive the complete initial Feature inventory from the confirmed scope. Never create one broad `F01` as a placeholder for the whole Initiative.
 3. Allocate stable F IDs, record real `depends_on` relationships and `wave` values, and run the shared eight-dimension Scope Gate for every candidate.
 4. Split every `must-split` candidate immediately. A `split-default` candidate may remain only with a written `scope_gate.indivisibility_reason`.
@@ -214,6 +217,9 @@ For a hard `Not feasible` verdict, produce the rejection handoff only after stat
 - Treat the graph as a view of the validated manifests, not another authority or a persisted next-session prompt. Do not present a graph with unresolved or cyclic dependencies as a validated handoff.
 
 ### Copyable Handoff Prompt
+
+For a prompt continuing the same enrolled `factory-flow` task, prepend its continuation marker per
+`hl-workflow-governance/references/execution-preparation.md`.
 
 The prompt must include:
 

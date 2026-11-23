@@ -85,6 +85,8 @@ authority stays with the feature-workspace tools and documentation named by
   interaction rule never weakens an authorization or machine gate.
 - User authorization is required for actual merge, deletion, commit and push operations whenever
   the profile requires it.
+- [Workflow commit checkpoints](commit-boundaries.md) define when the coordinating agent commits
+  an authorized, verified scope and what Git history must preserve for future maintainers.
 - Parallel development mode — shared checkout sequentially, or one dedicated git worktree per
   Feature — is an implementation decision recorded in the discussion workbench, never a lifecycle
   value. A worktree isolates code only: manifests, evidence and the workspace gate stay in the work
@@ -149,6 +151,8 @@ authority stays with the feature-workspace tools and documentation named by
   overlap; final review and separated acceptance retain their judgement order. Reuse current
   source surveys/owner proposals, supplement missing input, and diagnose stalls before retrying.
   This adds no preparation report, registry, configuration switch or lifecycle gate.
+- Debug is off by default for each independent workflow. Explicit opening opt-in,
+  same-workflow handoff and final sealing follow `references/execution-preparation.md`.
 - Cross-session handoffs explicitly carry the critical sourced constraints, actual evidence scope
   and continuation entry, and outstanding required checks. The receiver checks applicability in
   normal execution, without an acknowledgement turn. Recreated or substituted evidence records
@@ -193,6 +197,7 @@ authority stays with the feature-workspace tools and documentation named by
 | Manual maintenance run, candidate selection and recovery | `<FACTORY_ROOT>/skills/hl-refactor` and its tests; existing lifecycle reader remains state authority |
 | Shared process-workspace exclusions | `<FACTORY_ROOT>/engine/factorylib/workspaces.py`, layout/config generation and existing Wiki consumers |
 | Operator process | feature-workspace README/schema for lifecycle changes; affected workflow skills plus this skill's `references/entry-point.md` and `references/workflow-contract.md` |
-| Commit packaging | the opt-in `packs/hl-commit` skill and the generated `<code_ai>/_blocks/commit-granularity.md` block |
+| Commit checkpoints and message content | `references/commit-boundaries.md`, executed by the coordinating workflow |
+| Commit packaging | the generated `<code_ai>/_blocks/commit-granularity.md` block and `packs/hl-commit` when enabled |
 | Worktree and branch cleanup | this skill's `references/worktree-lifecycle.md` and the affected skill's cleanup steps |
 | Actual Feature status | Feature and Initiative manifests, updated only through approved workflow boundaries |

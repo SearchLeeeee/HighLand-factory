@@ -1,9 +1,19 @@
 ---
 name: hl-flow-eval
-description: Evaluate a named workflow in the assigned grader directory with frozen task, rubric, revisions and observed events. Use only for assigned evaluation.
+description: Review a recorded factory-flow by ledger directory and flow ID for agent behavior, delivered artifacts and performance. For an assigned experiment, grade its frozen task, rubric and first delivery.
 ---
 
 # 独立流程评估
+
+## 按流程编号复盘
+
+用户提供工作根或共享记录根及流程编号时，从 `factory debug flow report --work WORK --flow ID` 开始。使用共享位置时传 `--records RECORDS`。当前进行中或已封存的记录均可只读复盘。
+
+1. 按阶段、角色及事件的 `parent` 还原派工和交接。从 `review_events`、`open_steps` 和 `slowest_steps` 选择首次失败、修复或长时间步骤，按 `--event SEQ` 取证，需要上下文时使用 `--events`。
+2. 在 `record_dir` 下按报告中的相对路径打开 stdout、stderr 和各次交付的文件。结合退出码和验收条件区分首次交付与后续修复。
+3. 引用事件号、角色和产出版本。区别命令实测耗时、登记边界之间的时长和原因未知的空档；将人工或 agent 填写的说明和用量标明来源。没有经过录制入口的活动注明覆盖缺口。完整步骤见 `docs/flow-eval.md`。
+
+## 分组实验评分
 
 On an initialized work repo run `factory resolve --work <WORK_ROOT> --json`, read `<wiki>/README.md` first, then the current responsibility’s page in `<role_memory>/` if present. Use the returned paths and follow `<FACTORY_ROOT>/skills/hl-workflow-governance/references/wiki-memory.md` for role routing and task experience.
 

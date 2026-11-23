@@ -32,6 +32,10 @@
 
 ## 工作方式
 
+每条独立流程（含快速流程）的 debug 默认关闭。仅当用户在本条流程开始时明确要求开 debug，才按 `<FACTORY_ROOT>/docs/flow-eval.md` 启动录制；未提及就直接按普通流程执行。接手同一条已录制流程时，沿用本次交接的 `factory-flow` 编号。流程最终结束时由协调 agent 封存。即使在同一会话和工作目录里接到下一条独立任务，也重新按默认关闭处理。
+
+新会话直接继续某个已登记 Feature 时，先用登记册确定完整 ID，再按 `hl-feature-progress` 的只读 `factory debug flow lookup` 查找已授权的录制。命中就沿用返回的编号和记录根，未命中就按普通流程继续。整个 Initiative 已授权时，单个 Leaf 完成仅结束该 Leaf 的步骤。
+
 1. 判断请求类别：产品需求走 Quick Change（有界 bugfix/细节调整）或 Initiative / Leaf
    Feature（新能力或跨模块变更）；用户明确请求手动扫描重构时走 `$hl-refactor`，不自动触发。
 2. Feature 继续走 Scope Gate：不确定是否可一次闭环就先拆分，不允许用 TODO 和 MVP 逃避拆分。
@@ -56,6 +60,9 @@
    或把未执行写成通过。满足既定验收和交付边界即停止，不递归为证据补做整套证明。
 9. owner ID 表示职责归属；依赖满足且实现路径、契约独立时，可以在独立 worktree 中并行推进。
    共享工作根目录文件及 Git 合并、索引操作按需协调；保留既有门禁和授权边界。
+
+10. Code AI 不添加固定五字段的源码文件头。主 agent 在关键节点通过门禁后提交已授权的改动，
+    按 `$hl-workflow-governance` 的 `references/commit-boundaries.md` 写入变更原因与验证结果。
 
 ## 生成文件与手工文件的边界
 

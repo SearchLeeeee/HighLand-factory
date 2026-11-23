@@ -10,6 +10,12 @@ steps; executable and schema authorities below own machine-enforced behavior.
 
 ## Fresh-session entry
 
+At each new workflow's intake, debug defaults to off and requires an explicit opening
+request. A current handoff continuing an enrolled workflow carries its existing flow ID.
+For a registered task resumed without a marker, recover any existing enrollment with
+the target-specific read-only lookup in `hl-feature-progress/SKILL.md`.
+Apply [Cross-Session Continuity](execution-preparation.md#cross-session-continuity) through final closure.
+
 1. Read `<feature_workspace>/README.md` and
    `<feature_workspace>/schema/feature-workspace-schema.md`.
 2. Read `$hl-feature-workspace/SKILL.md` for lifecycle commands and the
@@ -61,6 +67,8 @@ necessary, and preserve existing lifecycle, review, verification and authorizati
   replacement, leaving the original unchanged on rejection. Planned canonical targets may be absent.
 - Plans and role handoffs link to the current Leaf acceptance criterion by ID. Synchronize the
   affected material and tests after a criterion change and before resuming or closing that item.
+- At [workflow commit checkpoints](commit-boundaries.md), the coordinating agent commits the
+  authorized, verified scope and carries the actual revisions and applicable authorization forward.
 - Integration matrices preserve confirmed same-object/artifact/session/sequence requirements;
   historical capability evidence cannot relax those conditions.
 

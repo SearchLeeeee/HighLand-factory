@@ -166,7 +166,10 @@ For every configured command, run it once from the correct directory and record 
 
 1. If the directory is not a git repo: `git init -b <default_branch>`.
 2. Do not push. Print the exact remote/push commands and let the user decide.
-3. Produce a Chinese handoff prompt for the next session:
+3. Produce a Chinese handoff prompt for the next session. If initialization itself was
+   the enrolled workflow, seal it here. The first independent product request starts with
+   its own debug decision. Carry a marker only for an actual continuation of the originally
+   enrolled scope, per `hl-workflow-governance/references/execution-preparation.md`.
 
 ```markdown
 工作仓库 <path> 已初始化完成（factory <version>，<mode>，<repo mode>）。

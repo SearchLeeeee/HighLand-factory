@@ -47,7 +47,7 @@ does not require a fresh environment or another approval.
 
 Turn confirmed feature requirements into a set of Code AI profiles that can be handed straight to subagents.
 
-Core principle: **compose by reference, never copy**. Generic constraints — startup order, safety boundaries, doc sync, review gate, agent notes, README sync, commit granularity, handoff structure — live in `<code_ai>/`. Generated feature profiles reference those documents by relative path and contain only feature-specific business logic, implementation boundaries, test requirements and links to acceptance criteria. Copying a generic block into a feature profile is forbidden because it creates drift.
+Core principle: **compose by reference, never copy**. Generic constraints — startup order, safety boundaries, doc sync, review gate, maintenance records, README sync, commit granularity, handoff structure — live in `<code_ai>/`. Generated feature profiles reference those documents by relative path and contain only feature-specific business logic, implementation boundaries, test requirements and links to acceptance criteria. Copying a generic block into a feature profile is forbidden because it creates drift.
 
 ## Inputs
 
@@ -84,6 +84,10 @@ implementation edit. Do not create an empty or speculative plan during profile g
 orchestrator dispatches the completed plan to implementation, review and verification roles.
 
 ## Generation Flow
+
+When resuming profile generation in a fresh session, use the resolved Leaf ID for
+the read-only recording lookup in `hl-feature-progress/SKILL.md`. When called from
+the current discussion, reuse its recording decision and coordinates.
 
 1. Read the workbench and every domain implementation document of the feature.
 2. Re-validate the `consistency_matrix`; an incomplete matrix blocks generation.
@@ -131,7 +135,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 ## Handoff
 - Reading and verification agents use the fixed handoff structure in <code_ai>/subagent-flow.md
 - Implementation agents use <code_ai>/_blocks/handoff-output.md, including the review-gate summary
-- Code changes maintain agent notes and READMEs per <code_ai>/_blocks/agent-notes-rule.md and <code_ai>/_blocks/readme-sync-rule.md
+- Keep material observations in the role handoff and check README impact per <code_ai>/_blocks/agent-notes-rule.md and <code_ai>/_blocks/readme-sync-rule.md.
 - Carry critical sourced constraints, evidence scope/identity/continuation entry and required unverified work through those existing handoffs. A source replacement updates the affected plan and acceptance mapping; rebuilding a scenario does not by itself prove original-chain continuation.
 
 ## Plan Gate
@@ -142,7 +146,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 
 ## Role Differences
 
-**Reading agent profile** — given a scope (list of module paths) and focus points; may add or update agent notes, must not change business logic; produces the fixed reading handoff. Generate only when the touched modules have no prior survey or agent notes are missing.
+**Reading agent profile** — reports observations from its assigned module paths and focus points in the fixed reading handoff and leaves source files untouched. Generate only when a source investigation is needed and no applicable survey covers it.
 
 **Implementation agent profile** — one per domain. It references the matching owner profile for boundaries and review focus, and writes only the feature's business logic, file-level allowed and forbidden scope, TDD order, mandatory test list and references to acceptance criteria. It requires the current approved plan and limits work to its assigned plan item. The TDD order is stated in the feature's own terms but derives from `<code_ai>/_blocks/coding-discipline.md`; the profile references that block rather than restating its rules. Definition of done references `<code_ai>/_blocks/common-definition-of-done.md` plus feature-specific additions.
 
@@ -153,7 +157,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 3. Read the current canonical implementation plan and verify the reviewed work matches its approved scope, dependencies and integration points.
 4. Check the target Git revision, relevant diff/new files and source scope. The orchestrator checks affected-source freshness before accepting the report. Separate hashes, receipts, freeze commits or clones are not defaults; never claim review of different or unidentified changes.
 5. Check the change against business requirements and acceptance criteria, including any individually confirmed high-impact behavior loss.
-6. Check that agent notes for modified files are maintained and whether a README needs syncing.
+6. Check that the handoff captures material observations and whether a README needs syncing. Do not require fixed source-file headers or per-file notes.
 7. Check test coverage including negative and guardrail cases, that verification commands were actually run, that any required visual/interaction evidence is bound to build/state/viewport, and that `security.sensitive_classes` boundaries are preserved.
 
 The output follows the format in `<code_ai>/review-agent.md`, including the doc-sync review. Findings must be actionable: file or area, why, required fix.
@@ -168,7 +172,7 @@ All seven must hold before delivery:
 - [ ] No block or generic profile content was pasted into a feature profile.
 - [ ] Generic constraints and feature content are cleanly separated: each constraint is either feature-specific or a relative-path reference.
 - [ ] Each profile is directly executable: identity, required reading, boundary, tests, acceptance and handoff are all present; no empty section, no placeholder.
-- [ ] Agent notes, README sync, test and verification, and commit granularity requirements are all present via reference.
+- [ ] Handoff observations, README sync, test and verification, and commit granularity requirements are all present via reference.
 - [ ] Implementation and review profiles reference `<code_ai>/_blocks/coding-discipline.md` instead of restating its rules.
 - [ ] `code-ai/README.md` lists every profile, the execution order, handoff expectations and the plan gate; profiles require the orchestrator-supplied plan without linking to a file that does not exist yet.
 
@@ -185,5 +189,5 @@ Profiles describe owner scope only. The implementation plan, preflight, goal and
 Discussion and code implementation never share a session, so this skill ends the discussion session.
 
 - When generation finishes, the owning Feature must record `code-ai-profiles / completed` through `$hl-feature-workspace`, and `factory gate workspace --work <WORK_ROOT>` must pass.
-- Then emit exactly one copyable startup prompt that starts `$hl-feature-orchestrator` in a new session, following the content and authorized-dispatch rules in `$hl-feature-discuss` `## Handoff Prompt`. Do not duplicate or invent a second prompt format. Explicit permission to create and start that session may be carried forward with the user's applicable model/reasoning preference; a preference alone is not permission. Never dispatch before profiles are completed and the workspace gate passes.
+- Then follow `$hl-feature-discuss` `## Handoff Prompt`, including its Leaf handoff commit checkpoint. The coordinating discussion agent owns the checkpoint and prompt in a nested call. On direct resume, complete the same steps here. Emit exactly one copyable prompt. Carry forward explicit permission to start the session with any applicable model/reasoning preference. Never dispatch before profiles are completed and the workspace gate passes.
 - Do not start implementation, dispatch an implementation subagent, run review or run acceptance here, even when the profiles are complete and the code change looks small.

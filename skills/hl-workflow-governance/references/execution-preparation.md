@@ -96,6 +96,52 @@ re-verify affected findings and their dependent paths after repairs, preserving 
 
 ## Cross-Session Continuity
 
+Decide debug recording once, at intake for each independent workflow (including Quick
+Change). Default to off, silently, even in the same chat, workspace or Initiative as a
+recorded task. Only an explicit request from the user at that workflow's start authorizes
+`factory debug flow start`. Choose a fresh flow ID. When the opening request omits debug,
+use the ordinary workflow commands throughout; create no recording, emit no marker and
+do not enable recording mid-flow. Prior chat instructions, old handoffs and open ledgers
+are not preferences to inherit.
+
+For opted-in work on a registered Initiative or Leaf, pass `--scope <full-ID>` at start,
+using the canonical work root and registry. Bind to the requested Leaf when the request
+covers that Leaf alone. An Initiative enrollment covers its registered children. If formal
+registration comes after intake, declare `--pending-scope initiative` or `feature` at
+start and use `factory debug flow bind` with the same recording coordinates as soon as
+the authorized ID is registered. Ordinary unscoped tasks use the original start command.
+
+On a fresh continuation resolve the target using the validated registry. Read
+`factory debug flow lookup --work <WORK_ROOT> --registry <registry> --scope <full-ID>`
+and reuse its flow ID and records root on a match. A lookup recovers the opening
+authorization for that scope. Only link a parent event when a specific handoff
+supplies it, since parallel branches can share a recording. If the result is null, continue
+with the ordinary commands unless a current handoff explicitly continues an unscoped
+recording. On conflict or ambiguous identity, resolve the actual task before writing
+debug events. A recovered parent recording stays open across individual Leaf completions.
+
+When continuing the same opted-in work (including a child dispatch or its current
+`factory-flow <id> <phase>` handoff), use the existing flow ID and write evidence through
+`factory debug flow` from the agreed work root. Read `<FACTORY_ROOT>/docs/flow-eval.md`
+for syntax. Every participating client or role uses the same flow ID and records root.
+Use `begin/end` at meaningful phase or task boundaries, `run` around actual tests,
+builds and gates, and `note` for consequential decisions, blockers, retries, deliveries
+and handoffs. Attach the actual deliverable with `--artifact` at first delivery and on
+revision. Include the upstream event via `--parent` when one is provided. Record observed
+results as they occur. Flag a missed recording in the usual handoff.
+
+Prepend `factory-flow <same-id> <next-phase>` **inside** each copyable or authorized
+dispatched prompt continuing the work, including child tasks and parallel roles. Carry
+the common WORK_ROOT, any explicit `--records` location, and the dispatch or handoff
+event number. Tell the receiver to continue recording with `factory debug flow` using
+its own role label. Scope propagation to the selected workflow; the audit is read-only.
+
+At final completion or cancellation of the enrolled workflow, the coordinating agent
+finishes its outstanding evidence and runs `factory debug flow seal` for that ID. Use
+`--incomplete` if the workflow truly ended with unfinished steps. A phase end, pause
+or same-workflow handoff is not final closure. Drop the recording coordinates at the
+workflow boundary; a handoff suggesting a separate next task carries no debug marker.
+
 Make the existing handoff sufficient without the prior chat. Carry the current task/next action,
 formal authority paths and the few critical conditions that must survive the handoff, including
 linked same-object, artifact, session or sequence requirements where applicable. State those

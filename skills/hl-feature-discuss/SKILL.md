@@ -52,7 +52,13 @@ Discussion and code implementation never share a session. This session owns the 
 
 ## Discussion Mode (resolve before detailed questions)
 
-After Step 0 and after confirming the single Leaf target, resolve the discussion mode before
+After Step 0, confirm the single Leaf target. For a fresh request such as “继续 F02 的讨论”,
+resolve its full ID from the validated registry and perform the read-only flow lookup in
+`hl-feature-progress/SKILL.md` for that target. Reuse a lookup already performed for this
+request. A match resumes the existing recording using its returned records root; a miss
+continues normally. This lookup also applies when discussion was invoked directly.
+
+Resolve the discussion mode before
 writing detailed questions or conclusions. Prefer the current workbench's recorded choice. If
 absent, inherit a mode the user explicitly chose for the same Initiative when that choice is
 available in a formally referenced workbench or authorized handoff. State its source and continue;
@@ -377,15 +383,17 @@ Discussion and code implementation never share a session. This skill ends at `co
 Before ending:
 
 1. Automatically finish the profiles phase through `$hl-feature-profile-generate` in this same session, then record the boundary through the state machine: `--phase code-ai-profiles --state completed --next-skill hl-feature-orchestrator` with an instruction naming the feature root and the objective. Re-run `factory gate workspace --work <WORK_ROOT>`. Emit the prompt after that skill finishes and the manifest reads `code-ai-profiles / completed`.
-2. Emit exactly one fenced, copyable prompt in the user's language. Put it in the response only; never persist prompt files.
-3. If the user has explicitly authorized creating and starting the next implementation session,
+2. Apply the [Leaf handoff commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md) to the completed discussion and profile package. Include the resulting revision or concrete commit blocker and any applicable standing authorization in the handoff.
+3. Emit exactly one fenced, copyable prompt in the user's language, directly in the response.
+4. If the user has explicitly authorized creating and starting the next implementation session,
    dispatch this prompt only after the profiles-completed boundary and workspace gate pass. Carry
    any applicable, explicitly chosen model and reasoning preference from the current workbench or
    authorized handoff, and report the actual session created. Otherwise say that the prompt must
    be pasted into a new session. Never create a session from a model preference alone, never hand
    off unfinished documents/profiles, and do not start implementation in this session.
 
-The prompt must be self-contained so the new session needs no chat history. It contains, in this order:
+For a prompt continuing the same enrolled `factory-flow` task, prepend its continuation marker per
+`hl-workflow-governance/references/execution-preparation.md`. The self-contained task body follows in this order:
 
 - the invocation: `$hl-feature-orchestrator <Feature ID>`, plus `FACTORY_ROOT`, `WORK_ROOT` and the feature root path;
 - the current lifecycle position (`phase: code-ai-profiles`, `state: completed`) and the objective: advance this Feature to `ready-to-merge / ready`, keeping that one goal until it is recorded;
@@ -399,6 +407,7 @@ The prompt must be self-contained so the new session needs no chat history. It c
   checks still unexecuted/unverified/blocked; documentation completion is not application evidence;
 - the recorded parallel development choice from `## Parallel development`. When it is `worktree`, add: create `<WORK_ROOT>/.factory/worktrees/<feature-id-lowercase>` on branch `feature/<feature-id-lowercase>` after the `check-ignore` precondition, work inside it, keep manifests and evidence in `WORK_ROOT`, and never propose merging back to `repo.default_branch` before the Feature is `ready-to-merge / ready`;
 - the mandatory end state: recorded `ready-to-merge / ready` with passing fixed review, separated acceptance, complete closure and a passing `factory gate workspace`;
+- the handoff commit revision or blocker, plus existing local commit authorization and its limits when applicable;
 - the prohibitions: no product re-discussion, no hand-editing `phase`/`state`, no push or merge
   without separate explicit authorization.
 
@@ -422,6 +431,7 @@ Use $hl-feature-orchestrator <FEATURE_ID> in work repo <WORK_ROOT> to advance Le
 - required work not yet verified: <remaining checks/blockers; do not prefill PASS>
 - deferred questions (do not reopen discussion): <short list>
 - parallel development: sequential | worktree (<worktree path and branch when worktree>)
+- local commits: <handoff revision or blocker; applicable existing authorization and scope>
 - do not: reopen product discussion, hand-edit phase/state, push or merge without separate
   explicit authorization
 ```

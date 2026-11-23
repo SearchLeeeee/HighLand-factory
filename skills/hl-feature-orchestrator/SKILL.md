@@ -32,7 +32,7 @@ Run this before anything else, including reading the request.
    - `workflow.review_required`, `workflow.verification_separate`, `workflow.merge_requires_authorization`.
    - `repo.mode`, `repo.default_branch`, `repo.code_path`, `repo.code_external` — the code root and the branch a worktree merges back into.
    - `security.forbidden_operations`, `security.sensitive_classes`.
-   - `packs.enabled` — whether an optional commit, remote-verify or quality-gate policy exists at all.
+   - `packs.enabled` — whether to use the optional commit pack and whether remote verification or quality gates apply.
    Section titles are rendered in the project document language: locate sections by topic.
 5. Run the gates through the engine instead of composing paths:
    ```bash
@@ -51,6 +51,10 @@ authorities; they do not assume a previous session's environment is still suitab
 Use this skill only when the user explicitly invokes `$hl-feature-orchestrator` and names a registered Leaf Feature — a feature ID, or the `code-ai/` profile directory of that feature.
 
 If the invocation carries no resolvable feature, ask for it before dispatching any implementation subagent. Never infer a default feature or a default profile folder from another project, the current directory, or memory.
+
+After resolving the registered Leaf in a fresh session, use the target-specific read-only
+recording lookup in `hl-feature-progress/SKILL.md`. Continue the matched enrollment even
+when the invocation supplied only the Feature identity.
 
 This skill normally runs in a new session that starts from the copyable prompt produced by `$hl-feature-discuss` at the `code-ai-profiles / completed` boundary. Treat that prompt as sufficient context: it names the feature root, the must-read documents, the confirmed conclusions and the parallel development choice. If you were invoked without it, read those documents from disk before dispatching. Never reopen product discussion here; a documented blocker goes back to the discussion owner.
 
@@ -394,7 +398,9 @@ The visible handoff is the last step, not a substitute for lifecycle maintenance
 5. Advance the manifest to `acceptance / completed` with the correct `next_action`.
 6. Run `factory gate workspace --work <WORK_ROOT>` and confirm it passes.
 7. Advance to `ready-to-merge / ready` through the closure gate.
-8. Then send the final handoff and state the actual completion boundary.
+8. Apply the [Leaf delivery commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md)
+   after the ready transition and passing workspace gate. The coordinating agent commits the
+   verified scope, then includes its revision or concrete commit blocker in the final handoff.
 
 If steps 3-7 do not succeed, send a truthful incomplete or blocked handoff and do not claim completion.
 
@@ -437,6 +443,6 @@ The final response uses this order:
 1. True implementation status.
 2. Human-readable acceptance checklist.
 3. Reproducible acceptance steps.
-4. Remaining risks and anything unverified.
+4. Delivery commits or their blockers, remaining risks and anything unverified.
 
-Do not claim completion before all four exist, with evidence and the `ready-to-merge / ready` transition recorded. If a commit was explicitly requested, report its result.
+Do not claim completion before all four exist, with evidence and the `ready-to-merge / ready` transition recorded.

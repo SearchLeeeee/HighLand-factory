@@ -190,8 +190,8 @@ refactor or hide a selected failure behind a completion claim.
 Summarise the actual result, realized benefit and cost, source identities, verification,
 Wiki coverage/time, remaining/deferred findings and separate-session workflow proposals. State
 which items were fixed, investigated or handed off. No-change scans are valid outcomes.
-Commit/push/deployment remain governed by existing
-authorization; candidate selection supplies none of those permissions.
+After an implemented run closes, apply the [refactor delivery commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md)
+and report the revision or concrete commit blocker. Commit, push and deployment keep their existing authorization boundaries.
 
 For interruption or a requested stop, preserve evidence, use `pause --reason <reason>`, then
 report remaining work and the run ID. Resume the same run with `resume` and recheck its selected

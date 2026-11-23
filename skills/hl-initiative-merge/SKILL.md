@@ -24,6 +24,10 @@ Read before acting: `<feature_workspace>/README.md` and
 `references/entry-point.md`; `$hl-wiki-merge`; the Initiative manifest, every active Feature
 manifest, their required `context_refs`, and the generated integration handoff.
 
+On a fresh continuation, resolve the registered Initiative and use the read-only
+recording lookup in `hl-feature-progress/SKILL.md` with that Initiative ID. Seal its
+enrollment at final Initiative workflow closure.
+
 The lifecycle state machine is the only authority for lifecycle changes. Use
 `feature_workspace.py`; never hand-edit `phase`, `state`, acceptance, closure or
 `integration_testing` fields.
@@ -311,6 +315,10 @@ include:
 If a required row is failed, blocked or unbound, do not register the result. Keep the Initiative
 integration gate failed or blocked and preserve the evidence.
 
+After registration and the passing merge-ready check, apply the
+[Initiative integration commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md).
+Record the revision or concrete commit blocker before handing off to the authorized Wiki merge.
+
 ## Phase D: Authorized Wiki Merge
 
 Do not merge merely because `initiative-merge-ready` passes. When
@@ -339,6 +347,7 @@ The final report distinguishes:
 - Feature gates: ready, or missing with the exact gate.
 - Initiative integration: PASS, FAIL or BLOCKED, with one evidence root.
 - Wiki merge: not started, in progress or completed, with the validator result.
+- Integration and Wiki closure commit IDs, or concrete reasons they remain uncommitted.
 - External operational follow-ups.
 - The exact next action, only if one is genuinely required.
 

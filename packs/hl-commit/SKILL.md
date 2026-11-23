@@ -38,6 +38,8 @@ This directory is an **optional pack**, not a core skill. Core workflow must run
 
 Use this pack when the user asks to commit, stage, or persist changes. Use it for the commit **and** the
 optional push, because both carry the same authorization and scope discipline.
+Use it for authorized [workflow commit checkpoints](../../skills/hl-workflow-governance/references/commit-boundaries.md)
+when enabled. Use the active branch and checkout that own the approved changes.
 
 Do not use it to inspect history or to review a diff as its primary goal.
 If the pack is disabled, or the repo topology is not `mono`/`split`, stop
@@ -86,8 +88,8 @@ Add it, run factory doctor --work <work>, then retry.
 
 ### 1. Check authorization
 
-Without authorization, do not stage, commit or push;
-continue otherwise authorized reading, review and verification using an identifiable source target.
+Reuse applicable authorization carried in the workflow's handoff. Without authorization, leave Git
+unchanged and continue authorized reading, review and verification using an identifiable source target.
 Push requires its own explicit authorization — a commit authorization is not a push authorization.
 
 Record the source actually reviewed or tested. An
@@ -128,6 +130,9 @@ present the grouping; get confirmation only when the existing authorization does
 4. Deletes before adds when restructuring.
 5. Independent additions before edits that depend on them.
 
+Keep regression tests with the implementation they verify and keep a Wiki authority switch with
+its tracked routing and closure changes when they form one concern.
+
 ### 6. Stage selectively
 
 Use explicit paths: `git add <path> ...`. Never `git add -A`, `git add .` or a pathspec wide
@@ -153,7 +158,9 @@ remain applicable; an evidence-only change does not require another full test ru
 - `repo.commit.format: plain` → `<summary>`.
 - Language: `project.language.commit`. Stable identifiers, paths and type prefixes stay ASCII.
 - Summary imperative, at most 72 characters, no vague words like `updates` or `misc`.
-- Body bullets start with `-`, one logical change each, say what changed and why.
+- Include a concise body explaining the reason, the actual behavior or contract change and the
+  checks and results. Follow [Write messages for maintainers](../../skills/hl-workflow-governance/references/commit-boundaries.md#write-messages-for-maintainers)
+  for traceable context, compatibility implications and relevant evidence or gaps.
 
 ### 9. Commit
 

@@ -137,8 +137,13 @@ Feature, only after valid full-wiki validation, transform the complete source in
 history, update lifecycle through `feature_workspace.py`, generate checksums last, remove active
 manifest discovery, and write a close receipt.
 
-Generate the final report from the phase receipts and the version-control status delta against the
-preflight baseline. Distinguish `canonical_apply=complete`, `validator=valid` and
+After validation and closure, apply the [Wiki merge commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md).
+Keep each Feature's authority switch and its tracked routing and closure changes together in
+dependency order. Report the revision or concrete commit blocker with the merge result.
+
+Generate the final report from the phase receipts and the Git changes since preflight, including
+the workflow's commits and any remaining uncommitted scope. Distinguish
+`canonical_apply=complete`, `validator=valid` and
 `feature_close=complete`; a valid validator alone does not mean the Feature merge is complete.
 
 ## Merge Quality Rules

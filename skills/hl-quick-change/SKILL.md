@@ -37,6 +37,8 @@ Fail closed: missing config, missing profile, a failing gate, or an unresolved l
 the skill with one concrete repair instruction.
 
 For execution prerequisites, use `<FACTORY_ROOT>/skills/hl-workflow-governance/references/execution-preparation.md`.
+Each independent Quick Change starts with debug off unless its opening request explicitly
+enables recording. Apply the same reference's handoff and final sealing rules when enrolled.
 Keep preparation and reusable results in this request's existing record/handoff; use only applicable
 checks and pass them forward on escalation. A nested skill or new role does not by itself require
 another setup, report or complete survey. Review, separated verification and required gates remain.
@@ -189,6 +191,10 @@ other governance behaviour, stop the quick change and route that maintenance thr
 A user request to fix or adjust authorizes ordinary local implementation after the grill handoff. It
 does not authorize the wiki merge, commit, push, deletion, broad refactoring, or heavy-workflow
 implementation. Obtain the applicable authorization and follow the owning skill for those actions.
+
+Once verification passes and the quick record reaches `completed`, apply the
+[Quick Change delivery commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md)
+and include the revision or concrete commit blocker in the result.
 
 ## Language
 

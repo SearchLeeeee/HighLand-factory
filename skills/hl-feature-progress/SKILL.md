@@ -56,6 +56,13 @@ around.
 ```
 
 6. If validation fails, report the inconsistencies first. Do not infer replacement state from prose.
+   After validation, when the request or next-session prompt has a concrete target, resolve its
+   full registered ID and parent Initiative. For a short name such as F02, use the established
+   Initiative or a unique applicable target; clarify the Initiative if the target is ambiguous.
+   Run `factory debug flow lookup --work <WORK_ROOT> --registry <registry> --scope <full-ID>`.
+   This read-only query returns the active recording's flow ID, authorized scope and records
+   root, or `flow: null`. Use a match when routing that task or generating its continuation
+   prompt. An ordinary progress read creates no event and starts, binds and seals no recording.
 7. Separate formal Features from unclassified migration candidates.
 8. Before reporting a Leaf discussion as the next action, verify the parent Initiative's
    `initial_decomposition.status: completed`, its frozen `feature_ids`, and each candidate's Scope
@@ -82,6 +89,9 @@ around.
 
 When the user asks for a next-session prompt:
 
+- When the target lookup recovers an enrollment, use its flow ID, WORK_ROOT and records root
+  even in a fresh chat with no prior handoff. Include the `factory-flow` marker as the first line per
+  `hl-workflow-governance/references/execution-preparation.md`.
 - Generate it in the response; never persist prompt files.
 - Include the Feature ID and title, current phase and state, next skill, target manifest, dependency
   status, and every required context reference as an explicit must-read path.
@@ -99,8 +109,9 @@ When the user asks for a next-session prompt:
 - When the next skill is `hl-feature-orchestrator`, follow the same content rules as the startup
   prompt that `$hl-feature-discuss` emits at the `code-ai-profiles / completed` boundary: workspace
   paths, must-read documents and profiles, confirmed conclusions, deferred questions, the recorded
-  parallel development choice, the target `ready-to-merge / ready`, and the prohibitions. Do not
-  invent a second prompt format.
+  parallel development choice, the target `ready-to-merge / ready`, and the prohibitions. Carry
+  the recorded handoff commit or blocker and existing authorization where available. Do not
+  infer permission from a revision or invent a second prompt format.
 - Produce one fenced, copyable prompt per requested Feature.
 
 ## Language

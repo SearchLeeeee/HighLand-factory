@@ -85,7 +85,9 @@ report, configuration, lifecycle state or approval.
 
 Cross-session handoffs use that reference's continuity and evidence-source rules: state the
 critical inherited conditions, actual evidence scope and continuation entry, and remaining
-required checks. If sources change, synchronize the existing plan and result mapping with the
+required checks. Debug defaults to off for each new workflow. Carry its `factory-flow` marker
+only in same-workflow handoffs after explicit opt-in at intake; seal it at final closure.
+If sources change, synchronize the existing plan and result mapping with the
 affected claims; a recreated scenario is not automatically the original chain continued.
 This is an execution check, not another user confirmation or a change to phase boundaries.
 
@@ -97,6 +99,14 @@ by itself require the user to choose the same mode again. Missing or conflicting
 clarification only for the affected choice. Preferences never grant authorization: discussion
 completion, new-session creation, merge and push keep their existing explicit boundaries. Handoff
 to implementation still waits for completed profiles and a passing workspace gate.
+
+## Workflow Commit Checkpoints
+
+Use [Workflow Commit Checkpoints](references/commit-boundaries.md) for local commits at verified
+handoff and delivery boundaries. The coordinating agent carries the applicable authorization and
+records the actual revisions. Workflow history comes from commit messages and linked evidence.
+Code AI should keep any necessary role observations in its existing handoff, with no fixed
+five-field headers in source files or records. Lifecycle, merge and push rules still apply.
 
 ## Route The Request
 
