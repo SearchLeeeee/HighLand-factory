@@ -74,6 +74,8 @@ necessary, and preserve existing lifecycle, review, verification and authorizati
   passing merge-ready gate, and the required authorization.
 - Per Feature, merge semantic content, update affected MOCs, pass the full long-term wiki
   validator, retain the source, then switch authority and close the Feature.
+- Before merging, scan the registered Initiative and each in-scope Leaf task root separately
+  for experience using the `$hl-wiki-merge` preflight.
 - Wiki content validation is not a lifecycle state. A failed validator keeps the Feature ready and
   blocks authority switch and closure.
 - Keep future work and maintenance evidence in their registered process workspaces; keep the

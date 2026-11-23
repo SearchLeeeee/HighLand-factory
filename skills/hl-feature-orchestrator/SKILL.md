@@ -390,6 +390,7 @@ The visible handoff is the last step, not a substitute for lifecycle maintenance
 2. Build the human-readable acceptance checklist, reproducible steps and remaining-risk section.
 3. Confirm every required criterion is passing.
 4. Record acceptance evidence and required references in the feature workspace.
+   Capture any verified observation that would change a future task's actions in the owning task root using the [Wiki memory rules](../hl-workflow-governance/references/wiki-memory.md#capture-at-work-time).
 5. Advance the manifest to `acceptance / completed` with the correct `next_action`.
 6. Run `factory gate workspace --work <WORK_ROOT>` and confirm it passes.
 7. Advance to `ready-to-merge / ready` through the closure gate.

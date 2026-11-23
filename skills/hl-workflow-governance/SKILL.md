@@ -226,7 +226,7 @@ After the Initiative preflight, follow this order without exception for each Fea
    false, the initiative-local equivalent recorded in the profile still governs.
 2. Obtain explicit authorization for the merge when `workflow.merge_requires_authorization` is
    true.
-3. Perform the semantic wiki merge into current or domain authority documents.
+3. Scan the Initiative and in-scope Leaf task roots through `$hl-wiki-merge`, then perform the semantic wiki merge into current or domain authority documents.
 4. Update every affected MOC.
 5. Run the full long-term wiki validator owned by `$hl-wiki-merge`
    (`<FACTORY_ROOT>/skills/hl-wiki-merge/scripts/validate_llm_wiki.py`), which excludes the

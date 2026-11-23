@@ -50,3 +50,22 @@ def test_incremental_scan_respects_bookmark_dirty_files_and_task_boundaries(tmp_
     assert set(result["files"]) == {recent, initiative, dirty, untracked}
     with pytest.raises(util.FactoryError):
         memory.scan(tmp_path, quick + "/evidence")
+
+
+def test_targeted_merge_scans_each_selected_leaf_root(tmp_path: Path):
+    cfg = config.default_config()
+    cfg["factory"]["template"] = "workspace-v2"
+    cfg["workflow"]["workspace_root"] = "process"
+    config.save_config(tmp_path, cfg)
+
+    initiative = tmp_path / "process/feature-workspace/initiatives/I1"
+    selected_leaf = initiative / "features/F1"
+    other_leaf = initiative / "features/F2"
+    for leaf in (selected_leaf, other_leaf):
+        leaf.mkdir(parents=True)
+        (leaf / "experience.md").write_text("Verified observation\n", encoding="utf-8")
+
+    assert memory.scan(tmp_path, str(initiative))["files"] == []
+    merge_scope = [initiative, selected_leaf]
+    notes = [path for root in merge_scope for path in memory.scan(tmp_path, str(root))["files"]]
+    assert notes == [str(selected_leaf / "experience.md")]

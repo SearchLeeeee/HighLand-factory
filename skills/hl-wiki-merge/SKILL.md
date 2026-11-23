@@ -68,7 +68,15 @@ governed feature workspace where its contract requires it.
 
 ### 1. Preflight
 
-Coordinate scheduling with manual Wiki maintenance. Scan experience under the affected task roots using `factory memory-scan --work <WORK_ROOT> --task <task-root>`. Include only actually affected topics and responsibilities in this merge. Experience files are candidates for evidence review even when discovered alongside staged Markdown; exclude them from direct source-to-product import.
+Coordinate scheduling with manual Wiki maintenance. For a registered merge, resolve the task roots
+from its scope before the first canonical edit. Use the Initiative root and each Leaf root in the
+authorized merge handoff. For a single registered Leaf source, use that Leaf and its owning
+Initiative. Run `factory memory-scan --work <WORK_ROOT> --task <task-root>` separately for each
+distinct root. Each invocation reads only the specified directory. An empty result is valid.
+Resolve an unreadable or ambiguous in-scope root before applying affected material. Ordinary staged
+Markdown with no owning registered task proceeds to inventory. Review any returned experience
+against evidence for the affected topics and responsibilities. Exclude experience files from
+direct source-to-product import.
 
 1. Resolve `PYTHON` and `FACTORY_ROOT` from `.factory/local.yaml`. Verify the inventory script, the
    validator script and `feature_workspace.py` exist before writing anything.

@@ -30,6 +30,8 @@ authority stays with the feature-workspace tools and documentation named by
 - Feature merges happen only after `initiative-merge-ready` passes and, when
   `workflow.merge_requires_authorization` is true, after explicit user authorization is obtained,
   in dependency-topological order.
+- The semantic merge preflight scans the registered Initiative and in-scope Leaf roots separately
+  for experience. The task-root list comes from the registered merge scope.
 - For each Feature the fixed order is: semantic wiki merge, affected-MOC updates, full long-term
   wiki validation excluding registered process workspaces, retained-history transformation
   after PASS, `merged/completed`, then authority switch and external routing-record update.
