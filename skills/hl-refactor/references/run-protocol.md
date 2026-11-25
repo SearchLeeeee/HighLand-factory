@@ -283,5 +283,4 @@ Source rechecks detect changes within the recorded local source inventory. Coord
 work-root files and Git merge/index operations as necessary when other work is in progress.
 The parser can validate recorded selection and actor fields but cannot establish actual human
 authorization, semantic correctness or independent judgment. Those remain the coordinator's
-responsibility. Commit, push, deployment and new workflow initiation retain their own existing
-authorization boundaries.
+responsibility. Push, deployment and new workflow initiation follow their own authorization rules.

@@ -114,6 +114,8 @@ inspection and agent inference do not count as user confirmation. Resolve at min
 - acceptance criteria and repeatable verification commands;
 - the intended wiki target domain or document, and residual risks.
 
+For a frontend page adjustment, start the grill with the [frontend page design discussion](../hl-workflow-governance/references/frontend-page-design.md). Carry the confirmed boards and covered states, or the user's choice to skip the mockup, in the existing change points and acceptance criteria. Reuse this decision if the request escalates.
+
 If answers reveal a hard-gate condition, stop the grill as a lightweight activity and escalate. Do
 not change code before the user and the agent share the same change boundary. If the user has not
 answered the current grill question, remain in `grilling`; never proceed on silence or on an assumed
@@ -162,6 +164,8 @@ Every request needs at least one repeatable verification artefact:
 - environment limitation: the exact steps, environment, observation and residual risk; keep
   `blocked` when the result is not sufficient.
 
+When a Penpot design was confirmed, implement against it and record the runtime comparison in Verification Evidence. With no approved mockup, use the agreed written checks.
+
 Select the final test commands by documented impact. Record the affected surfaces, commands run, and
 each omitted configured test command with why the change cannot affect it. Run full verification for
 shared contracts, persistence or migration, security/permissions, cross-module changes, or when the
@@ -188,9 +192,9 @@ other governance behaviour, stop the quick change and route that maintenance thr
 
 ## Authorization Boundaries
 
-A user request to fix or adjust authorizes ordinary local implementation after the grill handoff. It
-does not authorize the wiki merge, commit, push, deletion, broad refactoring, or heavy-workflow
-implementation. Obtain the applicable authorization and follow the owning skill for those actions.
+A user request to fix or adjust authorizes ordinary local implementation after the grill handoff.
+Wiki merge, push, deletion, broad refactoring and heavy-workflow implementation follow their own
+authorization rules and owning skills.
 
 Once verification passes and the quick record reaches `completed`, apply the
 [Quick Change delivery commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md)

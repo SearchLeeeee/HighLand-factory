@@ -46,7 +46,7 @@ repeat preparation. Required gates after configuration, source or lifecycle chan
 
 Turn one registered Leaf Feature into a durable feature workspace: a conclusion-only workbench, then domain implementation documents, then executable Code AI profiles.
 
-The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, list every known question before detailed questioning, resolve applicable discussion and parallel development preferences, confirm conclusions, consolidate the workbench at discussion wrap-up, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, automatically finish the profile phase through `$hl-feature-profile-generate` without another user confirmation, and hand off to `$hl-feature-orchestrator` in a new session.
+The core pattern is: verify that the parent Initiative's initial Feature decomposition is finalized, take exactly one dependency-ready Leaf Feature, classify its domains, list every known question before detailed questioning, resolve applicable discussion and parallel development preferences, confirm conclusions, derive the acceptance scope and consolidate the workbench at discussion wrap-up, ask for explicit confirmation that discussion is complete, then write the implementation documents in `project.language.docs`, automatically finish the profile phase through `$hl-feature-profile-generate` without another user confirmation, and hand off to `$hl-feature-orchestrator` in a new session.
 
 Discussion and code implementation never share a session. This session owns the workbench, the domain implementation documents and the Code AI profiles; it never writes application code, never dispatches owner implementation subagents, and never runs review or acceptance.
 
@@ -83,7 +83,7 @@ Both modes are equal in rigor: the same inventory, the same confirmation rule, t
 - Agent recommendations and silence are not confirmation. Only an explicit answer, or an explicit "accept recommendation for Q-xxx", becomes a confirmed conclusion.
 - Security, irreversible-operation, contract-changing, permission and cross-owner boundary questions require an explicit per-question answer; they cannot be covered by a blanket "accept all".
 - After processing a batch: retain confirmed conclusions and statuses in the conversation, re-inventory newly discovered questions, and continue in the selected mode unless the user requests a change or the next decision needs clarification. Save the answers together with the next batch or at discussion wrap-up.
-- Batch mode never skips required topics (behaviour, ownership, contracts, tests, acceptance criteria) and never writes implementation documents before the phase confirmation.
+- Batch mode resolves behaviour, ownership and contract decisions and uses the same wrap-up rules and phase confirmation as interactive mode.
 
 ## Parallel Development Mode (check applicability at startup)
 
@@ -135,18 +135,21 @@ Treat discussion, implementation documents and Code AI profiles as separate reco
 
 During the discussion phase:
 
-- Create or update only the feature root and `discussion/workbench.md`.
+- Within the work repo, create or update only the feature root and `discussion/workbench.md`.
 - Do not create final domain implementation documents.
 - Do not create Code AI profile files.
 - Use implementation-document targets and profile targets as planned paths only.
 - Before asking detailed questions, enumerate every known question with stable IDs. Interactive mode keeps this inventory in the conversation until the workbench save; batch review writes the inventory and reviewable question blocks before user review.
-- In interactive mode keep asking one unresolved question at a time until behaviour, domain ownership, test cases and acceptance criteria are confirmed or explicitly deferred. In batch-review mode write reviewable batches of pending questions and wait for the user's bulk review; never treat silence or your own recommendation as confirmation.
+- For frontend page changes in either mode, start with the [frontend page design discussion](../hl-workflow-governance/references/frontend-page-design.md). Resolve the Penpot proposal or the user's choice to skip before taking up dependent implementation questions.
+- In interactive mode keep asking one unresolved question at a time until material decisions about behaviour, domain ownership and contracts are confirmed or explicitly deferred. In batch-review mode write reviewable batches of pending questions and wait for the user's bulk review; never treat silence or your own recommendation as confirmation.
 - Summarize behavior added, preserved, removed, or degraded relative to the current system. A high-impact removal or degradation requires explicit per-item confirmation, even in batch review; do not bury it in blanket acceptance of recommendations.
 - For behavior, contract, or compatibility changes, use `<current topic index linked from the Wiki home>` to identify relevant current authority documents and check them for semantic conflict. Resolve or explicitly route any conflict before implementation documents and profiles are produced. Do not scan unrelated wiki areas.
-- Classify visual/interaction impact while confirming acceptance criteria. When in scope, require persistent evidence tied to the tested build, route/state, and viewport. When not applicable, record why.
-- Before confirming a required acceptance criterion that depends on an external source, check available evidence for the required sample, window and inputs. Use an existing authorized read-only probe when evidence is insufficient and the probe can resolve the question. Confirm a concrete passing scenario, any acceptable substitute evidence and what remains unverified without a real sample. Resolve a material ambiguity at the existing discussion boundary.
+At discussion wrap-up in either mode, derive the acceptance scope, required test cases and observable pass/fail criteria from confirmed requirements, existing system behavior and project constraints. Incorporate any acceptance requirements the user has already stated. If a check exposes a material unresolved product requirement, resolve or explicitly defer that requirement before closing the discussion.
 
-At discussion wrap-up, save the accumulated workbench in one pass before presenting it for phase confirmation. Before leaving the discussion phase, summarize: confirmed conclusions, the behavior-change summary, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions from the full inventory, planned document targets, planned profile targets, required test cases, and acceptance criteria. Then ask for explicit confirmation to enter the implementation-documents phase.
+- Classify visual/interaction impact when deriving the criteria. When in scope, require persistent evidence tied to the tested build, route/state, and viewport. When not applicable, record why.
+- For required criteria that depend on an external source, check available evidence for the required sample, window and inputs. Use an existing authorized read-only probe when evidence is insufficient and the probe can resolve the question. Record a concrete passing scenario, any acceptable substitute evidence and what remains unverified without a real sample. Resolve a material ambiguity at the existing discussion boundary.
+
+Save the accumulated workbench in one pass. Summarize confirmed conclusions, behavior changes, relevant authority documents checked for material changes, visual/interaction evidence requirements or the reason they do not apply, pending or deferred questions, planned document and profile targets, and the derived acceptance scope, required test cases and criteria. The sole routine wrap-up question asks for explicit confirmation to enter the implementation-documents phase.
 
 Only after explicit confirmation may you create domain folders, final documents, `code-ai/README.md` and profile files.
 
@@ -209,7 +212,7 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 - Record only confirmed conclusions and still-open questions.
 - Keep answers in the conversation during questioning; consolidate this workbench at wrap-up or an earlier required save boundary.
 - Keep unresolved questions until answered or explicitly deferred.
-- Treat test cases and acceptance criteria as required topics before documents are stable.
+- Record the acceptance scope, test cases and criteria derived at wrap-up.
 - Include the behavior-change, authority-consistency, and visual/interaction acceptance summaries required above; high-impact behavior loss needs individual confirmation.
 
 ## Known constraints
@@ -228,8 +231,13 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 - Relevant authority documents from `<current topic index linked from the Wiki home>`:
 - Semantic conflicts and resolution:
 
+## Acceptance scope
+- Covered behavior and regression risks:
+- Required test cases and observable pass/fail criteria:
+
 ## Visual and interaction acceptance
 - In scope: yes | no
+- For page changes: confirmed Penpot boards/version and covered states, or the scope for which the user chose to proceed without a mockup.
 - Evidence required or reason not applicable:
 
 ## Question inventory
@@ -273,7 +281,7 @@ Run this loop until the feature is stable enough to document:
 7. Wait for the answer; follow up only on a remaining material uncertainty, then confirm the conclusion.
 8. Retain the explicit conclusion and question status in the conversation; ask the next unresolved question without a routine file write.
 9. Retain document-target and profile-target changes for the same consolidated save.
-10. Before leaving discussion, discuss required test cases and acceptance criteria explicitly, then save the complete workbench once before requesting phase confirmation.
+10. Follow the shared wrap-up rules to derive and record acceptance coverage and request phase confirmation.
 11. At the discussion-to-documents boundary, initialize and validate the complete five-dimension `consistency_matrix` before creating documents or advancing lifecycle state.
 
 When the user asks what remains, summarize unresolved decisions and risks only.
@@ -288,7 +296,7 @@ Use this loop instead of the interactive loop when batch-review mode is selected
 4. Wait. Do not record any conclusion from silence or from your own recommendation.
 5. Process the answers in the conversation: retain explicit conclusions, deferred items with their reasons, inventory statuses and targets; do not save each individual answer.
 6. Re-inventory newly discovered questions; either prepare the next batch, saving accumulated answers with it in one pass, or switch to interactive mode for the remaining high-risk items and save at wrap-up.
-7. Repeat until behaviour, ownership, contracts, tests and acceptance criteria are confirmed or explicitly deferred, then run the same discussion-completion summary and phase confirmation as the interactive path.
+7. Repeat until material decisions about behaviour, ownership and contracts are confirmed or explicitly deferred, then follow the shared wrap-up rules to derive and record acceptance coverage and request phase confirmation.
 
 ## Implementation Documents Phase
 
@@ -305,6 +313,7 @@ When discussion is stable and the user explicitly confirms entry into the docume
 - Edge cases and failure behaviour.
 - Required test cases: normal flow, edge cases, failure paths, regression checks.
 - Acceptance criteria as observable pass/fail outcomes.
+- For affected pages, include the agreed design reference and its covered states in the owning frontend criterion. For skipped or uncovered states, specify the agreed written behavior and visual checks.
 - Test and verification expectations, citing only commands from the profile commands table.
 - Open questions explicitly deferred out of implementation.
 
@@ -383,7 +392,7 @@ Discussion and code implementation never share a session. This skill ends at `co
 Before ending:
 
 1. Automatically finish the profiles phase through `$hl-feature-profile-generate` in this same session, then record the boundary through the state machine: `--phase code-ai-profiles --state completed --next-skill hl-feature-orchestrator` with an instruction naming the feature root and the objective. Re-run `factory gate workspace --work <WORK_ROOT>`. Emit the prompt after that skill finishes and the manifest reads `code-ai-profiles / completed`.
-2. Apply the [Leaf handoff commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md) to the completed discussion and profile package. Include the resulting revision or concrete commit blocker and any applicable standing authorization in the handoff.
+2. Apply the [Leaf handoff commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md) to the completed discussion and profile package. Include the resulting revision or concrete commit blocker in the handoff.
 3. Emit exactly one fenced, copyable prompt in the user's language, directly in the response.
 4. If the user has explicitly authorized creating and starting the next implementation session,
    dispatch this prompt only after the profiles-completed boundary and workspace gate pass. Carry
@@ -399,6 +408,7 @@ For a prompt continuing the same enrolled `factory-flow` task, prepend its conti
 - the current lifecycle position (`phase: code-ai-profiles`, `state: completed`) and the objective: advance this Feature to `ready-to-merge / ready`, keeping that one goal until it is recorded;
 - the must-read paths: resolved Wiki home, the current responsibility’s role memory if present, `feature.yaml`, `discussion/workbench.md`, each domain implementation document, and `code-ai/README.md` with the profiles it indexes;
 - the confirmed conclusions and constraints in short form, and the deferred questions marked explicitly as deferred so they are not reopened as discussion;
+- for page changes, the frontend criterion and its confirmed design reference or recorded no-mockup scope;
 - the critical inherited conditions with their formal source sections, stated directly rather
   than only hidden in the must-read list; include linked object/artifact/session/sequence conditions
   when applicable, without copying all background;
@@ -407,7 +417,7 @@ For a prompt continuing the same enrolled `factory-flow` task, prepend its conti
   checks still unexecuted/unverified/blocked; documentation completion is not application evidence;
 - the recorded parallel development choice from `## Parallel development`. When it is `worktree`, add: create `<WORK_ROOT>/.factory/worktrees/<feature-id-lowercase>` on branch `feature/<feature-id-lowercase>` after the `check-ignore` precondition, work inside it, keep manifests and evidence in `WORK_ROOT`, and never propose merging back to `repo.default_branch` before the Feature is `ready-to-merge / ready`;
 - the mandatory end state: recorded `ready-to-merge / ready` with passing fixed review, separated acceptance, complete closure and a passing `factory gate workspace`;
-- the handoff commit revision or blocker, plus existing local commit authorization and its limits when applicable;
+- the handoff commit revision or concrete blocker;
 - the prohibitions: no product re-discussion, no hand-editing `phase`/`state`, no push or merge
   without separate explicit authorization.
 
@@ -431,7 +441,7 @@ Use $hl-feature-orchestrator <FEATURE_ID> in work repo <WORK_ROOT> to advance Le
 - required work not yet verified: <remaining checks/blockers; do not prefill PASS>
 - deferred questions (do not reopen discussion): <short list>
 - parallel development: sequential | worktree (<worktree path and branch when worktree>)
-- local commits: <handoff revision or blocker; applicable existing authorization and scope>
+- local commits: <handoff revision or concrete blocker>
 - do not: reopen product discussion, hand-edit phase/state, push or merge without separate
   explicit authorization
 ```

@@ -30,7 +30,7 @@ Requirements and architecture answer **what to build**. A workflow also needs:
 
 1. **How "done" is proven** — real commands, a green baseline, evidence format, isolated verification environment.
 2. **What must never happen** — security boundaries, sensitive data classes, redaction, irreversible operations.
-3. **Who authorizes** — merge, commit, push, delete, production writes; role separation between implement/review/verify.
+3. **Who authorizes** — merge, push, delete, production writes; role separation between implement/review/verify.
 4. **Where truth lives** — wiki authority map, domain taxonomy, owner map, profile composition.
 5. **How the workflow itself evolves** — factory version pinning, upgrade path, drift handling, customization ownership.
 
@@ -54,7 +54,7 @@ These are the items most often missing from a first initialization, and the ones
 | 12 | Architecture | System shape, modules, dependency direction, data stores, external systems, deployment topology, trust boundaries? | Feeds `architecture/` authority and owner boundaries | must be answered; record open questions |
 | 13 | Owners | Which implementation owners exist (id, title, owned paths, profile file)? | Drives profile generation, write scopes and review routing | one `core` owner for tiny projects; else backend/frontend/devops |
 | 14 | Security | Forbidden operations, sensitive data classes, redaction rules, secret storage? | Agents write code and docs; irreversible/vendor/money actions must fail closed | explicit list; secrets only in gitignored local config |
-| 15 | Authorization | Who authorizes commit, push, merge, delete, production writes? Are review and verification roles independent? | Gates are meaningless without a decision owner | user authorizes all outward actions; review/verify independent |
+| 15 | Authorization | Who authorizes push, merge, delete and production writes? Are review and verification roles independent? | Gates are meaningless without a decision owner | user authorizes all outward actions; review/verify independent |
 | 16 | Verification | Baseline evidence path, evidence root, isolated-environment policy, reproducibility requirements? | Defines what evidence a future session can trust | local evidence root under feature workspace; no isolation for v0.1 unless needed |
 | 17 | Workflow gates | Keep default Scope Gate thresholds? Enable quick-change? Allow parallel Features in worktrees? Require initiative integration testing? | These are policy, not code; wrong defaults silently weaken gates | keep all gates on; quick-change on; parallel worktrees allowed for dependency-ready, scope-disjoint Features |
 | 18 | Naming | Initiative/Feature ID prefixes, slug rules, wiki taxonomy, file naming? | ID schemes and paths are load-bearing in scripts and docs | `I###` / `I###-F##`, kebab-case slugs, standard semantic taxonomy with topic MOCs created when they first have content |

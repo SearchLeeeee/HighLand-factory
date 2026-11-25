@@ -110,8 +110,8 @@ When the user asks for a next-session prompt:
   prompt that `$hl-feature-discuss` emits at the `code-ai-profiles / completed` boundary: workspace
   paths, must-read documents and profiles, confirmed conclusions, deferred questions, the recorded
   parallel development choice, the target `ready-to-merge / ready`, and the prohibitions. Carry
-  the recorded handoff commit or blocker and existing authorization where available. Do not
-  infer permission from a revision or invent a second prompt format.
+  the recorded handoff commit or blocker where available. Do not infer permission to merge or
+  push from a revision or invent a second prompt format.
 - Produce one fenced, copyable prompt per requested Feature.
 
 ## Language

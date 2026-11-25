@@ -93,6 +93,8 @@ This is an execution check, not another user confirmation or a change to phase b
 
 Use the owning implementation document as the source for each Leaf acceptance criterion. Refer to its ID in plans and role handoffs. Apply the synchronization in `$hl-feature-orchestrator` after an authorized change and before resuming or closing the affected item.
 
+For user-visible frontend page changes, apply the [frontend page design rules](references/frontend-page-design.md) during discussion and carry the confirmed Penpot design or no-mockup decision through implementation and acceptance.
+
 Carry explicit discussion and handoff preferences within the same Initiative when a current
 workbench, formal context reference or handoff records their source and scope. A new Leaf does not
 by itself require the user to choose the same mode again. Missing or conflicting preferences need
@@ -103,8 +105,9 @@ to implementation still waits for completed profiles and a passing workspace gat
 ## Workflow Commit Checkpoints
 
 Use [Workflow Commit Checkpoints](references/commit-boundaries.md) for local commits at verified
-handoff and delivery boundaries. The coordinating agent carries the applicable authorization and
-records the actual revisions. Workflow history comes from commit messages and linked evidence.
+handoff and delivery boundaries. The coordinating agent commits verified changes within the task
+scope without asking for separate commit approval and records the actual revisions. Workflow history
+comes from commit messages and linked evidence.
 Code AI should keep any necessary role observations in its existing handoff, with no fixed
 five-field headers in source files or records. Lifecycle, merge and push rules still apply.
 
@@ -141,8 +144,7 @@ open exploration in free text rather than forcing it into premature alternatives
   selected proposal and ask again only when a material ambiguity remains.
 - Without a panel, ask one concise plain-text question, list the same options, and allow a
   custom proposal.
-- A choice panel never weakens an authorization, lifecycle, validation, merge, deletion, commit
-  or push gate.
+- A choice panel never weakens an authorization, lifecycle, validation, merge, deletion or push gate.
 
 Discussion records follow the save timing in `references/socratic-questioning.md`: retain answers
 in the conversation and consolidate at wrap-up or an earlier required boundary. Question delivery
@@ -313,9 +315,9 @@ Update every authority that owns the changed behaviour, in one change:
 5. Run the checks owned by every affected surface: the state-machine tests plus a real workspace
    `validate` for lifecycle changes, and the validator positive/negative tests plus a full wiki
    validation for merge-gate changes.
-6. Preserve unrelated dirty worktree changes. Do not merge, create tombstones, switch authority,
-   transform retained history, commit or push unless the applicable gate and a separate
-   authorization have passed.
+6. Preserve unrelated dirty worktree changes. Apply the shared rules for any workflow checkpoint
+   commit. Merge, tombstone creation, authority switch, retained-history transformation and push
+   require their applicable gates and separate authorization.
 
 ## Language
 

@@ -65,7 +65,7 @@ Before generating anything, verify:
 - the workbench marks visual/interaction impact and, when applicable, names persistent evidence bound to build, route/state and viewport;
 - `factory gate workspace --work <WORK_ROOT>` passes.
 
-If the documents are missing or acceptance criteria are unconfirmed, return to the discussion or documents phase. If the matrix is incomplete, stop and repair it through `$hl-feature-workspace`; do not generate profiles against a pending matrix.
+If the documents are missing or lack executable acceptance criteria, return to the discussion or documents phase. If the matrix is incomplete, stop and repair it through `$hl-feature-workspace`; do not generate profiles against a pending matrix.
 
 ## Output Structure
 
@@ -129,6 +129,7 @@ Every profile uses this skeleton and stays thin — generic content is always a 
 - Required test cases, including negative and guardrail cases
 - Reference each applicable acceptance criterion by stable ID and relative link to its owning implementation document. Add role-specific checks and evidence steps that follow the criterion without duplicating its pass/fail wording.
 - Visual/interaction impact and evidence requirements; if not applicable, the recorded reason
+- For page changes, point the frontend implementation, review and verification profiles to the design reference and covered states in the owning criterion. Use the written checks where no mockup was agreed.
 - Verification commands taken from the profile commands table — never invented
 - Reference the existing plan/handoff's prepared entry points, conditions and remaining checks; do not copy local configuration or create a second environment inventory.
 

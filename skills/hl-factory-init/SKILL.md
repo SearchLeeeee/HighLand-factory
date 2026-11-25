@@ -74,7 +74,7 @@ Follow the P0 order in `docs/init-questionnaire.md`. For each item, detect → p
 10. architecture: shape, modules, dependency direction, data stores, external systems, deployment, trust boundaries
 11. owner map (id, title, owned paths) — one `core` owner is acceptable for small projects
 12. security: forbidden operations, sensitive data classes, redaction, secret storage
-13. authorization: who approves commit/push/merge/delete/production writes; whether review and verification are independent
+13. authorization: who approves push/merge/delete/production writes; whether review and verification are independent
 14. verification: baseline evidence path, evidence root, isolation policy, reproducibility
 15. workflow gates: keep defaults? quick-change? Initiative integration?
 16. naming: ID prefixes, slug rules, wiki taxonomy

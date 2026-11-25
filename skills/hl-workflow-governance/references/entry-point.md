@@ -68,11 +68,12 @@ necessary, and preserve existing lifecycle, review, verification and authorizati
 - Plans and role handoffs link to the current Leaf acceptance criterion by ID. Synchronize the
   affected material and tests after a criterion change and before resuming or closing that item.
 - At [workflow commit checkpoints](commit-boundaries.md), the coordinating agent commits the
-  authorized, verified scope and carries the actual revisions and applicable authorization forward.
+  verified task scope locally without separate commit approval and carries the actual revisions forward.
 - Integration matrices preserve confirmed same-object/artifact/session/sequence requirements;
   historical capability evidence cannot relax those conditions.
 
 - Complete Initiative inventory, dependency/wave registration and Scope Gate before Leaf discussion.
+- For page changes, use the [frontend page design rules](frontend-page-design.md) before settling implementation details. Carry the design decision in the usual handoff.
 - After discussion approval, completed implementation documents lead automatically to Code AI
   profile generation in the same session, with no further phase confirmation. Preserve the
   state-machine boundaries, required inputs and workspace gate; honor explicit scope or pause

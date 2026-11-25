@@ -83,10 +83,10 @@ authority stays with the feature-workspace tools and documentation named by
   when available: 2-3 mutually exclusive options, the recommended one first, the client-provided
   `Other` for custom input, and one concise plain-text question only as a fallback. This
   interaction rule never weakens an authorization or machine gate.
-- User authorization is required for actual merge, deletion, commit and push operations whenever
-  the profile requires it.
+- Merge and deletion follow their applicable authorization rules. Push requires explicit authorization.
 - [Workflow commit checkpoints](commit-boundaries.md) define when the coordinating agent commits
-  an authorized, verified scope and what Git history must preserve for future maintainers.
+  verified work within the task scope without separate local commit approval and what Git history
+  must preserve for future maintainers.
 - Parallel development mode — shared checkout sequentially, or one dedicated git worktree per
   Feature — is an implementation decision recorded in the discussion workbench, never a lifecycle
   value. A worktree isolates code only: manifests, evidence and the workspace gate stay in the work
@@ -97,8 +97,11 @@ authority stays with the feature-workspace tools and documentation named by
   removals or degradations need individual user confirmation. Material behavior, contract or
   compatibility changes require a semantic conflict check against the relevant documents in the
   authority map, not an indiscriminate whole-Wiki scan.
-- UI/interaction scope is classified during discussion. Applicable visual evidence is persistent
-  and bound to build, route/state and viewport; non-applicability is recorded with a reason.
+- UI/interaction scope is classified during discussion. For frontend page changes, follow the
+  [Penpot design discussion and handoff](frontend-page-design.md). Implement and verify against
+  the confirmed design for the states it covers. The ordinary written criteria apply where a
+  mockup was skipped. Bind visual evidence to build, route/state and viewport, or record why
+  visual evidence is inapplicable.
 - Discussion-completion confirmation covers implementation documents and Code AI profiles.
   `$hl-feature-discuss` records `implementation-docs / completed` through the state machine and,
   after the workspace gate passes, automatically invokes `$hl-feature-profile-generate` in the

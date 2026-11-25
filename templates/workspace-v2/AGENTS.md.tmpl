@@ -56,8 +56,8 @@
 9. owner ID 表示职责归属；依赖满足且实现路径、契约独立时，可以在独立 worktree 中并行推进。
    共享工作根目录文件及 Git 合并、索引操作按需协调；保留既有门禁和授权边界。
 
-10. Code AI 不添加固定五字段的源码文件头。主 agent 在关键节点通过门禁后提交已授权的改动，
-    按 `$hl-workflow-governance` 的 `references/commit-boundaries.md` 写入变更原因与验证结果。
+10. Code AI 不添加固定五字段的源码文件头。主 agent 在关键节点通过门禁后本地提交本次任务范围内的改动，无需另行授权。
+    按 `$hl-workflow-governance` 的 `references/commit-boundaries.md` 写入变更原因与验证结果。推送须单独授权。
 
 ## 生成文件与手工文件的边界
 

@@ -189,6 +189,8 @@ After preflight and source discovery, inspect the actual code for the touched mo
 
 The plan must express the approved scope, owner/file boundaries, ordered work items, dependencies, expected results, verification/acceptance links and applicable risks or stop conditions. For parallel work, dependencies must be satisfied and both file and contract scopes must be non-overlapping. Put integration and verification checkpoints in the sequence; the main agent remains responsible for integration.
 
+For frontend page items, give the owner the criterion that identifies the approved Penpot boards or export. Inspect that design before editing and reproduce its covered states following the [frontend page design rules](../hl-workflow-governance/references/frontend-page-design.md). Where there is no agreed mockup, implement from the existing domain document.
+
 No implementation worker may edit files until the main agent has consolidated and approved the plan and assigned that worker a specific plan item. The approval is an orchestration gate, not an additional user-approval requirement. Escalate only when a product decision or authorization is needed, or when the plan would materially change scope, contract, security or ownership.
 
 Treat the plan as the current execution authority, not a second lifecycle state. When a failed assumption or material change affects scope, files, dependencies, contract, tests or acceptance, stop the affected work, update the same plan, and approve the revised portion before continuing. Preserve unaffected plan items. Do not create per-worker copies.
@@ -320,8 +322,7 @@ Before review, identify the implementation and the design or acceptance sources 
 the change. An existing commit normally identifies committed content sufficiently. Uncommitted
 work may be reviewed using HEAD plus the relevant diff and new-file contents; retain the patch or
 new-file content necessary to reconstruct that target when no commit identifies it. Keep those
-sources stable during review. Missing source that prevents a reliable judgement blocks that
-part; lack of commit authorization alone does not block otherwise authorized review or testing.
+sources stable during review. Missing source that prevents a reliable judgement blocks that part.
 
 Before accepting the verdict, check whether the reviewed sources, contract or acceptance conditions
 changed. Re-review affected findings and files. Unrelated commits, lifecycle/evidence updates and
@@ -345,6 +346,8 @@ Blocker findings must be fixed and re-reviewed. High-severity findings should be
 When `workflow.verification_separate` is on, verification runs in a session separate from implementation, and the implementer never accepts its own work. Use `verification.isolated_env` for required isolation. Reuse suitable runtimes, dependencies and caches; isolate state, data and processes where needed. Role separation alone does not require another clone or a rebuilt environment. The verifier independently judges whether existing results apply and executes the missing or affected checks, rather than adopting the implementer's self-assessment. When separation is off, record that limitation; do not describe a self-check as independent verification.
 
 Classify acceptance criteria before implementation. An externally dependent or unprovable item needs an approved evidence mode or a scope decision. Unsupported API or contract conflicts pause the affected work and return to the workbench; keep the goal active. For visual or interaction criteria, require persistent evidence tied to the tested revision, route/state and viewport. Record why visual evidence is not applicable when the Feature has no visual/interaction impact.
+
+For a design-backed criterion, review and verification compare the rendered page and observed interactions with the same approved Penpot version or export. Record the comparison in the existing criterion evidence.
 
 Evidence lands under `verification.evidence_root`, applicable baseline evidence is compared against `verification.baseline_evidence`, and every criterion is recorded as pass, fail, blocked or not verified. Each criterion needs sufficient applicable evidence, not necessarily a new execution. Record the source and conditions of reused evidence; rerun only what changed or remains unproven. Explicit acceptance requirements and safety boundaries are not relaxed.
 

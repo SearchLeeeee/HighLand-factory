@@ -50,4 +50,5 @@ surface before sharing; keep original sensitive values in their authorized locat
 The coordinator checks criterion coverage and decisive evidence, sampling or rerunning by actual
 risk rather than duplicating every delegated check. A total is a convenience, not proof of coverage.
 Required failed, blocked or unverified rows still block PASS. Execute the official registration and
-readiness gates, respect commit/merge/push authorization, and stop once the delivery boundary is met.
+readiness gates, apply the workflow commit checkpoints and applicable merge and push authorization,
+and stop once the delivery boundary is met.

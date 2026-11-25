@@ -196,8 +196,13 @@ def test_upgrade_refreshes_legacy_code_ai_rules_and_preserves_customizations(tmp
     index_path = blocks / "README.md"
     index = work / index_path
     legacy = {
+        Path("AGENTS.md"): (work / "AGENTS.md").read_text(encoding="utf-8").replace(
+            "本地提交本次任务范围内的改动，无需另行授权", "提交已授权的改动"
+        ),
         blocks / "agent-notes-rule.md": "# 记录头（固定五字段）\n\n**Edit when**\n",
         blocks / "coding-discipline.md": "# 编码纪律\n\n记录每一次动作与原因。\n",
+        blocks / "commit-granularity.md": "# 提交粒度\n\n提交前取得用户授权。\n",
+        blocks / "review-gate.md": "# 评审门\n\n未授权提交仍可评审。\n",
         index_path: index.read_text(encoding="utf-8").replace("源码注释与交接记录的写法", "五字段记录头与维护时机"),
     }
     state = config.load_state(work)
@@ -213,6 +218,11 @@ def test_upgrade_refreshes_legacy_code_ai_rules_and_preserves_customizations(tmp
 
     assert "取消五字段记录头" in (work / blocks / "agent-notes-rule.md").read_text(encoding="utf-8")
     assert "记录每一次动作与原因" not in (work / blocks / "coding-discipline.md").read_text(encoding="utf-8")
+    for path in (Path("AGENTS.md"), blocks / "commit-granularity.md"):
+        content = (work / path).read_text(encoding="utf-8")
+        assert "无需另行授权" in content
+        assert "推送" in content and "单独授权" in content
+    assert "可识别的未提交内容可以直接评审与验证" in (work / blocks / "review-gate.md").read_text(encoding="utf-8")
     assert index.read_text(encoding="utf-8") == custom_index
     assert not list((work / blocks).glob("*.tmpl"))
     gate = run("gate", "all", "--work", str(work))

@@ -36,10 +36,10 @@ This directory is an **optional pack**, not a core skill. Core workflow must run
 
 ## When to use
 
-Use this pack when the user asks to commit, stage, or persist changes. Use it for the commit **and** the
-optional push, because both carry the same authorization and scope discipline.
-Use it for authorized [workflow commit checkpoints](../../skills/hl-workflow-governance/references/commit-boundaries.md)
-when enabled. Use the active branch and checkout that own the approved changes.
+Use this pack when the user asks to commit, stage, or persist changes, and at
+[workflow commit checkpoints](../../skills/hl-workflow-governance/references/commit-boundaries.md)
+when enabled. Use the active branch and checkout that own the task changes. Use the push step if
+the user explicitly authorizes it.
 
 Do not use it to inspect history or to review a diff as its primary goal.
 If the pack is disabled, or the repo topology is not `mono`/`split`, stop
@@ -86,18 +86,17 @@ Add it, run factory doctor --work <work>, then retry.
 
 ## Step-by-step flow
 
-### 1. Check authorization
+### 1. Check the commit scope
 
-Reuse applicable authorization carried in the workflow's handoff. Without authorization, leave Git
-unchanged and continue authorized reading, review and verification using an identifiable source target.
-Push requires its own explicit authorization — a commit authorization is not a push authorization.
+Apply the workflow checkpoint and its required checks when applicable. Stage and commit changes
+within the task scope without asking for separate commit approval. Honor explicit instructions to
+defer local commits. Push requires its own explicit authorization.
 
 Record the source actually reviewed or tested. An
 existing revision plus the relevant diff/new files is sufficient for ordinary work; do not invent
 extra freeze commits or require a globally clean tree merely to run checks. If an explicit
-acceptance or artifact requirement needs an immutable commit, use existing authorization or obtain
-it if absent, and establish that commit before that check. Never attribute uncommitted changes to
-the old commit alone.
+acceptance or artifact requirement needs an immutable commit, establish that commit within the task
+scope before that check. Never attribute uncommitted changes to the old commit alone.
 
 ### 2. Scan every target repo
 
@@ -119,7 +118,7 @@ A dirty tree is not evidence that every dirty file belongs to this task.
 
 Use the configured format's types where it applies: `docs`, `feat`, `fix`, `chore`,
 `refactor`, `test`. Never lump unrelated topics. If the grouping needs five or more commits,
-present the grouping; get confirmation only when the existing authorization does not cover it.
+present the grouping and proceed within the task scope.
 
 ### 5. Order the commits
 
@@ -146,7 +145,7 @@ project tracks them.
 
 ### 7. Confirm the staged concern
 
-Inspect the actual staged paths and diff against the authorized concern. Leave unrelated work
+Inspect the actual staged paths and diff against the current concern. Leave unrelated work
 untouched and check for omitted intended files. A file count can help investigate a discrepancy;
 it is not a mandatory parallel bookkeeping system and cannot prove content correctness. Do not
 stage a phantom modification solely to make counts agree. Reuse checks whose source and conditions

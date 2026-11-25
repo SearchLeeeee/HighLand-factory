@@ -168,7 +168,7 @@ install 和 upgrade 默认链接全部核心 skills 和 packs；pack 是否启�
 - `refactor.py`：手动维护准入、候选选择、实施范围、证据与恢复；复用原生命周期读取器和 Wiki validator
 - 其余 skill 通过 `factory gate ...` 调用它们，散文只解释"何时调用"，不重新定义规则
 
-主 agent 在 [关键提交节点](skills/hl-workflow-governance/references/commit-boundaries.md) 通过相应门禁后提交已授权的改动。提交正文记录变更原因、行为或契约影响、验证结果与适用证据。Code AI 在源码中保留理解实现需要的注释，取消固定五字段文件头。
+主 agent 在 [关键提交节点](skills/hl-workflow-governance/references/commit-boundaries.md) 通过相应门禁后，在本地提交本次任务范围内已验证的改动，无需另行授权。推送须单独授权。提交正文记录变更原因、行为或契约影响、验证结果与适用证据。Code AI 在源码中保留理解实现需要的注释，取消固定五字段文件头。
 
 ---
 
@@ -282,7 +282,8 @@ $hl-feature-discuss I001-F01
 
 - 先问你要哪个讨论模式：**交互式**（一次一个问题）或**批量审阅**（把问题写进 workbench，你批量回答）；
 - 若此刻还有可并行开发的其他 Leaf Feature，再问一次开发方式：共用工作区顺序推进，还是为当前 Feature 开一个独立 **git worktree**（worktree 模式直到该 Feature 推进到 `ready-to-merge / ready` 才会问是否合回 `main`）；
-- 只写 `discussion/workbench.md`：问题清单、已确认结论、未决问题、领域划分、文档目标、profile 目标；
+- 涉及新增页面或改变页面外观、交互时，先用 Penpot MCP 查看并讨论对应设计。缺少项目或画板时会提示创建，你也可以跳过。有确认稿的部分按稿实现并逐项对照验收，无稿部分沿用原有流程。[前端设计讨论与交接](skills/hl-workflow-governance/references/frontend-page-design.md)
+- 在 `discussion/workbench.md` 汇总问题清单、已确认结论、未决问题、领域划分、文档目标和 profile 目标。
 - 你明确确认讨论完成后，才创建领域实现文档（含测试用例与验收标准）；
 - 实现文档完成且门禁通过后，在同一会话自动调用 `$hl-feature-profile-generate`，无需再次确认或手动启动 profiles 阶段；
 - 讨论会话在 profiles 阶段结束后产出**一份可复制的启动 prompt**（含 `$hl-feature-orchestrator <Feature ID>`、`FACTORY_ROOT`/`WORK_ROOT`、必读路径、已确认结论、worktree 选择、目标状态），用于在**新会话**里启动实现。

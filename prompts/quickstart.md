@@ -168,7 +168,7 @@ CI 文件、license，然后用「我检测到……」的提案让用户确认�
 至少 3 条非目标；文档/代码/提交语言；repo 模式；代码来源；wiki 来源；技术栈与版本；
 真实命令（setup/build/lint/typecheck/test/e2e/dev/verify）；运行时（Python/Node/uv）；
 服务与端口；架构（形态/模块/依赖方向/数据存储/外部系统/部署/信任边界）；owner 划分；
-安全边界（禁止操作、敏感数据类别、脱敏、密钥存放）；授权（谁批准 commit/push/merge/
+安全边界（禁止操作、敏感数据类别、脱敏、密钥存放）；授权（谁批准 push/merge/
 删除/生产写入，review 与 verification 是否独立）；验证与证据；工作流门禁开关；命名
 规则；git 约定；可选 packs；factory 版本策略。
 

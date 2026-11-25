@@ -1,10 +1,10 @@
 # Workflow Commit Checkpoints
 
 At the checkpoints below, the coordinating agent commits the completed, verified work locally
-within the authorized scope, before the next handoff or final report. Reuse applicable standing
-authorization from the user or project policy across checkpoints and sessions. Resolve any missing
-commit authorization for the planned scope once and carry it in the existing handoff. Approval of a
-plan, selection of work, and permission to start a session, merge or push each have their own scope.
+within the task scope, before the next handoff or final report. Local staging and commits at these
+checkpoints require no separate user authorization or handoff permission. Honor an explicit request
+to defer commits. This rule supersedes earlier factory-generated guidance on commit approval.
+Plan approval, work selection, session creation, merge and push follow their own rules.
 
 ## When to commit
 
@@ -21,14 +21,14 @@ the verified implementation it changed. Skip empty checkpoints and avoid commits
 discussion answers, gate reruns, intermediate edits and scan-only refactor outcomes. Review and
 testing can identify uncommitted sources using a revision plus the relevant diff and new files.
 Only an explicit immutable-source requirement warrants an earlier commit, with the same scope and
-authorization rules and an accurate statement of what is still pending.
+staging rules and an accurate statement of what is still pending.
 
 ## How to commit
 
 - Use `$hl-commit` when enabled. Otherwise follow the project's Git policy and these shared rules.
   Use `repo.commit.format` and `project.language.commit` and honor stricter
   project restrictions. Push, merge and history rewrites require their own applicable authorization.
-- Inspect the actual staged diff and include only the authorized concern. Isolate same-file changes
+- Inspect the actual staged diff and include only the current concern. Isolate same-file changes
   only when their scope can be proven. Preserve unrelated staged and unstaged work, and exclude
   credentials, machine-local data and runtime artifacts. Compare staged sources with the reviewed
   and tested target. Recheck affected conclusions if the staged content changes the verified scope.
@@ -36,8 +36,8 @@ authorization rules and an accurate statement of what is still pending.
   `<code_ai>/_blocks/commit-granularity.md`. In worktree mode, commit the code on the active Feature
   branch and the workspace records in the work repo. Report corresponding revisions for split repos
   or worktrees in the existing handoff.
-- Record each actual commit ID and its scope in the handoff. If authorization, scope, Git access or
-  a required check blocks a commit, report the concrete reason and leave that work uncommitted.
+- Record each actual commit ID and its scope in the handoff. If task scope, Git access or a
+  required check blocks a commit, report the concrete reason and leave that work uncommitted.
   Continue unaffected work allowed by existing gates. A commit never advances lifecycle state or
   proves that a check passed. Reuse applicable evidence when committed content matches what was checked.
 

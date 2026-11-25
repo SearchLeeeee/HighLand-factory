@@ -112,6 +112,8 @@ validation, error/fallback semantics, side effects or contracts. An investigatio
 not authorize its possible follow-up edit. Explicitly enumerate each behavior change for the
 user; `select --ack-behavior` records that item-level decision.
 
+When a proposed behavior item changes what users see or do on a frontend page, apply the [frontend page design discussion](../hl-workflow-governance/references/frontend-page-design.md) as part of selection. Carry the confirmed design or skip decision into that item's existing acceptance and verification.
+
 Request one batch choice: implement IDs, investigate IDs, retain/defer others, and any necessary
 cost tradeoff. Only the user's actual answer or existing explicit instruction supplies selection;
 recommendations and silence do not. Then run `select --ids <csv> --decision <decision>` with any
@@ -191,7 +193,7 @@ Summarise the actual result, realized benefit and cost, source identities, verif
 Wiki coverage/time, remaining/deferred findings and separate-session workflow proposals. State
 which items were fixed, investigated or handed off. No-change scans are valid outcomes.
 After an implemented run closes, apply the [refactor delivery commit checkpoint](../hl-workflow-governance/references/commit-boundaries.md)
-and report the revision or concrete commit blocker. Commit, push and deployment keep their existing authorization boundaries.
+and report the revision or concrete commit blocker. Push and deployment follow their own authorization rules.
 
 For interruption or a requested stop, preserve evidence, use `pause --reason <reason>`, then
 report remaining work and the run ID. Resume the same run with `resume` and recheck its selected
