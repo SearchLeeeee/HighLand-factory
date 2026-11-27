@@ -347,7 +347,7 @@ When `workflow.verification_separate` is on, verification runs in a session sepa
 
 Classify acceptance criteria before implementation. An externally dependent or unprovable item needs an approved evidence mode or a scope decision. Unsupported API or contract conflicts pause the affected work and return to the workbench; keep the goal active. For visual or interaction criteria, require persistent evidence tied to the tested revision, route/state and viewport. Record why visual evidence is not applicable when the Feature has no visual/interaction impact.
 
-For a design-backed criterion, review and verification compare the rendered page and observed interactions with the same approved Penpot version or export. Record the comparison in the existing criterion evidence.
+For a design-backed criterion, review and verification compare the rendered page and observed interactions with the same approved Penpot version or export. Record the comparison in the existing criterion evidence. If a draft changed, carry its accepted version, covered states and main design destination into the merge handoff.
 
 Evidence lands under `verification.evidence_root`, applicable baseline evidence is compared against `verification.baseline_evidence`, and every criterion is recorded as pass, fail, blocked or not verified. Each criterion needs sufficient applicable evidence, not necessarily a new execution. Record the source and conditions of reused evidence; rerun only what changed or remains unproven. Explicit acceptance requirements and safety boundaries are not relaxed.
 

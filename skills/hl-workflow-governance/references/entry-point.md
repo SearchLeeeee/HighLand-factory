@@ -73,7 +73,7 @@ necessary, and preserve existing lifecycle, review, verification and authorizati
   historical capability evidence cannot relax those conditions.
 
 - Complete Initiative inventory, dependency/wave registration and Scope Gate before Leaf discussion.
-- For page changes, use the [frontend page design rules](frontend-page-design.md) before settling implementation details. Carry the design decision in the usual handoff.
+- For page changes, use the [frontend page design rules](frontend-page-design.md) before settling implementation details. Carry any changed draft and its main board destination through the handoff so the merge owner can apply and verify the accepted design before writing the Wiki.
 - After discussion approval, completed implementation documents lead automatically to Code AI
   profile generation in the same session, with no further phase confirmation. Preserve the
   state-machine boundaries, required inputs and workspace gate; honor explicit scope or pause

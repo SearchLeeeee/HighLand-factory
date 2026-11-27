@@ -32,6 +32,8 @@ authority stays with the feature-workspace tools and documentation named by
   in dependency-topological order.
 - The semantic merge preflight scans the registered Initiative and in-scope Leaf roots separately
   for experience. The task-root list comes from the registered merge scope.
+- An accepted UI draft change must be merged into the main design and verified there before
+  the first canonical Wiki edit. The [design merge procedure](frontend-page-design.md#merge-the-accepted-changes-into-the-main-design) also applies to Quick Change handoffs.
 - For each Feature the fixed order is: semantic wiki merge, affected-MOC updates, full long-term
   wiki validation excluding registered process workspaces, retained-history transformation
   after PASS, `merged/completed`, then authority switch and external routing-record update.

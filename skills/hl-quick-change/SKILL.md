@@ -182,6 +182,8 @@ Before completion, record at least the target domain and the candidate authorita
 `wiki_targets`. If the target is undecided, use `wiki_merge_readiness: needs-target`; do not create a
 new authority document in this skill.
 
+For an accepted design edit, include the temporary board/version and its main design destination in the handoff, including on escalation. The Wiki merge owner uses these references to merge and verify the design before writing the long-term Wiki.
+
 The quick skill produces staged source only. A user-authorized wiki update must run through
 `$hl-wiki-merge` for the semantic merge, MOC updates, full validation, retained-history handling and
 authority switch. A validator failure leaves the staged record intact and does not switch authority.

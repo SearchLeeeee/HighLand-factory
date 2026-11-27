@@ -373,6 +373,8 @@ feature_workspace.py initiative-merge-ready    --registry ... --initiative I001
 $hl-wiki-merge <feature-root>
 ```
 
+如果这批改动包含已验收的临时 UI 稿，先把对应改动合回 Penpot 主稿，核对受影响的页面状态与交互，并在合并记录中留下主画板链接。主稿核对通过后，才开始写长期 Wiki。只查看原稿或跳过出稿的任务照常推进。
+
 合并是**语义合并**，不是把 Feature 文档追加进 wiki：
 
 1. 只把长期需要的需求、契约、测试预期、运维事实折叠进现有权威文档和对应 MOC；

@@ -325,7 +325,7 @@ Do not merge merely because `initiative-merge-ready` passes. When
 `workflow.merge_requires_authorization` is true, obtain explicit user authorization for the
 authority switch after presenting the concrete merge scope and the validation result.
 
-Then hand off to `$hl-wiki-merge` in dependency topological order. Provide the registered Initiative root and the manifest roots of the Leaves in this authorized merge scope before any source is sealed. For each Feature:
+Include any accepted UI draft changes and their main Penpot destinations in that scope. Hand off the Initiative root, the in-scope Leaf roots and their design references to `$hl-wiki-merge` before any source is sealed. Its merge owner reconciles the accepted drafts in dependency order and verifies them on the main design before the first canonical Wiki edit. Then merge each Feature in dependency topological order:
 
 1. Re-check `initiative-merge-ready` and the Feature's `merge-ready --feature` gate.
 2. Semantically merge only eligible current documents; retain excluded discussion and agent-profile

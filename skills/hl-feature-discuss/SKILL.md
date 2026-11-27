@@ -238,6 +238,7 @@ The workbench is conclusion-only. It is not a chat transcript and not the final 
 ## Visual and interaction acceptance
 - In scope: yes | no
 - For page changes: confirmed Penpot boards/version and covered states, or the scope for which the user chose to proceed without a mockup.
+- For a new or revised draft, identify its destination in the main design and the main version it was based on, if one existed.
 - Evidence required or reason not applicable:
 
 ## Question inventory

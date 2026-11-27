@@ -85,7 +85,8 @@ direct source-to-product import.
    before inventory.
 3. Stop if the Feature is already `phase: merged`. Check the canonical wiki root, planned target
    paths, target conflicts, and whether required parent directories can be created.
-4. Write a preflight receipt with resolved paths, tool paths, source hash, wiki root, baseline
+4. Check the originating handoff for accepted UI draft changes, including Quick Changes and every Leaf in the authorized scope. Identify the accepted versions and main design destinations for canonical apply.
+5. Write a preflight receipt with resolved paths, tool paths, source hash, wiki root, baseline
    version-control status, and planned output files. Do not edit anything during preflight.
 
 ### 2. Inventory And Mapping Plan
@@ -107,13 +108,15 @@ For each contested claim, use targeted history tracing against its old decision 
 
 ### 3. Canonical Apply
 
-1. For a registered Feature, confirm explicit authorization before the first canonical write when
-   `workflow.merge_requires_authorization` is true.
-2. Apply only the completed mapping to canonical wiki documents and affected MOCs. Create a topic
+1. Check the applicable merge authorization before writing to the main design or the Wiki. A
+   registered Feature requires explicit authorization when `workflow.merge_requires_authorization`
+   is true. For a Quick Change, use its user-authorized Wiki handoff.
+2. Before writing any canonical Wiki document or MOC, follow the [main design merge procedure](../hl-workflow-governance/references/frontend-page-design.md#merge-the-accepted-changes-into-the-main-design) for accepted UI draft changes in the authorized scope. Verify the result on each main board and record its reference in the apply receipt. An unresolved design merge blocks canonical apply.
+3. Apply only the completed mapping to canonical wiki documents and affected MOCs. Create a topic
    MOC only when the merge adds the first authority document in that area, then link the new MOC
    from the relevant topic index within the three-link limit. Do not create empty MOCs for unused topics. Record before/after hashes in the
    apply receipt.
-3. Apply accepted experience to the appropriate role, topic or home in the same change as the long-term facts. Retire or narrow affected outdated claims where evidence supports it, retaining live exceptions and entry points. Defer unrelated historical cleanup to manual maintenance. Keep integration semantic and concise. Do not modify source Feature manifests, retained-history
+4. Apply accepted experience to the appropriate role, topic or home in the same change as the long-term facts. Retire or narrow affected outdated claims where evidence supports it, retaining live exceptions and entry points. Defer unrelated historical cleanup to manual maintenance. Keep integration semantic and concise. Do not modify source Feature manifests, retained-history
    files, tombstones or registry routing during this phase.
 
 ### 4. Validate
